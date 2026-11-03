@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Ramyasri's Trading Course</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a trading-desk notebook. The six levels are drawn as an uptrend of candles
+   (higher highs, higher lows); each candle fills green as lessons are done.
+   Views: #map (home), #level-1..#level-6, #glossary. Single file, no build step,
+   so it can move to a private repo as-is. */
+:root {
+  --bg: #f3f4ef;          /* cool paper */
+  --surface: #ffffff;
+  --sunken: #e8eae2;
+  --ink: #17222b;         /* chart-ink navy */
+  --muted: #5b6770;
+  --line: #d3d7cd;
+  --accent: #0e5a6b;      /* deep sea teal: links, focus */
+  --accent-soft: #d6e8ea;
+  --up: #1d7f55;          /* bullish candle */
+  --up-soft: #d5eee1;
+  --down: #b8423a;        /* bearish candle */
+  --down-soft: #f5dcd8;
+  --mark: #c98a0b;        /* marigold: "you are here" */
+  --mark-soft: #f7e7c2;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+    --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+    --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+  --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+  --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.top .wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { font: 700 18px/1 var(--f-display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.brand svg { flex: none; }
+nav.tabs { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+nav.tabs a {
+  text-decoration: none; color: var(--muted); font-weight: 700; font-size: 14px;
+  padding: 6px 12px; border-radius: 999px;
+}
+nav.tabs a[aria-current="page"] { background: var(--ink); color: var(--bg); }
+nav.tabs a:hover:not([aria-current="page"]) { color: var(--ink); background: var(--sunken); }
+
+main { padding-top: 28px; }
+.view { display: grid; gap: 32px; }
+
+/* summary */
+.hello { display: grid; gap: 8px; }
+.hello h1 { font-size: clamp(28px, 5vw, 42px); }
+.hello p { margin: 0; color: var(--muted); max-width: 62ch; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.stat b { font: 600 22px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 13px; }
+.stat.next b { font: 700 15px/1.35 var(--f-body); }
+.stat.next a { text-decoration: none; }
+@media (max-width: 720px) { .stats { grid-template-columns: 1fr 1fr; } .stat.next { grid-column: 1 / -1; } }
+
+/* candle map */
+.chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 18px 8px; display: grid; gap: 6px; }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.chart-head h2 { font-size: 20px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.chart-scroll { overflow-x: auto; }
+svg.candles { display: block; width: 100%; min-width: 520px; height: auto; }
+svg.candles text { fill: var(--muted); font-family: var(--f-mono); }
+svg.candles .lvl-label { fill: var(--ink); font-weight: 600; }
+svg.candles a { cursor: pointer; }
+svg.candles a:hover .body-outline, svg.candles a:focus .body-outline { stroke: var(--accent); stroke-width: 3; }
+
+/* level cards */
+.levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .levels { grid-template-columns: 1fr; } }
+.lvl {
+  display: grid; gap: 8px; align-content: start; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px;
+}
+.lvl:hover { border-color: var(--accent); }
+.lvl.current { border-color: var(--mark); box-shadow: 0 0 0 1px var(--mark); }
+.lvl-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.lvl h3 { font-size: 18px; }
+.lvl p { margin: 0; color: var(--muted); font-size: 14px; }
+.lvl .meta { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+.bar { height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--up); border-radius: 99px; }
+
+.chip { font: 600 11px/1 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; padding: 5px 8px; border-radius: 99px; white-space: nowrap; }
+.chip.done { background: var(--up-soft); color: var(--up); }
+.chip.now { background: var(--mark-soft); color: var(--mark); }
+.chip.locked { background: var(--sunken); color: var(--muted); }
+.chip.learn { background: var(--down-soft); color: var(--down); }
+
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .rules { grid-template-columns: 1fr; } }
+.rule { border-top: 3px solid var(--ink); padding-top: 10px; }
+.rule b { font-family: var(--f-display); font-size: 17px; display: block; margin-bottom: 4px; }
+.rule p { margin: 0; color: var(--muted); font-size: 14px; }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.section-title h2 { font-size: 22px; }
+
+/* level detail */
+.crumbs { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+.crumbs a { text-decoration: none; font-weight: 700; }
+.lvl-hero { display: grid; gap: 10px; }
+.lvl-hero h1 { font-size: clamp(26px, 4.6vw, 38px); }
+.lvl-hero p { margin: 0; max-width: 66ch; color: var(--muted); }
+.lvl-hero .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.note { background: var(--mark-soft); color: var(--ink); border-radius: var(--r); padding: 12px 14px; font-size: 14px; max-width: 72ch; }
+.note.warn { background: var(--down-soft); }
+.cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .cols { grid-template-columns: 1fr; } }
+.panel { display: grid; gap: 12px; }
+.panel h2 { font-size: 20px; }
+
+ol.lessons { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+ol.lessons li { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); }
+ol.lessons li:first-child { border-top: 0; }
+ol.lessons li.is-done .ltitle { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+ol.lessons li.is-next { background: var(--mark-soft); }
+.lnum { font: 600 13px/1 var(--f-mono); color: var(--muted); width: 3.2em; }
+.ltitle { min-width: 0; }
+.lopen { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.lopen.soon { color: var(--muted); font-weight: 400; font-style: italic; }
+@media (max-width: 540px) {
+  ol.lessons li { grid-template-columns: auto auto minmax(0, 1fr); }
+  .lopen { grid-column: 3; }
+}
+
+.tick { appearance: none; -webkit-appearance: none; margin: 0; width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+.tick:checked { background: var(--up); border-color: var(--up); }
+.tick:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--surface); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.tick:disabled { opacity: .4; cursor: not-allowed; }
+
+ul.goals { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+ul.goals label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+ul.goals .tick { margin-top: 1px; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; }
+.box h3 { font-size: 16px; }
+.box p { margin: 0; font-size: 15px; }
+.terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.terms a { text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.terms a:hover { text-decoration: underline; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; }
+.pager a { text-decoration: none; font-weight: 700; }
+
+/* glossary */
+.gl-tools { display: grid; gap: 12px; }
+.search { width: 100%; max-width: 520px; font: 16px var(--f-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { font: 700 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 5px 12px; border-radius: 99px; cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.gl-count { color: var(--muted); font-size: 14px; }
+dl.gloss { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+@media (max-width: 760px) { dl.gloss { grid-template-columns: 1fr; } }
+.term { padding: 14px 0; border-top: 1px solid var(--line); min-width: 0; scroll-margin-top: 90px; }
+.term.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: var(--mark-soft); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .term.flash { animation: none; background: var(--mark-soft); } }
+.term dt { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font: 700 17px/1.3 var(--f-display); }
+.term dt small { font: 600 11px var(--f-mono); color: var(--muted); letter-spacing: .05em; }
+.term dd { margin: 4px 0 0; color: var(--ink); font-size: 15px; }
+.empty { color: var(--muted); padding: 24px 0; }
+
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.save-state::before { content: "● "; color: var(--muted); }
+.save-state.ok::before { color: var(--up); }
+.save-state.local::before { color: var(--mark); }
+.linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#map">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+        <line x1="5" y1="6" x2="5" y2="20" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="2.5" y="10" width="5" height="7" fill="var(--down)"/>
+        <line x1="12" y1="3" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="9.5" y="5" width="5" height="8" fill="var(--up)"/>
+        <line x1="19" y1="1" x2="19" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="16.5" y="2" width="5" height="7" fill="var(--up)"/>
+      </svg>
+      Trading Course
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#map" data-tab="map">Level map</a>
+      <a href="#level-1" data-tab="level">Lessons</a>
+      <a href="#glossary" data-tab="glossary">Glossary</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<div class="wrap">
+  <footer>
+    <span class="save-state" id="saveState">Loading your progress…</span>
+    <span>Indian market (NSE/BSE). For learning, not investment advice. <button class="linkbtn" id="resetBtn" type="button">Reset progress</button></span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   COURSE DATA. Lesson links: when a lesson page is published,
+   put its URL in LESSON_URLS under the lesson's id ("1.01" etc).
+   ============================================================ */
+const LESSON_URLS = {
+  // "1.01": "https://claude.ai/artifact/....",
+};
+
+const LEVELS = [
+  {
+    n: 1, title: "Market basics", short: "Basics", weeks: "2 to 3 weeks",
+    intro: "What the stock market is, who runs it, and how a buy order travels from your phone to the exchange.",
+    lessons: [
+      "Money, inflation and why people invest (₹100 today vs in 10 years)",
+      "What a share is: owning a slice of a company like Reliance or TCS",
+      "How a company lists: IPOs, the primary vs secondary market",
+      "NSE, BSE and SEBI: who does what, and how SEBI protects you",
+      "Indices: Nifty 50, Sensex, Bank Nifty, and sector indices",
+      "Brokers, demat and trading accounts, CDSL/NSDL, and choosing a broker",
+      "Market timings: pre-open (9:00 to 9:15), normal session (9:15 to 3:30), holidays",
+      "Order types: market, limit, stop-loss (SL and SL-M), GTT, and product types (CNC, MIS, NRML)",
+      "Settlement (T+1), circuits, bid/ask, volume and liquidity",
+      "Costs and taxes: brokerage, STT, GST, stamp duty, DP charges, and how gains are taxed"
+    ],
+    terms: ["Share","Equity","IPO","Index","Nifty 50","Sensex","NSE","BSE","Broker","Demat account","DP","SEBI","T+1","Bid","Ask","Spread","Circuit limit","Market order","Limit order","Stop-loss","SL-M","GTT","CNC","MIS","NRML","Liquidity","STT","STCG","LTCG"],
+    goals: [
+      "Explain in your own words what happens when you press Buy",
+      "Calculate the full cost (brokerage, STT, GST, stamp duty) of a ₹10,000 trade",
+      "Know the difference between CNC and MIS and when each is used",
+      "Score 80% or more on the Level 1 checkpoint"
+    ],
+    practice: [
+      "Look up the Nifty 50's closing value for the last 5 days on nseindia.com and note the daily change",
+      "Read one real NSE stock page (for example INFY) and name every number on it",
+      "Place 5 paper orders (one of each order type) in the practice tool and start your trading journal"
+    ],
+    data: "Historical Nifty 50 levels since 2000 (the 2008 crash, the March 2020 crash and recovery) to show what markets do over time."
+  },
+  {
+    n: 2, title: "Fundamentals and valuation", short: "Fundamentals", weeks: "3 to 4 weeks",
+    intro: "Judge whether a company is healthy and fairly priced, so you pick strong stocks and understand why results days move prices.",
+    lessons: [
+      "How a business makes money: revenue, costs, profit",
+      "Reading the profit and loss statement (a real annual report, such as HDFC Bank or Asian Paints)",
+      "Reading the balance sheet: assets, debt, equity",
+      "Cash flow: why cash matters more than reported profit",
+      "Key ratios: P/E, P/B, EPS, ROE, ROCE, debt-to-equity, dividend yield",
+      "Valuation basics: cheap vs expensive, comparing peers within a sector",
+      "Quarterly results, management commentary, and why stocks gap on results day",
+      "Corporate actions: dividends, bonus, splits, buybacks, rights issues",
+      "Red flags: promoter pledging, falling margins, auditor resignations, governance issues"
+    ],
+    terms: ["Revenue","EBITDA","Net profit","EPS","P/E ratio","P/B ratio","ROE","ROCE","Debt-to-equity","Free cash flow","Dividend yield","Market cap","Large, mid and small cap","Promoter holding","Pledge","FII and DII","Bonus issue","Stock split","Buyback"],
+    goals: [
+      "Read a real company's quarterly results and say whether they were good or bad, with numbers",
+      "Compare 3 companies in one sector on 5 ratios and pick the strongest",
+      "Spot at least 2 red flags in a case study",
+      "Score 80% or more on the Level 2 checkpoint"
+    ],
+    practice: [
+      "Build a watchlist of 20 fundamentally strong Nifty 100 stocks, with a one-line reason for each",
+      "Track one company through a results announcement and log how the price reacted the next day"
+    ],
+    data: "Real annual reports and quarterly filings from NSE/BSE, and case studies of real collapses (for example Yes Bank 2018 to 2020) and steady compounders."
+  },
+  {
+    n: 3, title: "Technical analysis", short: "Charts", weeks: "5 to 6 weeks",
+    intro: "Read price charts, the core skill of short-term trading. The longest level, almost all on real NSE charts.",
+    lessons: [
+      "What a chart shows: line vs candlestick, timeframes (1-minute to monthly)",
+      "Candlestick basics: body, wicks, doji, hammer, engulfing, and buyers vs sellers",
+      "Trends: higher highs and higher lows, trendlines, trading with the trend",
+      "Support and resistance: why prices pause at certain levels, breakouts and fake breakouts",
+      "Volume: confirming moves, volume spikes, delivery percentage on NSE",
+      "Moving averages: SMA, EMA, the 20/50/200, crossovers",
+      "Momentum indicators: RSI, MACD, and divergence",
+      "Volatility: Bollinger Bands, ATR (used for stop-losses later)",
+      "Intraday tools: VWAP, opening range, previous day high/low, pivot points",
+      "Chart patterns: flags, triangles, double tops/bottoms, head and shoulders, cup and handle",
+      "Multi-timeframe analysis: daily for direction, 15-minute for entry",
+      "Your first code: download real NSE data with Python and plot candles plus indicators"
+    ],
+    terms: ["OHLC","Candlestick","Doji","Timeframe","Trend","Support","Resistance","Breakout","Volume","Delivery %","SMA","EMA","RSI","MACD","Bollinger Bands","ATR","VWAP","Pivot points","Gap up / gap down","Divergence"],
+    goals: [
+      "On 10 unseen real charts, correctly mark trend, support and resistance",
+      "Explain what RSI, MACD, VWAP and ATR measure, and one weakness of each",
+      "Write a script that fetches 2 years of daily data for a stock and computes 3 indicators",
+      "Score 80% or more on the Level 3 checkpoint"
+    ],
+    practice: [
+      "Chart replay: the tool hides the future on a real past chart; you predict up or down and see the result (aim for 50 replays)",
+      "Mark support and resistance on Nifty, Bank Nifty and 5 watchlist stocks every weekend"
+    ],
+    data: "Real daily and intraday candles from NSE stocks and indices, including famous moves (for example Adani group stocks in Jan 2023, Nifty on election result day in June 2024)."
+  },
+  {
+    n: 4, title: "Short-term strategies", short: "Strategies", weeks: "6 to 8 weeks", main: true,
+    intro: "The main focus of the course. A small set of setups, each with exact rules for entry, stop-loss, target and exit, tested on real data before you trust it. Swing is your main style: plan in the evening, place orders with stop-losses before work. Intraday is practised on days off only.",
+    lessons: [
+      "Trading styles compared: scalping, intraday, swing, positional, and which fits a working person",
+      "Anatomy of a trading plan: setup, entry trigger, stop-loss, target, position size, exit",
+      "Stock selection: scanners, liquidity filters, sector strength, news and results calendars",
+      "Swing setup 1: pullback to the 20 EMA in an uptrend",
+      "Swing setup 2: breakout from a base with volume",
+      "Swing setup 3: support bounce with a reversal candle",
+      "How the intraday day works: pre-market, the first 15 minutes, lunch lull, the last hour, MIS auto square-off",
+      "Intraday setup 1: Opening Range Breakout (ORB)",
+      "Intraday setup 2: VWAP pullback and VWAP reclaim",
+      "Gaps: gap-and-go vs gap fill, and trading results-day moves",
+      "Reviewing trades: win rate, average win vs average loss, expectancy"
+    ],
+    terms: ["Swing trading","Intraday trading","Setup","Trigger","Entry","Stop-loss","Target","Risk-reward ratio","Trailing stop","Scanner","ORB","VWAP pullback","Gap-and-go","Square-off","Win rate","Expectancy","Slippage","Paper trading"],
+    goals: [
+      "Write a full one-page trading plan for one swing and one intraday setup",
+      "Manually backtest each setup on 30 real past examples and record the results",
+      "Paper trade at least 40 trades over 4 weeks, every one logged in the journal",
+      "Show positive expectancy on paper, or explain clearly why it isn't working"
+    ],
+    practice: [
+      "Daily: run the scanner after market close, pick 0 to 3 swing candidates, write the plan before 9:15 next day",
+      "Intraday practice: paper trade the ORB live on days off, and on chart replay at weekends",
+      "Weekly: review the journal and calculate win rate and expectancy"
+    ],
+    data: "Real past setups on Nifty 100 stocks (good trades and failed ones), then live market data in the paper trading tool."
+  },
+  {
+    n: 5, title: "Risk management and psychology", short: "Risk", weeks: "3 to 4 weeks",
+    intro: "This level decides whether you survive as a trader. Most beginners lose money because they risk too much and break their own rules, not because their setups are bad.",
+    earlyLessons: 3,
+    lessons: [
+      "The 1% rule: never risk more than 1% of your capital on one trade",
+      "Position sizing: shares = (capital × risk %) ÷ (entry − stop-loss), with worked ₹ examples",
+      "Risk-reward and expectancy: why a 40% win rate can still make money",
+      "Daily and weekly loss limits, and when to stop trading for the day",
+      "Drawdowns: the maths of recovery (a 50% loss needs a 100% gain)",
+      "Leverage and margin: how MIS leverage and F&O magnify losses",
+      "Trading psychology: fear, greed, FOMO, revenge trading, overconfidence after a win streak",
+      "The trading journal as a mirror: tagging mistakes and emotions",
+      "Building routines: pre-market checklist, post-market review, rules you never break"
+    ],
+    terms: ["1% rule","Risk per trade","Position size","R-multiple","Expectancy","Drawdown","Max loss limit","Leverage","Margin","Margin call","FOMO","Revenge trading","Tilt","Trading journal"],
+    goals: [
+      "Size any trade correctly in under a minute",
+      "Write your personal risk rules (max risk per trade, per day, per month)",
+      "Complete 30 more paper trades with zero rule breaks",
+      "Score 80% or more on the Level 5 checkpoint"
+    ],
+    practice: [
+      "Use the position-size calculator on every paper trade",
+      "Monthly review: your biggest 3 mistakes and the rule that would have prevented each"
+    ],
+    data: "Your own paper trading journal, plus real examples of sharp moves that wiped out over-leveraged traders (for example the March 2020 crash)."
+  },
+  {
+    n: 6, title: "Expert: F&O, backtesting, your own system", short: "Expert", weeks: "8 to 10 weeks",
+    intro: "Derivatives, then everything so far turned into a tested, rule-based system written in code. F&O is learn-only: you will never trade it. You learn it because option data (open interest, India VIX) reads market mood for your swing trades, and so no one can sell you an F&O \"opportunity\" you don't understand.",
+    learnOnly: 6,
+    lessons: [
+      "Futures: lot size, margin, expiry, rollover, mark-to-market",
+      "Options basics: calls, puts, strike, premium, ITM/ATM/OTM, buyer vs seller risk",
+      "Option pricing and the Greeks: delta, theta, vega, gamma, and implied volatility (India VIX)",
+      "Reading the option chain: open interest, PCR, max pain, and what they really tell you",
+      "Option strategies with defined risk: spreads, straddles, strangles, iron condors",
+      "SEBI's F&O rules: lot sizes, weekly expiries, margin rules, and how F&O profits are taxed",
+      "Backtesting properly: clean data, transaction costs, slippage, and avoiding look-ahead bias",
+      "Code a backtester in Python (pandas, plus backtrader or vectorbt) using real NSE data",
+      "Measuring a strategy: CAGR, max drawdown, Sharpe ratio, profit factor",
+      "Overfitting and walk-forward testing: why a perfect backtest usually fails live",
+      "Algo trading in India: broker APIs, SEBI's retail algo framework, and order automation",
+      "Capstone: design, backtest, paper trade and document your own system"
+    ],
+    terms: ["Futures","Lot size","Expiry","Rollover","MTM","Call option","Put option","Strike price","Premium","ITM, ATM, OTM","Open interest (OI)","PCR","Implied volatility (IV)","India VIX","Delta","Theta","Vega","Gamma","Option spread","Backtest","Look-ahead bias","Overfitting","Walk-forward testing","Sharpe ratio","CAGR","Profit factor"],
+    goals: [
+      "Explain any option position's maximum profit, maximum loss and break-even before entering it",
+      "Backtest a strategy over 5+ years of real data, including costs, and show realistic results",
+      "Paper trade your own system for 3 months with results close to the backtest",
+      "Present your system as a written document a stranger could follow"
+    ],
+    practice: [
+      "For 4 weeks, read the Nifty option chain and India VIX before planning swing trades, and note what they told you",
+      "Publish your backtester and capstone results on your own site"
+    ],
+    data: "Historical Nifty option chains and futures data, years of NSE daily and intraday prices for backtests, and live data for the capstone."
+  }
+];
+LEVELS.forEach(L => { L.ids = L.lessons.map((_, i) => L.n + "." + String(i + 1).padStart(2, "0")); });
+
+/* Glossary: term -> [level first taught, plain-English meaning] */
+const GLOSSARY = {
+  "Share": [1, "One small unit of ownership in a company. Own 1 share of Infosys and you own a tiny slice of its business and profits."],
+  "Equity": [1, "Ownership in a company. \"Equity shares\" are ordinary shares; \"equity\" on a balance sheet is what the owners' stake is worth after debts."],
+  "IPO": [1, "Initial Public Offering: the first time a company sells shares to the public and gets listed on NSE/BSE. This is the primary market."],
+  "Index": [1, "A single number that tracks a basket of stocks, so you can see how the market or a sector is doing as a whole."],
+  "Nifty 50": [1, "NSE's main index: 50 large companies across sectors. When people say \"the market is up\", they usually mean the Nifty."],
+  "Sensex": [1, "BSE's main index of 30 large companies. Moves very much like the Nifty 50."],
+  "NSE": [1, "National Stock Exchange of India, in Mumbai. Most Indian stock trading by volume happens here."],
+  "BSE": [1, "Bombay Stock Exchange, Asia's oldest exchange. Many stocks trade on both NSE and BSE at nearly the same price."],
+  "Broker": [1, "A SEBI-registered firm (Zerodha, Groww, Upstox, Angel One) that sends your orders to the exchange. You cannot trade on NSE directly."],
+  "Demat account": [1, "Dematerialised account: where your shares are held electronically, like a bank account for shares."],
+  "DP": [1, "Depository Participant: the firm (usually your broker) that runs your demat account with CDSL or NSDL. They charge a small DP fee when you sell shares."],
+  "SEBI": [1, "Securities and Exchange Board of India: the market regulator. It writes the rules, registers brokers and advisers, and punishes fraud."],
+  "T+1": [1, "Settlement one working day after the trade. Buy on Monday and the shares reach your demat on Tuesday."],
+  "Bid": [1, "The highest price a buyer is currently willing to pay for a stock."],
+  "Ask": [1, "The lowest price a seller is currently willing to accept. Also called the offer."],
+  "Spread": [1, "The gap between the bid and the ask. A small spread means the stock is liquid and cheap to trade."],
+  "Circuit limit": [1, "The maximum a stock may move in one day (2%, 5%, 10% or 20% bands set by the exchange). At the limit, trading can freeze on one side."],
+  "Market order": [1, "Buy or sell immediately at the best available price. Fast, but you don't control the exact price."],
+  "Limit order": [1, "Buy or sell only at your chosen price or better. You control price, but it may not fill."],
+  "Stop-loss": [1, "A pre-set exit price that limits your loss if the trade goes wrong. Every trade in this course has one before entry."],
+  "SL-M": [1, "Stop-loss market order: when the trigger price is hit, it sells at market. SL (stop-loss limit) instead sends a limit order, which may not fill in a fast fall."],
+  "GTT": [1, "Good Till Triggered: an order that waits on the broker's system for weeks until your price is hit. Useful for swing traders with a day job."],
+  "CNC": [1, "Cash and Carry: delivery trades. You pay the full amount and can hold the shares as long as you like. Your swing trades use CNC."],
+  "MIS": [1, "Margin Intraday Square-off: intraday product with leverage. The broker closes the position automatically before the market shuts (around 3:15 to 3:25 pm)."],
+  "NRML": [1, "Normal product for futures and options positions held overnight. Learn-only for you."],
+  "Liquidity": [1, "How easily you can buy or sell without moving the price. High volume and a tight spread mean good liquidity."],
+  "STT": [1, "Securities Transaction Tax, charged by the government on every trade. On delivery trades it is 0.1% on both buy and sell."],
+  "STCG": [1, "Short-term capital gains: profit on shares held 12 months or less. Taxed at 20% (rates from the July 2024 Budget; check each year). Intraday profit is taxed differently, as business income."],
+  "LTCG": [1, "Long-term capital gains: profit on shares held over 12 months. Gains above ₹1.25 lakh a year are taxed at 12.5% (July 2024 Budget rates)."],
+
+  "Revenue": [2, "Total money a company earns from selling its products or services, before any costs. Also called sales or top line."],
+  "EBITDA": [2, "Earnings before interest, tax, depreciation and amortisation: a rough measure of operating profit from the core business."],
+  "Net profit": [2, "What is left after every cost, interest and tax. Also called PAT (profit after tax) or bottom line."],
+  "EPS": [2, "Earnings per share: net profit divided by the number of shares."],
+  "P/E ratio": [2, "Price ÷ EPS. How many rupees investors pay for ₹1 of yearly profit. Compare it within a sector, not across sectors."],
+  "P/B ratio": [2, "Price ÷ book value per share. Most useful for banks and financial companies."],
+  "ROE": [2, "Return on equity: net profit ÷ shareholders' equity. How well the company earns on the owners' money. Above 15% is usually good."],
+  "ROCE": [2, "Return on capital employed: operating profit ÷ (equity + debt). Like ROE, but counts borrowed money too."],
+  "Debt-to-equity": [2, "Total debt ÷ equity. Below 1 is usually comfortable for non-financial companies; high debt makes bad years dangerous."],
+  "Free cash flow": [2, "Cash left after running the business and paying for new assets. Profit can be adjusted on paper; cash is harder to fake."],
+  "Dividend yield": [2, "Yearly dividend ÷ share price, as a percentage."],
+  "Market cap": [2, "Share price × total shares: what the market values the whole company at."],
+  "Large, mid and small cap": [2, "SEBI's size groups: the top 100 companies by market cap are large caps, 101 to 250 mid caps, the rest small caps. Smaller usually means more volatile."],
+  "Promoter holding": [2, "The share of the company owned by its founders or controlling group. Falling promoter holding can be a warning."],
+  "Pledge": [2, "When promoters use their shares as security for a loan. If the price falls, lenders may sell those shares, pushing the price down further."],
+  "FII and DII": [2, "Foreign and domestic institutional investors (funds, insurers, banks). Their daily buying and selling, published by NSE, moves the market."],
+  "Bonus issue": [2, "Free extra shares given to shareholders (for example 1:1). The price adjusts down; your total value doesn't change."],
+  "Stock split": [2, "One share is divided into several (₹10 face value into five ₹2 shares). More shares at a lower price, same total value."],
+  "Buyback": [2, "The company buys its own shares from shareholders, usually at a premium. Often a sign management thinks the stock is cheap."],
+
+  "OHLC": [3, "Open, High, Low, Close: the four prices that make up one bar or candle for a period."],
+  "Candlestick": [3, "A chart bar showing OHLC. The body runs from open to close (green if it closed higher, red if lower); wicks show the high and low."],
+  "Doji": [3, "A candle where open and close are almost equal: buyers and sellers ended in a draw. Often seen at turning points."],
+  "Timeframe": [3, "How much time each candle covers: 1-minute, 15-minute, daily, weekly. Swing traders mostly read the daily chart."],
+  "Trend": [3, "The general direction of price. An uptrend makes higher highs and higher lows; a downtrend makes lower highs and lower lows."],
+  "Support": [3, "A price area where buying has stopped falls before. Price often bounces there, until it breaks."],
+  "Resistance": [3, "A price area where selling has stopped rises before."],
+  "Breakout": [3, "Price closing beyond resistance (or below support), ideally with high volume. A false breakout reverses quickly."],
+  "Volume": [3, "How many shares traded in a period. Big moves on high volume are more believable."],
+  "Delivery %": [3, "The share of the day's traded quantity actually taken into demat (not squared off intraday). NSE publishes it daily; high delivery suggests real buying."],
+  "SMA": [3, "Simple moving average: the plain average of the last N closes, drawn as a line."],
+  "EMA": [3, "Exponential moving average: like an SMA, but gives more weight to recent prices, so it reacts faster. The 20 EMA is used in swing setup 1."],
+  "RSI": [3, "Relative Strength Index, 0 to 100: how strong recent gains are versus losses. Above 70 is often called overbought, below 30 oversold."],
+  "MACD": [3, "Moving Average Convergence Divergence: the gap between two EMAs (usually 12 and 26) and its signal line. Shows momentum shifts."],
+  "Bollinger Bands": [3, "Bands drawn 2 standard deviations above and below a 20-period average. They widen when the market is volatile and squeeze when it is quiet."],
+  "ATR": [3, "Average True Range: the average size of a day's move. Used to set stop-losses outside normal noise."],
+  "VWAP": [3, "Volume-weighted average price for the day. Intraday traders and institutions treat it as the day's fair price."],
+  "Pivot points": [3, "Support and resistance levels calculated from the previous day's high, low and close."],
+  "Gap up / gap down": [3, "When today's open is well above (or below) yesterday's close, leaving an empty space on the chart. Common after results or news."],
+  "Divergence": [3, "When price makes a new high but an indicator like RSI doesn't (or the reverse). A hint that momentum is fading."],
+
+  "Swing trading": [4, "Holding trades for a few days to a few weeks to catch one move. Your main style, because you can plan in the evening and act before work."],
+  "Intraday trading": [4, "Opening and closing a trade on the same day. You learn it fully, but practise it only on days off."],
+  "Paper trading": [4, "Practising with pretend money on real prices. You paper trade every strategy for at least 3 months before using real money."],
+  "Setup": [4, "A specific chart situation your plan looks for, such as a pullback to the 20 EMA in an uptrend."],
+  "Trigger": [4, "The exact event that tells you to enter, such as price crossing above the previous candle's high."],
+  "Entry": [4, "The price at which you open a trade."],
+  "Target": [4, "The price at which you plan to take profit."],
+  "Risk-reward ratio": [4, "Possible reward ÷ possible risk. Risking ₹10 to make ₹20 is 1:2."],
+  "Trailing stop": [4, "A stop-loss you move up as price moves in your favour, to lock in profit."],
+  "Scanner": [4, "A filter that searches all stocks for your setup, such as \"Nifty 200 stocks above the 50 EMA with volume over 2× average\"."],
+  "ORB": [4, "Opening Range Breakout: mark the high and low of the first 15 minutes after 9:15 and trade a break of either side."],
+  "VWAP pullback": [4, "An intraday setup: in a trending stock, enter when price pulls back to VWAP and holds."],
+  "Gap-and-go": [4, "A stock that gaps up and keeps going in the same direction instead of filling the gap."],
+  "Square-off": [4, "Closing an open position. MIS positions are squared off automatically near the close."],
+  "Win rate": [4, "Winning trades ÷ total trades. A low win rate can still be profitable if winners are bigger than losers."],
+  "Expectancy": [4, "Average profit or loss per trade over many trades: (win rate × average win) − (loss rate × average loss). Must be positive."],
+  "Slippage": [4, "The difference between the price you expected and the price you got. A real cost, especially in fast markets."],
+
+  "1% rule": [5, "Never risk more than 1% of your trading capital on a single trade. With ₹1,00,000, the most you can lose on one trade is ₹1,000."],
+  "Risk per trade": [5, "The rupees you lose if the stop-loss is hit: (entry − stop) × shares."],
+  "Position size": [5, "How many shares to buy: (capital × risk %) ÷ (entry − stop). It comes from your stop, not your hunch."],
+  "R-multiple": [5, "Profit or loss measured in units of initial risk. Risk ₹500, make ₹1,500: a 3R win."],
+  "Drawdown": [5, "The fall from your account's peak to its lowest point. A 50% drawdown needs a 100% gain to recover."],
+  "Max loss limit": [5, "Your personal cap per day, week or month. Hit it and you stop trading until the next period."],
+  "Leverage": [5, "Trading a bigger position than your cash, using borrowed money (MIS margin, F&O). It multiplies losses as fast as gains."],
+  "Margin": [5, "The money your broker blocks as a deposit to let you take a leveraged position."],
+  "Margin call": [5, "When losses eat into your margin and the broker demands more money or closes your position."],
+  "FOMO": [5, "Fear of missing out: chasing a stock that already ran up, usually at the worst price."],
+  "Revenge trading": [5, "Jumping into new trades to win back a loss quickly. One of the fastest ways to empty an account."],
+  "Tilt": [5, "An emotional state where you stop following your rules after losses or frustration."],
+  "Trading journal": [5, "Your record of every trade: the plan, entry, exit, result, emotions and mistakes. You start it in Level 1."],
+
+  "Futures": [6, "A contract to buy or sell at a fixed price on a future date. Traded in lots, with leverage. Learn-only."],
+  "Lot size": [6, "The fixed number of shares or units in one F&O contract, set by the exchange."],
+  "Expiry": [6, "The date an F&O contract ends."],
+  "Rollover": [6, "Closing an expiring futures position and opening the same position in the next month's contract."],
+  "MTM": [6, "Mark-to-market: F&O profits and losses are settled into your account every day, not just at the end."],
+  "Call option": [6, "The right, not the obligation, to buy at the strike price before expiry. Buyers profit if price rises enough."],
+  "Put option": [6, "The right, not the obligation, to sell at the strike price before expiry. Buyers profit if price falls enough."],
+  "Strike price": [6, "The fixed price in an option contract."],
+  "Premium": [6, "The price paid to buy an option. A buyer's maximum loss; a seller's maximum gain."],
+  "ITM, ATM, OTM": [6, "In, at, or out of the money: whether an option's strike is already profitable, right at the current price, or not yet profitable."],
+  "Open interest (OI)": [6, "The number of F&O contracts still open. Big OI at a strike often acts like support or resistance. You'll read it for swing context."],
+  "PCR": [6, "Put-call ratio: put open interest ÷ call open interest. A rough sentiment gauge."],
+  "Implied volatility (IV)": [6, "The future volatility that option prices are assuming. High IV makes options expensive."],
+  "India VIX": [6, "NSE's fear index, built from Nifty option prices. A spike means traders expect big moves."],
+  "Delta": [6, "How much an option's price moves for a ₹1 move in the underlying."],
+  "Theta": [6, "How much value an option loses each day from time passing. It works against option buyers."],
+  "Vega": [6, "How much an option's price changes when implied volatility changes by 1 point."],
+  "Gamma": [6, "How fast delta itself changes as price moves."],
+  "Option spread": [6, "Buying one option and selling another at a different strike to cap both risk and reward."],
+  "Backtest": [6, "Running your rules on past data to see how they would have performed, including costs."],
+  "Look-ahead bias": [6, "A backtest bug where the code uses information that wasn't available at the time of the trade. It makes results look far better than reality."],
+  "Overfitting": [6, "Tuning a strategy so closely to past data that it fails on new data."],
+  "Walk-forward testing": [6, "Optimising on one period, then testing on the next unseen period, and rolling forward. A guard against overfitting."],
+  "Sharpe ratio": [6, "Return per unit of volatility. Higher means smoother returns for the risk taken."],
+  "CAGR": [6, "Compound annual growth rate: the steady yearly return that would turn the start value into the end value."],
+  "Profit factor": [6, "Gross profits ÷ gross losses. Above 1.5 on realistic costs is solid."]
+};
+
+/* ============================================================
+   PROGRESS STORE. Saves to the page's own database when this
+   page runs on claude.ai (so it follows you across devices),
+   and always keeps a copy in this browser as a backup.
+   To port: replace dbLoad/dbSave with your own API calls.
+   ============================================================ */
+const LS_KEY = "trading-course-progress-v1";
+let state = { lessons: {}, goals: {}, updatedAt: 0 };
+let dbRef = null;
+
+function lsLoad() { try { const s = JSON.parse(localStorage.getItem(LS_KEY) || "null"); return s && typeof s === "object" ? s : null; } catch (e) { return null; } }
+function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+function clean(s) { return { lessons: (s && s.lessons) || {}, goals: (s && s.goals) || {}, updatedAt: (s && s.updatedAt) || 0 }; }
+function setSaveState(text, cls) { const el = document.getElementById("saveState"); el.textContent = text; el.className = "save-state " + (cls || ""); }
+
+let saveTimer = null;
+function persist() {
+  state.updatedAt = Date.now();
+  lsSave();
+  if (!dbRef) { setSaveState("Saved in this browser only", "local"); return; }
+  setSaveState("Saving…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try { await dbRef.set({ lessons: state.lessons, goals: state.goals, updatedAt: state.updatedAt }); setSaveState("Saved to your account", "ok"); }
+    catch (e) { setSaveState("Couldn't save to your account. Kept in this browser.", "local"); }
+  }, 500);
+}
+
+async function initStore() {
+  const local = lsLoad();
+  if (local) state = clean(local);
+  render();
+  setSaveState(local ? "Saved in this browser only" : "No progress yet", local ? "local" : "");
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) return;
+  dbRef = db.doc("progress/state");
+  try {
+    const snap = await dbRef.get();
+    const remote = snap.exists ? clean(snap.data()) : null;
+    if (remote && remote.updatedAt >= state.updatedAt) { state = remote; lsSave(); render(); setSaveState("Saved to your account", "ok"); }
+    else if (local) { persist(); }
+    else setSaveState("Progress saves to your account", "ok");
+  } catch (e) { dbRef = null; setSaveState("Saved in this browser only", "local"); }
+}
+
+/* ============================================================
+   PROGRESS LOGIC
+   ============================================================ */
+const levelOf = n => LEVELS[n - 1];
+const lessonsDone = L => L.ids.filter(id => state.lessons[id]).length;
+const goalId = (n, i) => n + ".g" + (i + 1);
+const goalsDone = L => L.goals.filter((_, i) => state.goals[goalId(L.n, i)]).length;
+const levelComplete = L => goalsDone(L) === L.goals.length;
+const levelUnlocked = n => n === 1 || levelComplete(levelOf(n - 1));
+function lessonUnlocked(L, idx) {
+  if (levelUnlocked(L.n)) return true;
+  return !!(L.earlyLessons && idx < L.earlyLessons && levelUnlocked(4));
+}
+function currentLevel() { for (const L of LEVELS) if (!levelComplete(L)) return L.n; return 6; }
+function levelPct(L) {
+  const total = L.lessons.length + L.goals.length;
+  return (lessonsDone(L) + goalsDone(L)) / total;
+}
+function nextLesson() {
+  for (const L of LEVELS) for (let i = 0; i < L.ids.length; i++)
+    if (!state.lessons[L.ids[i]] && lessonUnlocked(L, i)) return { L, i };
+  return null;
+}
+function status(L) {
+  if (levelComplete(L)) return ["done", "Passed"];
+  if (L.n === currentLevel()) return ["now", "You are here"];
+  if (!levelUnlocked(L.n)) return ["locked", "Locked"];
+  return ["now", "Open"];
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const slug = s => "t-" + s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+let glFilter = 0, glQuery = "", pendingTerm = null;
+
+function candlesSVG() {
+  const cur = currentLevel();
+  const W = 640, H = 360, x0 = 70, step = 98, bw = 40, bodyH = 92, rise = 30, base = 290;
+  let g = "";
+  // faint grid
+  for (let y = 60; y <= 310; y += 50) g += `<line x1="40" y1="${y}" x2="${W - 10}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+  // trendline through the lows (higher lows)
+  const lowY = i => base - i * rise + 16;
+  g += `<line x1="${x0 - 20}" y1="${lowY(0) + 6}" x2="${x0 + 5 * step + 30}" y2="${lowY(5) - 2}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  g += `<text x="${x0 + 3.2 * step}" y="${lowY(3.2) + 26}" font-size="12">uptrend: higher highs, higher lows</text>`;
+  LEVELS.forEach((L, i) => {
+    const cx = x0 + i * step, bot = base - i * rise, top = bot - bodyH;
+    const pct = levelPct(L), fillH = Math.round(bodyH * pct);
+    const isCur = L.n === cur, locked = !levelUnlocked(L.n) && !(L.earlyLessons && levelUnlocked(4));
+    const stroke = isCur ? "var(--mark)" : "var(--ink)";
+    g += `<a href="#level-${L.n}" aria-label="Level ${L.n}, ${esc(L.title)}, ${Math.round(pct * 100)}% done">`;
+    g += `<line x1="${cx}" y1="${top - 18}" x2="${cx}" y2="${bot + 16}" stroke="${stroke}" stroke-width="2"/>`;
+    g += `<rect x="${cx - bw / 2}" y="${top}" width="${bw}" height="${bodyH}" fill="var(--surface)"/>`;
+    if (fillH > 0) g += `<rect x="${cx - bw / 2}" y="${bot - fillH}" width="${bw}" height="${fillH}" fill="var(--up)"/>`;
+    g += `<rect class="body-outline" x="${cx - bw / 2}" y="${top}" width="${bw}" height="${bodyH}" fill="none" stroke="${stroke}" stroke-width="${isCur ? 3 : 2}" ${locked ? 'stroke-dasharray="4 3"' : ""}/>`;
+    g += `<text class="lvl-label" x="${cx}" y="${H - 22}" text-anchor="middle" font-size="15">L${L.n}</text>`;
+    g += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="11">${esc(L.short)}</text>`;
+    g += `<text x="${cx}" y="${top - 26}" text-anchor="middle" font-size="12">${Math.round(pct * 100)}%</text>`;
+    if (isCur) g += `<polygon points="${cx - 7},${top - 48} ${cx + 7},${top - 48} ${cx},${top - 38}" fill="var(--mark)"/>`;
+    g += `</a>`;
+  });
+  return `<svg class="candles" viewBox="0 0 ${W} ${H}" role="img" aria-label="Level map drawn as six rising candles">${g}</svg>`;
+}
+
+function renderMap() {
+  const totalL = LEVELS.reduce((a, L) => a + L.lessons.length, 0);
+  const doneL = LEVELS.reduce((a, L) => a + lessonsDone(L), 0);
+  const passed = LEVELS.filter(levelComplete).length;
+  const nx = nextLesson();
+  const nxHtml = nx
+    ? `<b><a href="#level-${nx.L.n}">${esc(nx.L.ids[nx.i])} · ${esc(nx.L.lessons[nx.i])}</a></b><span>Next lesson</span>`
+    : `<b>All lessons done</b><span>Next lesson</span>`;
+  app.innerHTML = `
+  <section class="view">
+    <div class="hello">
+      <span class="eyebrow">NSE · BSE · ₹ · swing first</span>
+      <h1>From your first share to your own trading system</h1>
+      <p>Six levels in order. Each one unlocks when you tick off the previous level's goals. About an hour a day, 9 to 12 months, then at least 3 months of paper trading before any real money.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${doneL}<span class="mono" style="font-size:15px;color:var(--muted)"> / ${totalL}</span></b><span>Lessons done</span></div>
+      <div class="stat"><b>${passed}<span class="mono" style="font-size:15px;color:var(--muted)"> / 6</span></b><span>Levels passed</span></div>
+      <div class="stat"><b>L${currentLevel()}</b><span>${esc(levelOf(currentLevel()).title)}</span></div>
+      <div class="stat next">${nxHtml}</div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head">
+        <h2>Level map</h2>
+        <div class="legend"><span><i style="background:var(--up)"></i>Done</span><span><i style="background:var(--mark)"></i>You are here</span><span><i style="border:1.5px dashed var(--ink)"></i>Locked</span></div>
+      </div>
+      <div class="chart-scroll">${candlesSVG()}</div>
+    </div>
+    <div>
+      <div class="section-title"><h2>Levels</h2><span class="gl-count">${LEVELS.reduce((a, L) => a + L.lessons.length, 0)} lessons in total</span></div>
+      <div class="levels">${LEVELS.map(L => {
+        const [cls, label] = status(L); const done = lessonsDone(L);
+        return `<a class="lvl ${L.n === currentLevel() ? "current" : ""}" href="#level-${L.n}">
+          <div class="lvl-top"><span class="eyebrow">Level ${L.n}${L.main ? " · main focus" : ""}</span><span class="chip ${cls}">${label}</span></div>
+          <h3>${esc(L.title)}</h3>
+          <p>${esc(L.intro.split(". ")[0].replace(/\.$/, ""))}.</p>
+          <div class="bar"><i style="width:${Math.round(levelPct(L) * 100)}%"></i></div>
+          <div class="meta"><span class="mono">${done}/${L.lessons.length} lessons · ${goalsDone(L)}/${L.goals.length} goals</span><span>${L.weeks}</span></div>
+        </a>`; }).join("")}
+      </div>
+    </div>
+    <div>
+      <div class="section-title"><h2>Rules for the whole journey</h2></div>
+      <div class="rules">
+        <div class="rule"><b>Only spare money</b><p>Never trade with borrowed money, savings you need, or emergency funds.</p></div>
+        <div class="rule"><b>Paper first</b><p>Every strategy is paper traded before it touches real money. Real money starts at ₹10,000 to ₹25,000, CNC only.</p></div>
+        <div class="rule"><b>Journal everything</b><p>Log every trade from Level 1. If you hit your monthly loss limit, go back to paper trading.</p></div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderLevel(n) {
+  const L = levelOf(n);
+  const [cls, label] = status(L);
+  const unlocked = levelUnlocked(n);
+  const nx = nextLesson();
+  const prev = n > 1 ? levelOf(n - 1) : null, next = n < 6 ? levelOf(n + 1) : null;
+  let notes = "";
+  if (!unlocked) notes += `<div class="note">Tick off all Level ${n - 1} goals to unlock this level. You can read the outline now.${L.earlyLessons && levelUnlocked(4) ? ` Lessons 1 to ${L.earlyLessons} are already open, because you size positions from your first Level 4 paper trade.` : ""}</div>`;
+  else if (L.earlyLessons) notes += `<div class="note">Lessons 1 to ${L.earlyLessons} also open alongside Level 4, because you size positions from your first paper trade.</div>`;
+  if (L.learnOnly) notes += `<div class="note warn"><b>Learn-only.</b> Lessons 1 to ${L.learnOnly} cover futures and options so you understand them. You will never trade F&amp;O. SEBI's 2024 study found about 9 in 10 individual F&amp;O traders lost money over three years.</div>`;
+
+  const lessonRows = L.lessons.map((t, i) => {
+    const id = L.ids[i], done = !!state.lessons[id], open = lessonUnlocked(L, i);
+    const isNext = nx && nx.L.n === n && nx.i === i;
+    const url = LESSON_URLS[id];
+    const link = url ? `<a class="lopen" href="${esc(url)}" target="_blank" rel="noopener">Open lesson ↗</a>` : `<span class="lopen soon">Coming soon</span>`;
+    return `<li class="${done ? "is-done" : ""} ${isNext ? "is-next" : ""}">
+      <input class="tick" type="checkbox" id="ls-${id}" data-lesson="${id}" ${done ? "checked" : ""} ${open ? "" : "disabled"} aria-label="Mark lesson ${id} done">
+      <span class="lnum">${id}</span>
+      <label class="ltitle" for="ls-${id}">${esc(t)}${L.learnOnly && i < L.learnOnly ? ` <span class="chip learn">learn-only</span>` : ""}</label>
+      ${link}
+    </li>`;
+  }).join("");
+
+  const goalRows = L.goals.map((g, i) => {
+    const id = goalId(n, i), done = !!state.goals[id];
+    return `<li><label><input class="tick" type="checkbox" id="gl-${id}" data-goal="${id}" ${done ? "checked" : ""} ${unlocked ? "" : "disabled"}><span>${esc(g)}</span></label></li>`;
+  }).join("");
+
+  app.innerHTML = `
+  <section class="view">
+    <div class="lvl-hero">
+      <div class="crumbs"><a href="#map">Level map</a><span>/</span><span>Level ${n}</span></div>
+      <div class="row"><span class="eyebrow">Level ${n} of 6 · ${L.lessons.length} lessons · ${L.weeks}${L.main ? " · main focus" : ""}</span><span class="chip ${cls}">${label}</span></div>
+      <h1>${esc(L.title)}</h1>
+      <p>${esc(L.intro)}</p>
+      <div class="bar" style="max-width:420px"><i style="width:${Math.round(levelPct(L) * 100)}%"></i></div>
+      ${notes}
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <h2>Lessons</h2>
+        <ol class="lessons">${lessonRows}</ol>
+      </div>
+      <div class="panel">
+        <div class="box"><h3>Goals before moving on</h3><ul class="goals">${goalRows}</ul></div>
+        <div class="box"><h3>Practice tasks</h3><ul class="plain">${L.practice.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>
+        <div class="box"><h3>Real data used</h3><p>${esc(L.data)}</p></div>
+        <div class="box"><h3>Key terms</h3><div class="terms">${L.terms.map(t => `<a href="#glossary" data-term="${esc(t)}">${esc(t)}</a>`).join("")}</div></div>
+      </div>
+    </div>
+    <div class="pager">
+      ${prev ? `<a href="#level-${prev.n}">← Level ${prev.n}: ${esc(prev.title)}</a>` : `<span></span>`}
+      ${next ? `<a href="#level-${next.n}">Level ${next.n}: ${esc(next.title)} →</a>` : `<a href="#map">Back to the level map</a>`}
+    </div>
+  </section>`;
+}
+
+function renderGlossary() {
+  const names = Object.keys(GLOSSARY).sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+  app.innerHTML = `
+  <section class="view">
+    <div class="hello">
+      <span class="eyebrow">${names.length} terms</span>
+      <h1>Glossary</h1>
+      <p>Every key term in the course, in plain English. Each one is tagged with the level where you first meet it.</p>
+    </div>
+    <div class="gl-tools">
+      <input class="search" id="glSearch" type="search" placeholder="Search a term, like VWAP or stop-loss" value="${esc(glQuery)}" aria-label="Search the glossary">
+      <div class="filters" role="group" aria-label="Filter by level">
+        <button type="button" data-f="0" aria-pressed="${glFilter === 0}">All</button>
+        ${LEVELS.map(L => `<button type="button" data-f="${L.n}" aria-pressed="${glFilter === L.n}">L${L.n} ${esc(L.short)}</button>`).join("")}
+      </div>
+      <span class="gl-count" id="glCount"></span>
+    </div>
+    <dl class="gloss" id="glList"></dl>
+  </section>`;
+  drawGlossaryList(names);
+  const s = document.getElementById("glSearch");
+  s.addEventListener("input", () => { glQuery = s.value; drawGlossaryList(names); });
+  app.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => {
+    glFilter = +b.dataset.f;
+    app.querySelectorAll("[data-f]").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.f === glFilter)));
+    drawGlossaryList(names);
+  }));
+}
+function drawGlossaryList(names) {
+  const q = glQuery.trim().toLowerCase();
+  const shown = names.filter(n => (!glFilter || GLOSSARY[n][0] === glFilter) && (!q || n.toLowerCase().includes(q) || GLOSSARY[n][1].toLowerCase().includes(q)));
+  document.getElementById("glCount").textContent = `Showing ${shown.length} of ${names.length}`;
+  document.getElementById("glList").innerHTML = shown.length
+    ? shown.map(n => `<div class="term" id="${slug(n)}"><dt>${esc(n)} <small>L${GLOSSARY[n][0]}</small></dt><dd>${esc(GLOSSARY[n][1])}</dd></div>`).join("")
+    : `<p class="empty">No term matches "${esc(glQuery)}". Try a shorter word.</p>`;
+}
+
+function route() {
+  const h = (location.hash || "#map").slice(1);
+  const m = /^level-([1-6])$/.exec(h);
+  let tab = "map";
+  if (m) { renderLevel(+m[1]); tab = "level"; }
+  else if (h === "glossary") { renderGlossary(); tab = "glossary"; }
+  else renderMap();
+  document.querySelectorAll("nav.tabs a").forEach(a => {
+    if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    if (a.dataset.tab === "level") a.href = "#level-" + (m ? m[1] : currentLevel());
+  });
+  if (pendingTerm && tab === "glossary") {
+    const el = document.getElementById(slug(pendingTerm));
+    if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); }
+    pendingTerm = null;
+  } else window.scrollTo(0, 0);
+}
+function render() { const y = window.scrollY; route(); if (!pendingTerm) window.scrollTo(0, y); }
+
+app.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.lesson) { if (t.checked) state.lessons[t.dataset.lesson] = Date.now(); else delete state.lessons[t.dataset.lesson]; }
+  else if (t.dataset.goal) { if (t.checked) state.goals[t.dataset.goal] = Date.now(); else delete state.goals[t.dataset.goal]; }
+  else return;
+  persist(); render();
+});
+app.addEventListener("click", e => {
+  const a = e.target.closest("[data-term]");
+  if (a) { pendingTerm = a.dataset.term; glFilter = 0; glQuery = ""; }
+});
+window.addEventListener("hashchange", route);
+
+let resetArmed = false;
+document.getElementById("resetBtn").addEventListener("click", e => {
+  if (!resetArmed) { resetArmed = true; e.target.textContent = "Click again to erase all progress"; setTimeout(() => { resetArmed = false; e.target.textContent = "Reset progress"; }, 4000); return; }
+  resetArmed = false; e.target.textContent = "Reset progress";
+  state = { lessons: {}, goals: {}, updatedAt: 0 }; persist(); render();
+});
+
+route();
+initStore();
+</script>
+
+</body>
+</html>
