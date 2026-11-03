@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Order Types</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lesson page from the same trading-desk notebook as the course hub.
+   Narrow reading column, a sticky "lesson map" rail on wide screens, real NSE charts
+   drawn in SVG from data embedded in this file. Tokens match the hub exactly. */
+:root {
+  --bg: #f3f4ef; --surface: #ffffff; --sunken: #e8eae2; --ink: #17222b; --muted: #5b6770;
+  --line: #d3d7cd; --accent: #0e5a6b; --accent-soft: #d6e8ea; --up: #1d7f55; --up-soft: #d5eee1;
+  --down: #b8423a; --down-soft: #f5dcd8; --mark: #c98a0b; --mark-soft: #f7e7c2; --violet: #6a4fa3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+    --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+    --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+  --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+  --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.65 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.top .in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
+.brand { font: 700 17px/1 var(--f-display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.top .where { color: var(--muted); font-size: 14px; }
+.top nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { background: var(--sunken); color: var(--ink); }
+.top nav a.off { pointer-events: none; opacity: .4; }
+
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-top: 32px; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); gap: 0; } .rail { display: none; } }
+.rail { position: sticky; top: 76px; align-self: start; display: grid; gap: 14px; font-size: 14px; }
+.rail ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); display: grid; }
+.rail a { display: block; padding: 6px 0 6px 14px; margin-left: -2px; border-left: 2px solid transparent; text-decoration: none; color: var(--muted); font-weight: 700; }
+.rail a:hover { color: var(--ink); }
+.rail a.on { color: var(--ink); border-left-color: var(--mark); }
+.rail .back { font-weight: 700; text-decoration: none; }
+
+article { min-width: 0; display: grid; gap: 56px; }
+.hero { display: grid; gap: 14px; max-width: 70ch; }
+.hero h1 { font-size: clamp(30px, 5.2vw, 46px); letter-spacing: -.01em; }
+.hero .lede { font-size: 19px; color: var(--muted); }
+.hero .facts { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 600 11px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; padding: 6px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); }
+.chip.mark { background: var(--mark-soft); color: var(--mark); }
+
+section.part { display: grid; gap: 18px; scroll-margin-top: 80px; }
+.part > header { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.part > header h2 { font-size: clamp(24px, 3.4vw, 30px); }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose > *, .ex > *, .tool > *, .task > *, .worked > *, .part > *, .qcard > * { min-width: 0; }
+.prose h3 { font-size: 20px; margin-top: 10px; }
+.prose ul, .prose ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.prose strong { font-weight: 700; }
+.term { font-weight: 700; background: linear-gradient(transparent 62%, var(--mark-soft) 62%); }
+
+.key { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 14px 16px; max-width: 68ch; display: grid; gap: 6px; }
+.key b.lbl { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.key.warn { border-left-color: var(--down); }
+.key.warn b.lbl { color: var(--down); }
+.key.tip { border-left-color: var(--mark); }
+.key.tip b.lbl { color: var(--mark); }
+
+/* tables */
+.tbl { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.tbl thead th { border-top: 0; font: 600 12px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
+.tbl td.n, .tbl th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+.pos { color: var(--up); } .neg { color: var(--down); }
+
+/* charts */
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 16px 10px; display: grid; gap: 8px; min-width: 0; }
+figure.chart .ch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+figure.chart .ch-title { font: 700 17px/1.3 var(--f-display); }
+figure.chart .readout { font: 600 13px/1.3 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+figure.chart .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+figure.chart .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+figure.chart .ch-box { position: relative; overflow-x: auto; }
+figure.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+figure.chart svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+figure.chart svg .grid { stroke: var(--line); stroke-width: 1; }
+figure.chart svg .mk line { stroke: var(--mark); stroke-dasharray: 3 3; }
+figure.chart svg .mk text { fill: var(--ink); font-weight: 600; }
+figure.chart svg .mk rect { fill: var(--mark-soft); }
+figure.chart svg .hl { fill: var(--mark-soft); opacity: .55; }
+figure.chart svg .cross { stroke: var(--muted); stroke-width: 1; }
+figure.chart figcaption { font-size: 14px; color: var(--muted); max-width: 72ch; }
+.src { font-size: 12px; color: var(--muted); }
+
+/* worked examples */
+.worked { display: grid; gap: 16px; }
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; max-width: 76ch; }
+.ex h3 { font-size: 18px; }
+.ex .q { font-weight: 700; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; counter-increment: s; }
+.steps li::before { content: counter(s); font: 600 12px/22px var(--f-mono); width: 22px; height: 22px; text-align: center; border-radius: 50%; background: var(--sunken); color: var(--muted); }
+.calc { font-family: var(--f-mono); font-size: 14px; background: var(--sunken); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.ans { background: var(--up-soft); border-radius: 8px; padding: 10px 12px; }
+.ans b { color: var(--up); }
+
+/* tools / widgets */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 14px; }
+.tool h3 { font-size: 18px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.field input, .field select { font: 16px var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+.field input[type=range] { padding: 0; accent-color: var(--accent); }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.out div { background: var(--surface); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.out b { font: 600 19px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.out span { font-size: 13px; color: var(--muted); }
+.btn { font: 700 15px var(--f-body); border: 1px solid var(--ink); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 700 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* flow: a vertical timeline of steps */
+ol.flow { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--line); display: grid; gap: 16px; max-width: 72ch; }
+ol.flow li { position: relative; display: grid; gap: 2px; }
+ol.flow li::before { content: ""; position: absolute; left: -30px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+ol.flow li:last-child::before { background: var(--up); border-color: var(--up); }
+ol.flow b { font: 600 13px/1.4 var(--f-mono); color: var(--accent); }
+h3.prose { font-size: 20px; }
+
+/* day clock */
+.clock { display: grid; gap: 8px; }
+.seg-row { display: flex; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); min-height: 58px; }
+.seg-row .s { flex: var(--w) 1 0; min-width: 0; padding: 8px; display: grid; align-content: start; gap: 2px; font-size: 13px; font-weight: 700; color: var(--ink); overflow: hidden; }
+.seg-row .s b { font: 600 11px var(--f-mono); color: var(--muted); }
+.seg-row .pre { background: var(--mark-soft); flex-basis: 70px; flex-grow: 0; }
+.seg-row .open { background: var(--up-soft); }
+.seg-row .gap { background: var(--sunken); flex-basis: 30px; flex-grow: 0; }
+.seg-row .post { background: var(--accent-soft); flex-basis: 84px; flex-grow: 0; }
+.clock .now { font-size: 15px; }
+
+/* quiz */
+.quiz { display: grid; gap: 16px; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; }
+.qcard .qn { font: 600 12px var(--f-mono); color: var(--muted); letter-spacing: .06em; }
+.qcard .qq { font-weight: 700; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; font: 16px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+.opts button:hover:not(:disabled) { border-color: var(--accent); }
+.opts button .l { font: 600 13px/1.6 var(--f-mono); color: var(--muted); }
+.opts button:disabled { cursor: default; }
+.opts button.right { background: var(--up-soft); border-color: var(--up); }
+.opts button.wrong { background: var(--down-soft); border-color: var(--down); }
+.why { font-size: 15px; border-radius: 8px; padding: 10px 12px; background: var(--sunken); }
+.why b.ok { color: var(--up); } .why b.no { color: var(--down); }
+.score { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; }
+.score b { font: 600 24px var(--f-mono); }
+.score.pass { border-color: var(--up); background: var(--up-soft); }
+
+/* practice */
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 12px; }
+.task ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.task label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.tick { appearance: none; -webkit-appearance: none; margin: 2px 0 0; width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+.tick:checked { background: var(--up); border-color: var(--up); }
+.tick:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--surface); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.task textarea { width: 100%; min-height: 130px; font: 15px/1.5 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+.task .saved { font-size: 13px; color: var(--muted); }
+
+.finish { display: grid; gap: 12px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 20px; }
+.finish h2 { font-size: 24px; }
+.finish a { color: var(--bg); font-weight: 700; }
+.finish .row { display: flex; gap: 12px 20px; flex-wrap: wrap; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; font-weight: 700; }
+.pager a { text-decoration: none; }
+footer.f { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="brand" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="6" x2="5" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="10" width="5" height="7" fill="var(--down)"/><line x1="12" y1="3" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="5" width="5" height="8" fill="var(--up)"/><line x1="19" y1="1" x2="19" y2="12" stroke="currentColor" stroke-width="1.5"/><rect x="16.5" y="2" width="5" height="7" fill="var(--up)"/></svg>
+      Trading Course
+    </a>
+    <span class="where">Level 1 · Lesson 8 of 10</span>
+    <nav aria-label="Lessons"><a class="prev" href="https://claude.ai/artifact/48jBXA1RX7KwgZTLhTdS66" target="_blank" rel="noopener">← Prev</a><a class="next" href="https://claude.ai/artifact/6i1pYV92SFK52BuE8zyT5G" target="_blank" rel="noopener">Next →</a></nav>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="rail" aria-label="On this page">
+    <a class="back" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">← Course hub</a>
+    <ol id="toc"></ol>
+  </aside>
+  <article id="lesson">
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.08</span>
+      <h1>Order types: market, limit, stop-loss, GTT, and CNC vs MIS</h1>
+      <p class="lede">An order is an instruction to your broker. Choosing the right type decides the price you pay, whether you get filled at all, and how much you can lose. This is the most practical lesson in Level 1, and it ends with a simulator that tests your orders on real NSE prices.</p>
+      <div class="facts"><span class="chip mark">About 60 minutes</span><span class="chip">Real data: Reliance and TCS daily prices, Aug to Oct 2026</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The order types in plain words</h2></header>
+      <div class="prose">
+        <p>Every order has three choices: <strong>what kind of price</strong> (order type), <strong>how long you'll hold</strong> (product type), and <strong>how long the order stays alive</strong> (validity).</p>
+        <h3>Order types</h3>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Type</th><th>You say</th><th>Good</th><th>Risk</th></tr></thead><tbody>
+        <tr><td><strong>Market</strong></td><td>"Buy now at whatever the best price is."</td><td>Always fills (in a liquid stock)</td><td>You don't control the price. In a fast or thin market you can pay much more than you saw.</td></tr>
+        <tr><td><strong>Limit</strong></td><td>"Buy only at ₹1,165 or lower." (Sell: "only at ₹X or higher.")</td><td>You control the price exactly</td><td>It may never fill if the price doesn't come to you.</td></tr>
+        <tr><td><strong>Stop-loss limit (SL)</strong></td><td>"If the price falls to ₹1,140 (trigger), send a sell limit order at ₹1,138."</td><td>Limits your loss, and controls the worst fill price</td><td>In a gap or crash the price can jump past your limit, and the order sits unfilled while you keep losing.</td></tr>
+        <tr><td><strong>Stop-loss market (SL-M)</strong></td><td>"If the price falls to ₹1,140, sell at market."</td><td>Gets you out once triggered</td><td>You may be filled well below the trigger in a fast fall. (Many brokers no longer offer SL-M for options; it is still widely used for shares.)</td></tr>
+        <tr><td><strong>GTT</strong> (good till triggered)</td><td>"Watch the price for up to a year; when it touches ₹1,200, place my order."</td><td>Perfect for a day job: works for weeks without you</td><td>It's held by your broker, not the exchange, and only places a normal order when triggered, so a fill isn't guaranteed.</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <p>A <strong>GTT OCO</strong> (one cancels other) holds two triggers at once, a target above and a stop-loss below. When one fires, the other is cancelled. Swing traders use it to protect every position while they're at work.</p>
+        <h3>Product types</h3>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Product</th><th>Meaning</th><th>Used for</th><th>Key rule</th></tr></thead><tbody>
+        <tr><td><strong>CNC</strong></td><td>Cash and carry (delivery)</td><td>Your swing trades and investments</td><td>You pay the full amount; shares come to your demat and you can hold as long as you like.</td></tr>
+        <tr><td><strong>MIS</strong></td><td>Margin intraday square-off</td><td>Intraday trades on days off</td><td>The broker lends you leverage (up to 5 times for many stocks) and closes the position automatically before 3:30 pm.</td></tr>
+        <tr><td><strong>NRML</strong></td><td>Normal (for futures and options)</td><td>F&amp;O positions held overnight</td><td>Learn-only in this course. You won't use it.</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <h3>Validity</h3>
+        <p><strong>DAY</strong> orders expire at the end of the day if not filled (most orders). <strong>IOC</strong> (immediate or cancel) fills whatever it can instantly and cancels the rest. GTT orders last up to a year.</p>
+        <h3>Trigger price vs limit price</h3>
+        <p>This confuses everyone at first. The <strong>trigger</strong> is the alarm: nothing happens until the price touches it. The <strong>limit</strong> is the worst price you'll accept after the alarm goes off. For a stop-loss sell, the limit is set a little below the trigger, to give the order room to fill.</p>
+      </div>
+      <div class="key"><b class="lbl">Course rule</b><p>Every trade you take, paper or real, has a stop-loss order placed at the same time as the entry. No exceptions. You'll learn where to put it in Levels 3 to 5.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE example">
+      <header><span class="eyebrow">Part 2</span><h2>A real gap: TCS on 28 October 2026</h2></header>
+      <figure class="chart" data-series="tcs_d" data-type="candle" data-unit="₹" data-from="2026-10-12" data-title="TCS daily candles on NSE, 12 to 30 Oct 2026" data-marks='[["2026-10-28","Gap down"]]' data-hline='[[2470,"Your trigger ₹2,470"]]'>
+        <figcaption>TCS closed at ₹2,496.90 on 27 October. On 28 October it opened at ₹2,449.00, already ₹48 lower, traded between ₹2,408.20 and ₹2,461.30, and closed at ₹2,460.00. It never got back to ₹2,465 that day.</figcaption>
+      </figure>
+      <div class="prose">
+        <p>Imagine you owned TCS from ₹2,520 and had a stop-loss with a trigger of ₹2,470. Here's what each kind of stop-loss would have done:</p>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Your stop-loss</th><th>What happened at 9:15 on 28 Oct</th><th class="n">Exit price</th></tr></thead><tbody>
+        <tr><td>SL-M, trigger ₹2,470</td><td>Price opened below the trigger, so it triggered at once and sold at market, near the open</td><td class="n">about ₹2,449</td></tr>
+        <tr><td>SL, trigger ₹2,470, limit ₹2,465</td><td>Triggered at the open, but the price was already below your ₹2,465 limit. The order waited. The high of the day was ₹2,461.30, so it <strong>never filled</strong></td><td class="n">not sold; still holding at ₹2,460 close, and at risk next day</td></tr>
+        <tr><td>No stop-loss</td><td>Nothing happened. You find out in the evening.</td><td class="n">still holding</td></tr>
+      </tbody></table></div>
+      <div class="prose"><p>SL-M cost you ₹21 a share more than you planned but got you out. The SL limit order looked safer but left you exposed. For swing trades in liquid Nifty stocks, many traders prefer SL-M or a wider gap between trigger and limit. You'll decide your own rule in Level 5.</p></div>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: A limit buy that fills</h3>
+          <p class="q">On 29 Oct 2026 Reliance opened at ₹1,159.00, with a low of ₹1,155.60 and a high of ₹1,182.10. You placed a limit buy at ₹1,160. Did it fill?</p>
+          <p class="ans"><b>Answer:</b> yes. The open (₹1,159) was already at or below your limit, so it filled at about ₹1,159, slightly better than your limit. A limit order never fills at a worse price.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: A limit buy that misses</h3>
+          <p class="q">Same day, you placed a limit buy at ₹1,150. Did it fill?</p>
+          <p class="ans"><b>Answer:</b> no. The lowest price was ₹1,155.60, which never reached ₹1,150. Your order expired at the end of the day (DAY validity). Being too greedy on price means missing the trade.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: MIS leverage</h3>
+          <p class="q">You have ₹20,000. A stock is ₹500 and the broker gives 5 times MIS leverage. How many shares can you buy intraday, and what happens if it falls 4%?</p>
+          <div class="calc">buying power = 20,000 × 5 = ₹1,00,000 → 200 shares
+fall of 4%   = 200 × 500 × 0.04 = ₹4,000 loss
+             = 20% of your own ₹20,000</div>
+          <p class="ans"><b>Answer:</b> 200 shares, and a 4% move loses a fifth of your money. With CNC you'd have bought 40 shares and lost ₹800. Leverage multiplies losses exactly as much as gains.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 4: A swing plan with GTT OCO</h3>
+          <p class="q">You bought 15 Reliance at ₹1,165 (CNC). Your plan: stop-loss ₹1,130, target ₹1,235. How do you protect it while at work?</p>
+          <ol class="steps"><li>Place a GTT OCO sell for 15 shares.</li><li>Lower trigger ₹1,130 (stop-loss). Upper trigger ₹1,235 (target).</li><li>Whichever is touched first places the sell order; the other is cancelled.</li></ol>
+          <div class="calc">risk   = (1,165 − 1,130) × 15 = ₹525
+reward = (1,235 − 1,165) × 15 = ₹1,050   → reward is 2 × risk</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="part" id="sim" data-toc="Order simulator">
+      <header><span class="eyebrow">Part 4</span><h2>Order simulator on real prices</h2><p>Pick a real trading day, place an order, and see what would have happened using that day's open, high, low and close.</p></header>
+      <div class="tool">
+        <div class="fields">
+          <label class="field">Stock<select id="s-stock"><option value="reliance_d">Reliance</option><option value="tcs_d">TCS</option></select></label>
+          <label class="field">Day<select id="s-day"></select></label>
+          <label class="field">Side<select id="s-side"><option value="buy">Buy</option><option value="sell">Sell (you already hold)</option></select></label>
+          <label class="field">Order type<select id="s-type"><option value="mkt">Market (at the open)</option><option value="lmt">Limit</option><option value="sl">Stop-loss limit (SL)</option><option value="slm">Stop-loss market (SL-M)</option></select></label>
+          <label class="field" id="f-trig">Trigger price (₹)<input id="s-trig" type="number" step="0.05"></label>
+          <label class="field" id="f-lim">Limit price (₹)<input id="s-lim" type="number" step="0.05"></label>
+          <label class="field">Quantity<input id="s-qty" type="number" min="1" value="10"></label>
+        </div>
+        <div class="out" id="s-candle"></div>
+        <p class="ans" id="s-result" aria-live="polite"></p>
+        <p class="src">Daily candles can't show the order of moves inside the day, so the simulator assumes the order is live from 9:15 and that gaps happen at the open. Real fills also depend on queue position and liquidity.</p>
+      </div>
+      <div class="task" data-key="orders">
+        <h3>Simulator task: one of each</h3>
+        <ul class="check">
+          <li>A market buy on any day. Note the fill price.</li>
+          <li>A limit buy that fills, and one that doesn't. Write down why.</li>
+          <li>A stop-loss (SL) sell that triggers but doesn't fill. Hint: TCS, 28 Oct, trigger 2,470, limit 2,465.</li>
+          <li>An SL-M sell that triggers on a gap. Compare the fill with your trigger.</li>
+          <li>A limit sell above the open that fills at a high of the day.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 5</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"You must buy a stock right now, whatever the price. Which order?","o":["Limit","Market","SL","GTT"],"a":1,"why":"A market order fills immediately at the best available price."},
+{"q":"You place a limit buy at ₹500. The stock trades between ₹502 and ₹515 all day. What happens?","o":["Filled at ₹502","Filled at ₹500","Not filled","Filled at ₹515"],"a":2,"why":"A buy limit fills only at ₹500 or lower; the price never got there."},
+{"q":"In a stop-loss order, the trigger price is…","o":["The worst price you'll accept","The price that activates the order","Your target","The previous close"],"a":1,"why":"Trigger = alarm. Limit = worst acceptable price after the alarm."},
+{"q":"Why can an SL (limit) stop-loss fail to protect you?","o":["It's too expensive","A gap or crash can jump past your limit, so it doesn't fill","SEBI cancels it","It only works on Mondays"],"a":1,"why":"If price opens below your limit, a sell limit order won't fill until price comes back up."},
+{"q":"Which product type do you use for a swing trade you'll hold for a week?","o":["MIS","CNC","NRML","IOC"],"a":1,"why":"CNC is delivery: you own the shares and can hold them."},
+{"q":"What happens to an MIS position you don't close by about 3:20 pm?","o":["It converts to CNC","The broker squares it off automatically","It's carried overnight","It's cancelled at the buy price"],"a":1,"why":"MIS is intraday-only; the broker closes it."},
+{"q":"With ₹10,000 and 5× MIS leverage, a 2% fall in the stock loses…","o":["₹200","₹1,000","₹2,000","₹100"],"a":1,"why":"Position = ₹50,000; 2% of that is ₹1,000, which is 10% of your money."},
+{"q":"What is the main advantage of a GTT for someone with a 9-to-6 job?","o":["It's free money","It waits for weeks and places your order when the price is reached","It guarantees a fill","It avoids tax"],"a":1,"why":"GTT lets your plan run without you watching the screen."},
+{"q":"A GTT OCO with a target and a stop-loss: what happens when the target is hit?","o":["Both orders execute","The sell executes and the stop-loss is cancelled","Nothing","The stop-loss moves up"],"a":1,"why":"One cancels the other."},
+{"q":"On 28 Oct 2026, TCS opened at ₹2,449 below your SL-M trigger of ₹2,470. You were sold at about…","o":["₹2,470","₹2,449","₹2,496","Not sold"],"a":1,"why":"SL-M triggers and sells at market: around the open, worse than the trigger."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 6</span><h2>Practice task: start your trading journal</h2><p>About 20 minutes. This matches the Level 1 goal of placing 5 paper orders.</p></header>
+      <div class="task" data-key="journal">
+        <ul class="check">
+          <li>Open a spreadsheet (or notebook) called "Trading journal". Columns: date, stock, side, order type, product, quantity, trigger, limit, fill price, why I placed it, what happened.</li>
+          <li>Log the 5 simulator orders from Part 4 as your first 5 entries.</li>
+          <li>If your broker has a GTT screen, open it (without placing anything) and find where to set a single trigger and an OCO.</li>
+          <li>Write in one line, in your own words, the difference between a trigger price and a limit price.</li>
+          <li>Write your stop-loss rule for now: "Every trade gets a stop-loss order placed at the same time as the entry."</li>
+        </ul>
+        <textarea placeholder="Trigger vs limit, in my words: …"></textarea>
+      </div>
+    </section>
+
+<script>
+/* Lesson 1.08 order simulator. <!-- data: reliance_d, tcs_d --> */
+window.lessonInit = function () {
+  const st = $("#s-stock"), day = $("#s-day"), side = $("#s-side"), type = $("#s-type");
+  const fillDays = () => { const s = SERIES[st.value]; day.innerHTML = ""; s.slice(1).forEach((r, i) => day.add(new Option(niceDate(r[0]), i + 1))); day.value = String(s.length - 1);
+    if (st.value === "tcs_d") { const k = s.findIndex(r => r[0] === "2026-10-28"); if (k > 0) day.value = String(k); } };
+  const suggest = () => { const s = SERIES[st.value], r = s[+day.value], pc = s[+day.value - 1][4], t = type.value, sd = side.value;
+    const round = v => (Math.round(v * 20) / 20).toFixed(2);
+    if (t === "lmt") { $("#s-lim").value = round(sd === "buy" ? r[1] * 0.995 : r[1] * 1.005); }
+    if (t === "sl" || t === "slm") { const trig = sd === "sell" ? pc * 0.99 : pc * 1.01; $("#s-trig").value = round(trig); $("#s-lim").value = round(sd === "sell" ? trig - 5 : trig + 5); }
+    show(); };
+  const show = () => { const t = type.value; $("#f-trig").hidden = !(t === "sl" || t === "slm"); $("#f-lim").hidden = !(t === "lmt" || t === "sl"); run(); };
+  const run = () => {
+    const s = SERIES[st.value], r = s[+day.value], pc = s[+day.value - 1][4], [d, O, H, Lo, C] = r, q = Math.max(1, +$("#s-qty").value || 1);
+    const t = type.value, sd = side.value, T = +$("#s-trig").value, L = +$("#s-lim").value, name = st.options[st.selectedIndex].text;
+    $("#s-candle").innerHTML = `<div><b>${inr(pc, 2)}</b><span>Previous close</span></div><div><b>${inr(O, 2)}</b><span>Open</span></div><div><b>${inr(H, 2)}</b><span>High</span></div><div><b>${inr(Lo, 2)}</b><span>Low</span></div><div><b>${inr(C, 2)}</b><span>Close</span></div>`;
+    let fill = null, msg = "";
+    if (t === "mkt") { fill = O; msg = `Filled at about the open, ${inr(O, 2)}.`; }
+    else if (t === "lmt") {
+      if (!L) msg = "Enter a limit price.";
+      else if (sd === "buy") { if (O <= L) { fill = O; msg = `The open (${inr(O, 2)}) was already at or below your limit, so it filled at the open: better than your limit.`; } else if (Lo <= L) { fill = L; msg = `Price fell to your limit during the day (low ${inr(Lo, 2)}), so it filled at ${inr(L, 2)}.`; } else msg = `Not filled. The lowest price was ${inr(Lo, 2)}, above your limit of ${inr(L, 2)}. The order expires at 3:30 pm.`; }
+      else { if (O >= L) { fill = O; msg = `The open (${inr(O, 2)}) was already at or above your limit, so it sold at the open.`; } else if (H >= L) { fill = L; msg = `Price rose to your limit (high ${inr(H, 2)}), so it sold at ${inr(L, 2)}.`; } else msg = `Not filled. The highest price was ${inr(H, 2)}, below your limit of ${inr(L, 2)}.`; }
+    } else {
+      if (!T) msg = "Enter a trigger price.";
+      else if (sd === "sell") {
+        const trig = Lo <= T, gap = O <= T;
+        if (t === "sl" && L > T) msg = "For a stop-loss sell, the limit should be at or below the trigger.";
+        else if (!trig) msg = `Not triggered. The low was ${inr(Lo, 2)}, above your trigger of ${inr(T, 2)}. You still hold the shares.`;
+        else if (t === "slm") { fill = gap ? O : T; msg = gap ? `Gap down: the stock opened at ${inr(O, 2)}, below your trigger, so SL-M sold at market near the open, ${inr(T - O, 2)} worse than your trigger.` : `Triggered when price fell to ${inr(T, 2)} and sold at market, around ${inr(T, 2)} (in a fast fall it could be lower).`; }
+        else { if (!L) msg = "Enter a limit price."; else if (gap && O < L) { if (H >= L) { fill = L; msg = `Triggered at the open (${inr(O, 2)}) below your limit. It filled only when price came back up to ${inr(L, 2)} later.`; } else msg = `Triggered at the open (${inr(O, 2)}), but price was already below your limit of ${inr(L, 2)} and the high (${inr(H, 2)}) never came back. NOT FILLED: you still hold, unprotected.`; } else { fill = gap ? O : L <= T ? Math.min(T, Math.max(L, Lo)) : T; msg = `Triggered and filled at about ${inr(fill, 2)}.`; } }
+      } else {
+        const trig = H >= T, gap = O >= T;
+        if (t === "sl" && L < T) msg = "For a stop-loss buy, the limit should be at or above the trigger.";
+        else if (!trig) msg = `Not triggered. The high was ${inr(H, 2)}, below your trigger of ${inr(T, 2)}.`;
+        else if (t === "slm") { fill = gap ? O : T; msg = gap ? `Gap up above your trigger: SL-M bought at market near the open, ${inr(O, 2)}.` : `Triggered when price rose to ${inr(T, 2)} and bought at market, around ${inr(T, 2)}.`; }
+        else { if (!L) msg = "Enter a limit price."; else if (gap && O > L) { if (Lo <= L) { fill = L; msg = `Triggered at the open above your limit; filled later when price dipped to ${inr(L, 2)}.`; } else msg = `Triggered at the open (${inr(O, 2)}), above your limit of ${inr(L, 2)}, and the low never came back. Not filled.`; } else { fill = gap ? O : T; msg = `Triggered and filled at about ${inr(fill, 2)}. Stop-loss buy orders are used to buy breakouts.`; } }
+      }
+    }
+    $("#s-result").innerHTML = `<b>${fill ? (sd === "buy" ? "Bought" : "Sold") + " " + q + " " + name + " at about " + inr(fill, 2) + " = " + inr(fill * q) : "No trade"}.</b> ` + msg + (fill ? ` The stock closed at ${inr(C, 2)}${sd === "buy" ? `, so you're ${C >= fill ? "up" : "down"} ${inr(Math.abs(C - fill) * q)} at the close` : ""}.` : "");
+  };
+  fillDays(); suggest();
+  st.addEventListener("input", () => { fillDays(); suggest(); }); [day, side, type].forEach(x => x.addEventListener("input", suggest));
+  ["#s-trig", "#s-lim", "#s-qty"].forEach(x => $(x).addEventListener("input", run));
+};
+</script>
+
+    <section class="finish" aria-label="Finish the lesson">
+      <h2>Done with this lesson?</h2>
+      <p>Pass the quiz (8 or more correct) and finish the practice task, then tick lesson 1.08 in the course hub so your progress is saved to your account.</p>
+      <div class="row"><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Open the course hub ↗</a><a class="" href="https://claude.ai/artifact/6i1pYV92SFK52BuE8zyT5G" target="_blank" rel="noopener">Next: Settlement and Liquidity →</a></div>
+    </section>
+    <nav class="pager" aria-label="Lesson pager"><a class="" href="https://claude.ai/artifact/48jBXA1RX7KwgZTLhTdS66" target="_blank" rel="noopener">← 1.07 Market Timings</a><a class="" href="https://claude.ai/artifact/6i1pYV92SFK52BuE8zyT5G" target="_blank" rel="noopener">1.09 Settlement and Liquidity →</a></nav>
+    <footer class="f">Indian market (NSE/BSE). For learning, not investment advice. Charts use real daily NSE/BSE closing data from a free public dataset (github.com/aswinv90/indian-market-historical-data), data to 30 Oct 2026. Rules and charges change: check the SEBI, NSE and broker pages named in the lesson before relying on a number.</footer>
+  </article>
+</div>
+
+<script id="series" type="application/json">{"reliance_d":[["2026-08-03",1315.2,1319.0,1306.0,1319.0,7508023],["2026-08-04",1315.0,1315.0,1286.4,1290.9,10759546],["2026-08-05",1293.0,1299.0,1270.1,1280.0,24820782],["2026-08-06",1285.0,1325.2,1281.2,1325.0,20342297],["2026-08-07",1320.0,1337.0,1316.6,1334.8,9885638],["2026-08-10",1330.1,1332.9,1321.3,1327.3,8207102],["2026-08-11",1326.6,1328.7,1314.1,1323.9,9953124],["2026-08-12",1323.9,1329.0,1309.2,1329.0,7901012],["2026-08-13",1327.8,1327.8,1307.2,1317.0,9397301],["2026-08-14",1317.0,1317.5,1301.5,1310.0,10497358],["2026-08-17",1314.0,1320.8,1298.1,1316.0,13383867],["2026-08-18",1314.0,1328.6,1311.2,1322.0,10180567],["2026-08-19",1320.3,1321.6,1303.5,1311.0,7489365],["2026-08-20",1315.5,1316.5,1307.0,1313.2,5546227],["2026-08-21",1314.0,1316.0,1308.0,1316.0,5434871],["2026-08-24",1316.6,1320.0,1302.4,1309.8,7277167],["2026-08-25",1304.3,1317.1,1300.0,1317.0,7115355],["2026-08-26",1310.0,1315.6,1298.0,1298.0,5744474],["2026-08-27",1305.0,1308.4,1282.2,1282.2,11271497],["2026-08-28",1284.9,1291.8,1280.0,1287.0,6830228],["2026-08-31",1278.7,1297.6,1271.0,1277.0,34871137],["2026-09-01",1285.0,1311.8,1280.0,1309.0,12617528],["2026-09-02",1298.0,1321.9,1293.1,1313.1,13497841],["2026-09-03",1313.1,1316.8,1302.5,1302.5,9721454],["2026-09-04",1304.1,1333.0,1304.1,1322.0,13031534],["2026-09-07",1323.1,1324.2,1301.9,1309.5,10210522],["2026-09-08",1304.1,1306.8,1288.0,1294.9,9799528],["2026-09-09",1283.5,1294.7,1277.2,1279.0,12152819],["2026-09-10",1278.5,1285.3,1266.3,1274.0,9296079],["2026-09-11",1267.0,1267.4,1253.0,1257.5,8777736],["2026-09-14",1257.5,1257.5,1257.5,1257.5,0],["2026-09-15",1252.5,1259.4,1235.3,1235.3,13754376],["2026-09-16",1243.0,1255.0,1240.0,1240.0,10023997],["2026-09-17",1244.8,1253.4,1238.5,1243.9,7752895],["2026-09-18",1245.0,1247.3,1226.4,1226.4,15122715],["2026-09-21",1234.1,1249.1,1232.5,1247.4,10007218],["2026-09-22",1247.6,1251.9,1237.4,1240.4,10684376],["2026-09-23",1242.0,1252.8,1238.9,1248.0,8352048],["2026-09-24",1236.6,1241.6,1219.2,1219.2,13923795],["2026-09-25",1210.5,1227.4,1210.5,1226.0,13138735],["2026-09-28",1218.0,1219.7,1197.0,1197.6,13602349],["2026-09-29",1193.8,1198.3,1181.8,1182.0,24191416],["2026-09-30",1182.0,1196.5,1181.7,1187.0,16376789],["2026-10-01",1180.1,1183.9,1160.8,1167.7,16771221],["2026-10-02",1167.7,1167.7,1167.7,1167.7,0],["2026-10-05",1171.2,1193.0,1171.2,1186.4,14254907],["2026-10-06",1188.1,1219.1,1188.1,1218.0,18003127],["2026-10-07",1212.0,1220.8,1203.5,1207.7,11880731],["2026-10-08",1207.7,1208.0,1173.0,1178.0,13965493],["2026-10-09",1179.0,1179.0,1160.2,1170.3,12086708],["2026-10-12",1180.3,1185.5,1153.2,1158.9,11338332],["2026-10-13",1158.9,1168.3,1152.2,1166.7,10988483],["2026-10-14",1167.0,1188.0,1162.7,1174.6,10938195],["2026-10-15",1185.2,1218.8,1177.2,1215.0,23456219],["2026-10-16",1215.0,1215.4,1193.0,1211.2,17225283],["2026-10-19",1212.0,1228.2,1201.0,1202.0,15572554],["2026-10-21",1212.0,1234.3,1199.3,1209.0,17607823],["2026-10-22",1206.2,1208.0,1184.5,1184.5,14957042],["2026-10-23",1184.0,1201.9,1163.1,1190.0,14905641],["2026-10-26",1186.1,1204.5,1174.5,1201.8,7490515],["2026-10-27",1195.0,1202.6,1184.0,1196.2,13067787],["2026-10-28",1194.5,1204.3,1156.4,1158.0,21866598],["2026-10-29",1159.0,1182.1,1155.6,1167.4,20939623],["2026-10-30",1170.4,1174.6,1152.5,1164.9,14753650]],"tcs_d":[["2026-08-03",2383.9,2473.7,2383.0,2473.7,3036839],["2026-08-04",2463.1,2467.4,2435.1,2460.0,2792792],["2026-08-05",2460.0,2460.9,2408.0,2413.0,3014409],["2026-08-06",2417.0,2434.5,2368.5,2373.0,2729141],["2026-08-07",2375.0,2457.7,2375.0,2452.7,4547979],["2026-08-10",2452.7,2472.9,2423.5,2425.7,2322023],["2026-08-11",2438.0,2456.6,2428.0,2445.7,1514105],["2026-08-12",2445.7,2445.8,2300.1,2349.7,7022647],["2026-08-13",2349.7,2375.0,2332.3,2375.0,2123494],["2026-08-14",2375.1,2390.0,2333.4,2361.0,2232160],["2026-08-17",2351.0,2361.1,2310.6,2313.2,2237636],["2026-08-18",2300.0,2307.0,2280.0,2280.0,1797822],["2026-08-19",2293.6,2308.2,2258.3,2289.0,3368922],["2026-08-20",2319.4,2329.0,2288.1,2298.0,2047848],["2026-08-21",2290.1,2307.2,2263.3,2302.0,2066749],["2026-08-24",2302.4,2321.6,2279.5,2284.1,1542723],["2026-08-25",2305.0,2313.5,2262.0,2296.2,3041609],["2026-08-26",2305.1,2306.3,2266.4,2270.0,1660737],["2026-08-27",2270.0,2283.6,2243.9,2248.4,1709113],["2026-08-28",2272.0,2348.5,2263.3,2342.0,4054069],["2026-08-31",2342.0,2399.3,2306.2,2399.3,2905846],["2026-09-01",2355.0,2372.0,2325.0,2369.0,2678034],["2026-09-02",2347.9,2363.0,2303.5,2348.0,2533005],["2026-09-03",2353.6,2353.6,2316.1,2320.1,1892786],["2026-09-04",2330.0,2363.9,2302.4,2304.0,2564322],["2026-09-07",2290.1,2299.9,2260.1,2270.0,2297551],["2026-09-08",2270.0,2274.5,2244.0,2255.5,2148114],["2026-09-09",2237.0,2237.0,2193.2,2208.0,3370071],["2026-09-10",2199.0,2232.0,2190.6,2204.1,2490912],["2026-09-11",2185.5,2232.6,2185.5,2200.8,2634124],["2026-09-14",2200.8,2200.8,2200.8,2200.8,0],["2026-09-15",2275.5,2323.0,2251.0,2251.0,5406210],["2026-09-16",2270.0,2273.9,2172.0,2188.8,2763709],["2026-09-17",2171.0,2263.6,2162.5,2190.0,3295917],["2026-09-18",2177.2,2177.3,2101.2,2105.0,6875428],["2026-09-21",2090.0,2145.0,2075.3,2128.7,2330811],["2026-09-22",2135.1,2135.2,2098.2,2105.0,3641623],["2026-09-23",2099.0,2104.2,2077.6,2089.6,2228402],["2026-09-24",2076.0,2096.9,2067.1,2087.0,1760662],["2026-09-25",2054.0,2090.2,2038.1,2082.0,3342195],["2026-09-28",2100.0,2100.0,2051.0,2070.7,2457049],["2026-09-29",2065.0,2085.1,2032.4,2032.4,4437783],["2026-09-30",2069.0,2101.0,2050.6,2050.6,3656425],["2026-10-01",2052.6,2093.9,2045.1,2075.0,3428501],["2026-10-02",2075.0,2075.0,2075.0,2075.0,0],["2026-10-05",2114.0,2140.9,2063.6,2114.4,5270768],["2026-10-06",2097.0,2115.0,2082.7,2100.0,2382510],["2026-10-07",2085.2,2105.0,2076.0,2080.3,1349758],["2026-10-08",2104.0,2141.5,2060.0,2076.0,4288031],["2026-10-09",2086.0,2204.0,2086.0,2156.0,11692314],["2026-10-12",2184.9,2195.1,2120.9,2125.0,3540523],["2026-10-13",2156.9,2269.3,2155.0,2269.3,11048193],["2026-10-14",2274.0,2335.8,2265.6,2304.9,12145767],["2026-10-15",2347.2,2386.7,2335.0,2350.0,9150523],["2026-10-16",2382.0,2484.7,2375.7,2465.0,12166634],["2026-10-19",2458.0,2497.0,2432.1,2460.9,8676373],["2026-10-21",2484.0,2533.3,2476.5,2529.0,5707347],["2026-10-22",2520.0,2533.0,2479.0,2506.9,4174671],["2026-10-23",2568.0,2625.0,2517.2,2530.0,6857942],["2026-10-26",2500.0,2549.7,2491.6,2535.0,4326029],["2026-10-27",2514.1,2534.9,2465.4,2496.9,4337081],["2026-10-28",2449.0,2461.3,2408.2,2460.0,2540047],["2026-10-29",2490.0,2509.5,2464.0,2478.0,3427569],["2026-10-30",2495.2,2527.7,2494.2,2502.6,3016983]]}</script>
+<script>
+/* ===== Shared lesson engine: charts, quiz, practice notes. Same in every lesson. ===== */
+const LESSON_ID = "1.08";
+const SERIES = JSON.parse(document.getElementById("series").textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const inr = (v, d = 0) => "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v, d = 2) => Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function niceDate(s) { const p = s.split("-"); return (p[2] ? (+p[2]) + " " : "") + MONTHS[+p[1] - 1] + " " + p[0]; }
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem("tc-" + k) || "null"); localStorage.setItem("tc-" + k, JSON.stringify(v)); } catch (e) { return null; } }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t;
+}
+function shortNum(v) { const a = Math.abs(v); if (a >= 1e7) return (v / 1e7).toFixed(1).replace(/\.0$/, "") + "Cr"; if (a >= 1e5) return (v / 1e5).toFixed(1).replace(/\.0$/, "") + "L"; return Number(v).toLocaleString("en-IN", { maximumFractionDigits: a < 100 ? 2 : 0 }); }
+
+/* Chart options (data-* on <figure class="chart">):
+   series="a,b" names in SERIES · type=line|candle · from/to (date prefix) · norm=100 (rebase each series)
+   labels="Nifty 50,Sensex" · marks='[["2020-03-23","Covid low"]]' · band='["2020-02-20","2020-03-23"]'
+   unit="₹"|"pts"|"" · log · vol (show volume bars) · title */
+function drawChart(fig) {
+  const ds = fig.dataset, names = ds.series.split(","), labels = (ds.labels || ds.series).split(",");
+  const colors = ["--accent", "--mark", "--down", "--violet", "--up"].map(css);
+  const type = ds.type || "line", unit = ds.unit ?? "", norm = ds.norm ? +ds.norm : 0;
+  const inRange = d => (!ds.from || d >= ds.from) && (!ds.to || d <= ds.to + "~");
+  const sets = names.map(n => SERIES[n].filter(r => inRange(r[0])));
+  const isOHLC = sets[0][0].length >= 5;
+  const close = r => isOHLC ? r[4] : r[1];
+  const lines = sets.map(s => { const b = close(s[0]); return s.map(r => norm ? close(r) / b * norm : close(r)); });
+  const dates = sets[0].map(r => r[0]);
+  const W = Math.max(300, Math.round(fig.querySelector(".ch-box").clientWidth || 720)), H = (W < 520 ? 250 : 300) + (("vol" in ds) ? 40 : 0), padL = 58, padR = 14, volH = ("vol" in ds) ? 56 : 0, padB = 26;
+  let padT = 12;
+  const plotB = H - padB - volH - (("vol" in ds) ? 8 : 0);
+  let lo = Infinity, hi = -Infinity;
+  if (type === "candle") sets[0].forEach(r => { lo = Math.min(lo, r[3]); hi = Math.max(hi, r[2]); });
+  else lines.forEach(l => l.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+  const hl = ds.hline ? JSON.parse(ds.hline) : [];
+  hl.forEach(([v]) => { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+  const log = "log" in ds;
+  const pad = (hi - lo) * 0.06; if (!log) { lo -= pad; hi += pad; if (lo < 0 && Math.min(...lines.flat()) >= 0) lo = 0; }
+  const yv = v => log ? Math.log(v) : v;
+  const Y = v => plotB - (yv(v) - yv(lo)) / (yv(hi) - yv(lo)) * (plotB - padT);
+  const n = dates.length, X = i => padL + (n === 1 ? 0.5 : i / (n - 1)) * (W - padL - padR);
+  const idxOf = d => { let k = dates.findIndex(x => x >= d); return k < 0 ? n - 1 : k; };
+  const marks = ds.marks ? JSON.parse(ds.marks).map(([d, label]) => { const i = idxOf(d), x = X(i), tw = label.length * 6.6 + 10; return { i, x, label, tw, tx: Math.min(Math.max(x - tw / 2, padL), W - padR - tw) }; }) : [];
+  const placed = []; marks.forEach(m => { let row = 0; while (placed.some(p => p.row === row && !(m.tx + m.tw + 4 < p.tx || m.tx > p.tx + p.tw + 4))) row++; m.row = row; placed.push(m); });
+  if (marks.length) padT = 12 + 21 * (Math.max(...marks.map(m => m.row)) + 1);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": ds.title || labels.join(", ") });
+  // grid + y labels
+  let ticks = log ? (() => { const t = []; for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) [1, 2, 5].forEach(m => { const v = m * 10 ** p; if (v >= lo && v <= hi) t.push(v); }); return t; })() : niceTicks(lo, hi);
+  ticks.forEach(t => { const y = Y(t); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid" }, svg); const tx = el("text", { x: padL - 6, y: y + 4, "text-anchor": "end" }, svg); tx.textContent = (unit === "₹" ? "₹" : "") + shortNum(t); });
+  // x labels: years, or months, or days depending on span
+  const span = (new Date(dates[n - 1]) - new Date(dates[0])) / 864e5;
+  let lastKey = null, lastX = -99;
+  dates.forEach((d, i) => {
+    const key = span > 1500 ? d.slice(0, 4) : span > 75 ? d.slice(0, 7) : d;
+    if (key === lastKey) return; lastKey = key; const x = X(i);
+    if (x - lastX < (span > 75 ? 46 : 52) || x > W - padR - 14) return; lastX = x;
+    const tx = el("text", { x, y: H - 8, "text-anchor": "middle" }, svg);
+    tx.textContent = span > 1500 ? key : span > 75 ? MONTHS[+d.slice(5, 7) - 1] + (d.slice(5, 7) === "01" || i === 0 ? " " + d.slice(2, 4) : "") : (+d.slice(8)) + " " + MONTHS[+d.slice(5, 7) - 1];
+  });
+  if (ds.band) { const [a, b] = JSON.parse(ds.band); const xa = X(idxOf(a)), xb = X(idxOf(b)); el("rect", { x: xa, y: padT, width: Math.max(2, xb - xa), height: plotB - padT, class: "hl" }, svg); }
+  if (type === "candle") {
+    const w = Math.max(1.5, Math.min(10, (W - padL - padR) / n * 0.62));
+    sets[0].forEach((r, i) => { const up = r[4] >= r[1], c = up ? css("--up") : css("--down"), x = X(i);
+      el("line", { x1: x, x2: x, y1: Y(r[2]), y2: Y(r[3]), stroke: c, "stroke-width": 1.2 }, svg);
+      const y1 = Y(Math.max(r[1], r[4])), y2 = Y(Math.min(r[1], r[4]));
+      el("rect", { x: x - w / 2, y: y1, width: w, height: Math.max(1, y2 - y1), fill: up ? css("--surface") : c, stroke: c, "stroke-width": 1.2 }, svg); });
+  } else {
+    lines.forEach((l, k) => {
+      const d = l.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1)).join("");
+      if (lines.length === 1) el("path", { d: d + `L${X(n - 1)} ${plotB}L${X(0)} ${plotB}Z`, fill: colors[0], opacity: 0.08 }, svg);
+      el("path", { d, fill: "none", stroke: colors[k], "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    });
+  }
+  hl.forEach(([v, label]) => { const y = Y(v); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, stroke: css("--violet"), "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+    const t = el("text", { x: W - padR - 4, y: y - 5, "text-anchor": "end", fill: css("--violet"), "font-weight": 600 }, svg); t.textContent = label; t.style.fill = "var(--violet)"; });
+  if (("vol" in ds)) {
+    const vols = sets[0].map(r => r[5]), vmax = Math.max(...vols), vb = H - padB, w = Math.max(1.5, (W - padL - padR) / n * 0.62);
+    const t = el("text", { x: padL - 6, y: vb - 4, "text-anchor": "end" }, svg); t.textContent = "Vol";
+    sets[0].forEach((r, i) => el("rect", { x: X(i) - w / 2, y: vb - r[5] / vmax * volH, width: w, height: r[5] / vmax * volH, fill: r[4] >= r[1] ? css("--up") : css("--down"), opacity: .45 }, svg));
+    el("line", { x1: padL, x2: W - padR, y1: vb, y2: vb, class: "grid" }, svg);
+  }
+  marks.forEach(({ i, x, label, tw, tx, row }) => {
+    const g = el("g", { class: "mk" }, svg), y = 2 + row * 21;
+    el("line", { x1: x, x2: x, y1: y + 18, y2: plotB }, g);
+    el("rect", { x: tx, y, width: tw, height: 18, rx: 4 }, g);
+    const t = el("text", { x: tx + tw / 2, y: y + 13, "text-anchor": "middle" }, g); t.textContent = label;
+    if (type !== "candle") el("circle", { cx: x, cy: Y(lines[0][i]), r: 4, fill: css("--mark"), stroke: css("--surface"), "stroke-width": 2 }, g);
+  });
+  // hover readout
+  const cross = el("line", { y1: padT, y2: plotB, class: "cross", visibility: "hidden" }, svg);
+  const dots = lines.map((_, k) => el("circle", { r: 4, fill: colors[k], stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }, svg));
+  const ro = fig.querySelector(".readout");
+  const show = i => {
+    const r = sets[0][i]; cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    if (type === "candle") { ro.textContent = `${niceDate(r[0])} · O ${fmt(r[1])} H ${fmt(r[2])} L ${fmt(r[3])} C ${fmt(r[4])}` + (r[5] ? ` · Vol ${shortNum(r[5])}` : "") + (i ? ` · ${pct((r[4] / sets[0][i - 1][4] - 1) * 100, 2)}` : ""); return; }
+    dots.forEach((c, k) => { c.setAttribute("cx", X(i)); c.setAttribute("cy", Y(lines[k][i])); c.setAttribute("visibility", "visible"); });
+    ro.textContent = niceDate(r[0]) + " · " + lines.map((l, k) => (lines.length > 1 ? labels[k] + " " : "") + (unit === "₹" && !norm ? inr(l[i], 2) : fmt(l[i], norm ? 1 : 2))).join(" · ");
+  };
+  const def = () => { const i = n - 1; show(i); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); };
+  svg.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * W; show(Math.max(0, Math.min(n - 1, Math.round((x - padL) / (W - padL - padR) * (n - 1))))); });
+  svg.addEventListener("pointerleave", def);
+  fig.querySelector(".ch-box").appendChild(svg); def();
+  if (lines.length > 1) fig.querySelector(".legend").innerHTML = labels.map((l, k) => `<span><i style="background:var(${["--accent","--mark","--down","--violet","--up"][k]})"></i>${l}</span>`).join("");
+}
+function buildCharts(root = document) {
+  $$("figure.chart", root).forEach(fig => {
+    if (!fig.querySelector(".ch-box")) {
+      const head = document.createElement("div"); head.className = "ch-head";
+      head.innerHTML = `<span class="ch-title"></span><span class="readout" aria-live="off"></span>`;
+      head.firstChild.textContent = fig.dataset.title || "";
+      const legend = document.createElement("div"); legend.className = "legend";
+      const box = document.createElement("div"); box.className = "ch-box";
+      fig.prepend(head, legend, box);
+    } else fig.querySelector(".ch-box").innerHTML = "";
+    drawChart(fig);
+  });
+}
+
+/* Quiz: div.quiz[data-pass] holding a JSON script tag: [{q, o:[...], a:index, why}] */
+function buildQuiz(box) {
+  const Q = JSON.parse(box.querySelector("script").textContent), pass = +(box.dataset.pass || Math.ceil(Q.length * 0.8));
+  const saved = store("quiz-" + LESSON_ID) || {}; const answers = saved.answers || {};
+  const score = document.createElement("div"); score.className = "score";
+  const upd = () => { const done = Object.keys(answers).length, right = Q.filter((q, i) => answers[i] === q.a).length;
+    score.className = "score" + (done === Q.length && right >= pass ? " pass" : "");
+    score.innerHTML = `<b>${right} / ${Q.length}</b><span>${done < Q.length ? `Answered ${done} of ${Q.length}. You need ${pass} correct to pass.` : right >= pass ? "Passed. Well done." : `Not yet: you need ${pass}. Read the explanations, then retry.`}</span>`;
+    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store("quiz-" + LESSON_ID, { answers }); render(); }; score.appendChild(b); }
+  };
+  const render = () => {
+    box.querySelectorAll(".qcard").forEach(c => c.remove());
+    Q.forEach((q, i) => {
+      const c = document.createElement("div"); c.className = "qcard";
+      c.innerHTML = `<span class="qn">QUESTION ${i + 1} OF ${Q.length}</span><p class="qq"></p><div class="opts"></div>`;
+      c.querySelector(".qq").textContent = q.q;
+      q.o.forEach((o, j) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = `<span class="l">${"ABCD"[j]}</span><span></span>`; b.lastChild.textContent = o;
+        b.onclick = () => { answers[i] = j; store("quiz-" + LESSON_ID, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
+      const mark = () => { if (!(i in answers)) return; const bs = [...c.querySelectorAll(".opts button")];
+        bs.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === answers[i]) b.classList.add("wrong"); });
+        if (!c.querySelector(".why")) { const w = document.createElement("p"); w.className = "why"; w.innerHTML = `<b class="${answers[i] === q.a ? "ok" : "no"}">${answers[i] === q.a ? "Correct." : "Not quite."}</b> `; w.append(q.why); c.appendChild(w); } };
+      mark(); box.insertBefore(c, score);
+    });
+    upd();
+  };
+  box.appendChild(score); render();
+}
+
+/* Practice: <div class="task" data-key="x"> with <ul class="check"><li>..</li></ul> and optional <textarea> */
+function buildTask(t) {
+  const key = "task-" + LESSON_ID + "-" + (t.dataset.key || "a"), s = store(key) || { c: {}, notes: "" };
+  $$("ul.check li", t).forEach((li, i) => { const id = key + "-" + i; const lab = document.createElement("label"); lab.innerHTML = `<input type="checkbox" class="tick" id="${id}">`; const sp = document.createElement("span"); while (li.firstChild) sp.appendChild(li.firstChild); lab.appendChild(sp); li.appendChild(lab);
+    const cb = lab.firstChild; cb.checked = !!s.c[i]; cb.onchange = () => { s.c[i] = cb.checked; store(key, s); }; });
+  const ta = $("textarea", t); if (ta) { ta.id = key + "-notes"; ta.value = s.notes || ""; const sv = document.createElement("span"); sv.className = "saved"; sv.textContent = "Notes stay in this browser only. Copy anything important into your trading journal."; ta.after(sv); ta.oninput = () => { s.notes = ta.value; store(key, s); }; }
+}
+
+function buildToc() {
+  const toc = $("#toc"); const parts = $$("section.part");
+  parts.forEach(p => { const li = document.createElement("li"); const a = document.createElement("a"); a.href = "#" + p.id; a.textContent = p.dataset.toc || p.querySelector("h2").textContent; li.appendChild(a); toc.appendChild(li); });
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) $$("#toc a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-20% 0px -70% 0px" }); parts.forEach(p => io.observe(p)); }
+}
+
+buildToc();
+buildCharts();
+$$(".quiz").forEach(buildQuiz);
+$$(".task").forEach(buildTask);
+if (typeof window.lessonInit === "function") window.lessonInit();
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => buildCharts(), 200); });
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => buildCharts());
+new MutationObserver(() => buildCharts()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>

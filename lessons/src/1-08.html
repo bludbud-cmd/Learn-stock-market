@@ -1,0 +1,188 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.08</span>
+      <h1>Order types: market, limit, stop-loss, GTT, and CNC vs MIS</h1>
+      <p class="lede">An order is an instruction to your broker. Choosing the right type decides the price you pay, whether you get filled at all, and how much you can lose. This is the most practical lesson in Level 1, and it ends with a simulator that tests your orders on real NSE prices.</p>
+      <div class="facts"><span class="chip mark">About 60 minutes</span><span class="chip">Real data: Reliance and TCS daily prices, Aug to Oct 2026</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The order types in plain words</h2></header>
+      <div class="prose">
+        <p>Every order has three choices: <strong>what kind of price</strong> (order type), <strong>how long you'll hold</strong> (product type), and <strong>how long the order stays alive</strong> (validity).</p>
+        <h3>Order types</h3>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Type</th><th>You say</th><th>Good</th><th>Risk</th></tr></thead><tbody>
+        <tr><td><strong>Market</strong></td><td>"Buy now at whatever the best price is."</td><td>Always fills (in a liquid stock)</td><td>You don't control the price. In a fast or thin market you can pay much more than you saw.</td></tr>
+        <tr><td><strong>Limit</strong></td><td>"Buy only at ₹1,165 or lower." (Sell: "only at ₹X or higher.")</td><td>You control the price exactly</td><td>It may never fill if the price doesn't come to you.</td></tr>
+        <tr><td><strong>Stop-loss limit (SL)</strong></td><td>"If the price falls to ₹1,140 (trigger), send a sell limit order at ₹1,138."</td><td>Limits your loss, and controls the worst fill price</td><td>In a gap or crash the price can jump past your limit, and the order sits unfilled while you keep losing.</td></tr>
+        <tr><td><strong>Stop-loss market (SL-M)</strong></td><td>"If the price falls to ₹1,140, sell at market."</td><td>Gets you out once triggered</td><td>You may be filled well below the trigger in a fast fall. (Many brokers no longer offer SL-M for options; it is still widely used for shares.)</td></tr>
+        <tr><td><strong>GTT</strong> (good till triggered)</td><td>"Watch the price for up to a year; when it touches ₹1,200, place my order."</td><td>Perfect for a day job: works for weeks without you</td><td>It's held by your broker, not the exchange, and only places a normal order when triggered, so a fill isn't guaranteed.</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <p>A <strong>GTT OCO</strong> (one cancels other) holds two triggers at once, a target above and a stop-loss below. When one fires, the other is cancelled. Swing traders use it to protect every position while they're at work.</p>
+        <h3>Product types</h3>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Product</th><th>Meaning</th><th>Used for</th><th>Key rule</th></tr></thead><tbody>
+        <tr><td><strong>CNC</strong></td><td>Cash and carry (delivery)</td><td>Your swing trades and investments</td><td>You pay the full amount; shares come to your demat and you can hold as long as you like.</td></tr>
+        <tr><td><strong>MIS</strong></td><td>Margin intraday square-off</td><td>Intraday trades on days off</td><td>The broker lends you leverage (up to 5 times for many stocks) and closes the position automatically before 3:30 pm.</td></tr>
+        <tr><td><strong>NRML</strong></td><td>Normal (for futures and options)</td><td>F&amp;O positions held overnight</td><td>Learn-only in this course. You won't use it.</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <h3>Validity</h3>
+        <p><strong>DAY</strong> orders expire at the end of the day if not filled (most orders). <strong>IOC</strong> (immediate or cancel) fills whatever it can instantly and cancels the rest. GTT orders last up to a year.</p>
+        <h3>Trigger price vs limit price</h3>
+        <p>This confuses everyone at first. The <strong>trigger</strong> is the alarm: nothing happens until the price touches it. The <strong>limit</strong> is the worst price you'll accept after the alarm goes off. For a stop-loss sell, the limit is set a little below the trigger, to give the order room to fill.</p>
+      </div>
+      <div class="key"><b class="lbl">Course rule</b><p>Every trade you take, paper or real, has a stop-loss order placed at the same time as the entry. No exceptions. You'll learn where to put it in Levels 3 to 5.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE example">
+      <header><span class="eyebrow">Part 2</span><h2>A real gap: TCS on 28 October 2026</h2></header>
+      <figure class="chart" data-series="tcs_d" data-type="candle" data-unit="₹" data-from="2026-10-12" data-title="TCS daily candles on NSE, 12 to 30 Oct 2026" data-marks='[["2026-10-28","Gap down"]]' data-hline='[[2470,"Your trigger ₹2,470"]]'>
+        <figcaption>TCS closed at ₹2,496.90 on 27 October. On 28 October it opened at ₹2,449.00, already ₹48 lower, traded between ₹2,408.20 and ₹2,461.30, and closed at ₹2,460.00. It never got back to ₹2,465 that day.</figcaption>
+      </figure>
+      <div class="prose">
+        <p>Imagine you owned TCS from ₹2,520 and had a stop-loss with a trigger of ₹2,470. Here's what each kind of stop-loss would have done:</p>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Your stop-loss</th><th>What happened at 9:15 on 28 Oct</th><th class="n">Exit price</th></tr></thead><tbody>
+        <tr><td>SL-M, trigger ₹2,470</td><td>Price opened below the trigger, so it triggered at once and sold at market, near the open</td><td class="n">about ₹2,449</td></tr>
+        <tr><td>SL, trigger ₹2,470, limit ₹2,465</td><td>Triggered at the open, but the price was already below your ₹2,465 limit. The order waited. The high of the day was ₹2,461.30, so it <strong>never filled</strong></td><td class="n">not sold; still holding at ₹2,460 close, and at risk next day</td></tr>
+        <tr><td>No stop-loss</td><td>Nothing happened. You find out in the evening.</td><td class="n">still holding</td></tr>
+      </tbody></table></div>
+      <div class="prose"><p>SL-M cost you ₹21 a share more than you planned but got you out. The SL limit order looked safer but left you exposed. For swing trades in liquid Nifty stocks, many traders prefer SL-M or a wider gap between trigger and limit. You'll decide your own rule in Level 5.</p></div>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: A limit buy that fills</h3>
+          <p class="q">On 29 Oct 2026 Reliance opened at ₹1,159.00, with a low of ₹1,155.60 and a high of ₹1,182.10. You placed a limit buy at ₹1,160. Did it fill?</p>
+          <p class="ans"><b>Answer:</b> yes. The open (₹1,159) was already at or below your limit, so it filled at about ₹1,159, slightly better than your limit. A limit order never fills at a worse price.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: A limit buy that misses</h3>
+          <p class="q">Same day, you placed a limit buy at ₹1,150. Did it fill?</p>
+          <p class="ans"><b>Answer:</b> no. The lowest price was ₹1,155.60, which never reached ₹1,150. Your order expired at the end of the day (DAY validity). Being too greedy on price means missing the trade.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: MIS leverage</h3>
+          <p class="q">You have ₹20,000. A stock is ₹500 and the broker gives 5 times MIS leverage. How many shares can you buy intraday, and what happens if it falls 4%?</p>
+          <div class="calc">buying power = 20,000 × 5 = ₹1,00,000 → 200 shares
+fall of 4%   = 200 × 500 × 0.04 = ₹4,000 loss
+             = 20% of your own ₹20,000</div>
+          <p class="ans"><b>Answer:</b> 200 shares, and a 4% move loses a fifth of your money. With CNC you'd have bought 40 shares and lost ₹800. Leverage multiplies losses exactly as much as gains.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 4: A swing plan with GTT OCO</h3>
+          <p class="q">You bought 15 Reliance at ₹1,165 (CNC). Your plan: stop-loss ₹1,130, target ₹1,235. How do you protect it while at work?</p>
+          <ol class="steps"><li>Place a GTT OCO sell for 15 shares.</li><li>Lower trigger ₹1,130 (stop-loss). Upper trigger ₹1,235 (target).</li><li>Whichever is touched first places the sell order; the other is cancelled.</li></ol>
+          <div class="calc">risk   = (1,165 − 1,130) × 15 = ₹525
+reward = (1,235 − 1,165) × 15 = ₹1,050   → reward is 2 × risk</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="part" id="sim" data-toc="Order simulator">
+      <header><span class="eyebrow">Part 4</span><h2>Order simulator on real prices</h2><p>Pick a real trading day, place an order, and see what would have happened using that day's open, high, low and close.</p></header>
+      <div class="tool">
+        <div class="fields">
+          <label class="field">Stock<select id="s-stock"><option value="reliance_d">Reliance</option><option value="tcs_d">TCS</option></select></label>
+          <label class="field">Day<select id="s-day"></select></label>
+          <label class="field">Side<select id="s-side"><option value="buy">Buy</option><option value="sell">Sell (you already hold)</option></select></label>
+          <label class="field">Order type<select id="s-type"><option value="mkt">Market (at the open)</option><option value="lmt">Limit</option><option value="sl">Stop-loss limit (SL)</option><option value="slm">Stop-loss market (SL-M)</option></select></label>
+          <label class="field" id="f-trig">Trigger price (₹)<input id="s-trig" type="number" step="0.05"></label>
+          <label class="field" id="f-lim">Limit price (₹)<input id="s-lim" type="number" step="0.05"></label>
+          <label class="field">Quantity<input id="s-qty" type="number" min="1" value="10"></label>
+        </div>
+        <div class="out" id="s-candle"></div>
+        <p class="ans" id="s-result" aria-live="polite"></p>
+        <p class="src">Daily candles can't show the order of moves inside the day, so the simulator assumes the order is live from 9:15 and that gaps happen at the open. Real fills also depend on queue position and liquidity.</p>
+      </div>
+      <div class="task" data-key="orders">
+        <h3>Simulator task: one of each</h3>
+        <ul class="check">
+          <li>A market buy on any day. Note the fill price.</li>
+          <li>A limit buy that fills, and one that doesn't. Write down why.</li>
+          <li>A stop-loss (SL) sell that triggers but doesn't fill. Hint: TCS, 28 Oct, trigger 2,470, limit 2,465.</li>
+          <li>An SL-M sell that triggers on a gap. Compare the fill with your trigger.</li>
+          <li>A limit sell above the open that fills at a high of the day.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 5</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"You must buy a stock right now, whatever the price. Which order?","o":["Limit","Market","SL","GTT"],"a":1,"why":"A market order fills immediately at the best available price."},
+{"q":"You place a limit buy at ₹500. The stock trades between ₹502 and ₹515 all day. What happens?","o":["Filled at ₹502","Filled at ₹500","Not filled","Filled at ₹515"],"a":2,"why":"A buy limit fills only at ₹500 or lower; the price never got there."},
+{"q":"In a stop-loss order, the trigger price is…","o":["The worst price you'll accept","The price that activates the order","Your target","The previous close"],"a":1,"why":"Trigger = alarm. Limit = worst acceptable price after the alarm."},
+{"q":"Why can an SL (limit) stop-loss fail to protect you?","o":["It's too expensive","A gap or crash can jump past your limit, so it doesn't fill","SEBI cancels it","It only works on Mondays"],"a":1,"why":"If price opens below your limit, a sell limit order won't fill until price comes back up."},
+{"q":"Which product type do you use for a swing trade you'll hold for a week?","o":["MIS","CNC","NRML","IOC"],"a":1,"why":"CNC is delivery: you own the shares and can hold them."},
+{"q":"What happens to an MIS position you don't close by about 3:20 pm?","o":["It converts to CNC","The broker squares it off automatically","It's carried overnight","It's cancelled at the buy price"],"a":1,"why":"MIS is intraday-only; the broker closes it."},
+{"q":"With ₹10,000 and 5× MIS leverage, a 2% fall in the stock loses…","o":["₹200","₹1,000","₹2,000","₹100"],"a":1,"why":"Position = ₹50,000; 2% of that is ₹1,000, which is 10% of your money."},
+{"q":"What is the main advantage of a GTT for someone with a 9-to-6 job?","o":["It's free money","It waits for weeks and places your order when the price is reached","It guarantees a fill","It avoids tax"],"a":1,"why":"GTT lets your plan run without you watching the screen."},
+{"q":"A GTT OCO with a target and a stop-loss: what happens when the target is hit?","o":["Both orders execute","The sell executes and the stop-loss is cancelled","Nothing","The stop-loss moves up"],"a":1,"why":"One cancels the other."},
+{"q":"On 28 Oct 2026, TCS opened at ₹2,449 below your SL-M trigger of ₹2,470. You were sold at about…","o":["₹2,470","₹2,449","₹2,496","Not sold"],"a":1,"why":"SL-M triggers and sells at market: around the open, worse than the trigger."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 6</span><h2>Practice task: start your trading journal</h2><p>About 20 minutes. This matches the Level 1 goal of placing 5 paper orders.</p></header>
+      <div class="task" data-key="journal">
+        <ul class="check">
+          <li>Open a spreadsheet (or notebook) called "Trading journal". Columns: date, stock, side, order type, product, quantity, trigger, limit, fill price, why I placed it, what happened.</li>
+          <li>Log the 5 simulator orders from Part 4 as your first 5 entries.</li>
+          <li>If your broker has a GTT screen, open it (without placing anything) and find where to set a single trigger and an OCO.</li>
+          <li>Write in one line, in your own words, the difference between a trigger price and a limit price.</li>
+          <li>Write your stop-loss rule for now: "Every trade gets a stop-loss order placed at the same time as the entry."</li>
+        </ul>
+        <textarea placeholder="Trigger vs limit, in my words: …"></textarea>
+      </div>
+    </section>
+
+<script>
+/* Lesson 1.08 order simulator. <!-- data: reliance_d, tcs_d --> */
+window.lessonInit = function () {
+  const st = $("#s-stock"), day = $("#s-day"), side = $("#s-side"), type = $("#s-type");
+  const fillDays = () => { const s = SERIES[st.value]; day.innerHTML = ""; s.slice(1).forEach((r, i) => day.add(new Option(niceDate(r[0]), i + 1))); day.value = String(s.length - 1);
+    if (st.value === "tcs_d") { const k = s.findIndex(r => r[0] === "2026-10-28"); if (k > 0) day.value = String(k); } };
+  const suggest = () => { const s = SERIES[st.value], r = s[+day.value], pc = s[+day.value - 1][4], t = type.value, sd = side.value;
+    const round = v => (Math.round(v * 20) / 20).toFixed(2);
+    if (t === "lmt") { $("#s-lim").value = round(sd === "buy" ? r[1] * 0.995 : r[1] * 1.005); }
+    if (t === "sl" || t === "slm") { const trig = sd === "sell" ? pc * 0.99 : pc * 1.01; $("#s-trig").value = round(trig); $("#s-lim").value = round(sd === "sell" ? trig - 5 : trig + 5); }
+    show(); };
+  const show = () => { const t = type.value; $("#f-trig").hidden = !(t === "sl" || t === "slm"); $("#f-lim").hidden = !(t === "lmt" || t === "sl"); run(); };
+  const run = () => {
+    const s = SERIES[st.value], r = s[+day.value], pc = s[+day.value - 1][4], [d, O, H, Lo, C] = r, q = Math.max(1, +$("#s-qty").value || 1);
+    const t = type.value, sd = side.value, T = +$("#s-trig").value, L = +$("#s-lim").value, name = st.options[st.selectedIndex].text;
+    $("#s-candle").innerHTML = `<div><b>${inr(pc, 2)}</b><span>Previous close</span></div><div><b>${inr(O, 2)}</b><span>Open</span></div><div><b>${inr(H, 2)}</b><span>High</span></div><div><b>${inr(Lo, 2)}</b><span>Low</span></div><div><b>${inr(C, 2)}</b><span>Close</span></div>`;
+    let fill = null, msg = "";
+    if (t === "mkt") { fill = O; msg = `Filled at about the open, ${inr(O, 2)}.`; }
+    else if (t === "lmt") {
+      if (!L) msg = "Enter a limit price.";
+      else if (sd === "buy") { if (O <= L) { fill = O; msg = `The open (${inr(O, 2)}) was already at or below your limit, so it filled at the open: better than your limit.`; } else if (Lo <= L) { fill = L; msg = `Price fell to your limit during the day (low ${inr(Lo, 2)}), so it filled at ${inr(L, 2)}.`; } else msg = `Not filled. The lowest price was ${inr(Lo, 2)}, above your limit of ${inr(L, 2)}. The order expires at 3:30 pm.`; }
+      else { if (O >= L) { fill = O; msg = `The open (${inr(O, 2)}) was already at or above your limit, so it sold at the open.`; } else if (H >= L) { fill = L; msg = `Price rose to your limit (high ${inr(H, 2)}), so it sold at ${inr(L, 2)}.`; } else msg = `Not filled. The highest price was ${inr(H, 2)}, below your limit of ${inr(L, 2)}.`; }
+    } else {
+      if (!T) msg = "Enter a trigger price.";
+      else if (sd === "sell") {
+        const trig = Lo <= T, gap = O <= T;
+        if (t === "sl" && L > T) msg = "For a stop-loss sell, the limit should be at or below the trigger.";
+        else if (!trig) msg = `Not triggered. The low was ${inr(Lo, 2)}, above your trigger of ${inr(T, 2)}. You still hold the shares.`;
+        else if (t === "slm") { fill = gap ? O : T; msg = gap ? `Gap down: the stock opened at ${inr(O, 2)}, below your trigger, so SL-M sold at market near the open, ${inr(T - O, 2)} worse than your trigger.` : `Triggered when price fell to ${inr(T, 2)} and sold at market, around ${inr(T, 2)} (in a fast fall it could be lower).`; }
+        else { if (!L) msg = "Enter a limit price."; else if (gap && O < L) { if (H >= L) { fill = L; msg = `Triggered at the open (${inr(O, 2)}) below your limit. It filled only when price came back up to ${inr(L, 2)} later.`; } else msg = `Triggered at the open (${inr(O, 2)}), but price was already below your limit of ${inr(L, 2)} and the high (${inr(H, 2)}) never came back. NOT FILLED: you still hold, unprotected.`; } else { fill = gap ? O : L <= T ? Math.min(T, Math.max(L, Lo)) : T; msg = `Triggered and filled at about ${inr(fill, 2)}.`; } }
+      } else {
+        const trig = H >= T, gap = O >= T;
+        if (t === "sl" && L < T) msg = "For a stop-loss buy, the limit should be at or above the trigger.";
+        else if (!trig) msg = `Not triggered. The high was ${inr(H, 2)}, below your trigger of ${inr(T, 2)}.`;
+        else if (t === "slm") { fill = gap ? O : T; msg = gap ? `Gap up above your trigger: SL-M bought at market near the open, ${inr(O, 2)}.` : `Triggered when price rose to ${inr(T, 2)} and bought at market, around ${inr(T, 2)}.`; }
+        else { if (!L) msg = "Enter a limit price."; else if (gap && O > L) { if (Lo <= L) { fill = L; msg = `Triggered at the open above your limit; filled later when price dipped to ${inr(L, 2)}.`; } else msg = `Triggered at the open (${inr(O, 2)}), above your limit of ${inr(L, 2)}, and the low never came back. Not filled.`; } else { fill = gap ? O : T; msg = `Triggered and filled at about ${inr(fill, 2)}. Stop-loss buy orders are used to buy breakouts.`; } }
+      }
+    }
+    $("#s-result").innerHTML = `<b>${fill ? (sd === "buy" ? "Bought" : "Sold") + " " + q + " " + name + " at about " + inr(fill, 2) + " = " + inr(fill * q) : "No trade"}.</b> ` + msg + (fill ? ` The stock closed at ${inr(C, 2)}${sd === "buy" ? `, so you're ${C >= fill ? "up" : "down"} ${inr(Math.abs(C - fill) * q)} at the close` : ""}.` : "");
+  };
+  fillDays(); suggest();
+  st.addEventListener("input", () => { fillDays(); suggest(); }); [day, side, type].forEach(x => x.addEventListener("input", suggest));
+  ["#s-trig", "#s-lim", "#s-qty"].forEach(x => $(x).addEventListener("input", run));
+};
+</script>

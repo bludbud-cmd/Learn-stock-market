@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Costs and Taxes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lesson page from the same trading-desk notebook as the course hub.
+   Narrow reading column, a sticky "lesson map" rail on wide screens, real NSE charts
+   drawn in SVG from data embedded in this file. Tokens match the hub exactly. */
+:root {
+  --bg: #f3f4ef; --surface: #ffffff; --sunken: #e8eae2; --ink: #17222b; --muted: #5b6770;
+  --line: #d3d7cd; --accent: #0e5a6b; --accent-soft: #d6e8ea; --up: #1d7f55; --up-soft: #d5eee1;
+  --down: #b8423a; --down-soft: #f5dcd8; --mark: #c98a0b; --mark-soft: #f7e7c2; --violet: #6a4fa3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+    --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+    --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+  --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+  --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.65 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.top .in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
+.brand { font: 700 17px/1 var(--f-display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.top .where { color: var(--muted); font-size: 14px; }
+.top nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { background: var(--sunken); color: var(--ink); }
+.top nav a.off { pointer-events: none; opacity: .4; }
+
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-top: 32px; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); gap: 0; } .rail { display: none; } }
+.rail { position: sticky; top: 76px; align-self: start; display: grid; gap: 14px; font-size: 14px; }
+.rail ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); display: grid; }
+.rail a { display: block; padding: 6px 0 6px 14px; margin-left: -2px; border-left: 2px solid transparent; text-decoration: none; color: var(--muted); font-weight: 700; }
+.rail a:hover { color: var(--ink); }
+.rail a.on { color: var(--ink); border-left-color: var(--mark); }
+.rail .back { font-weight: 700; text-decoration: none; }
+
+article { min-width: 0; display: grid; gap: 56px; }
+.hero { display: grid; gap: 14px; max-width: 70ch; }
+.hero h1 { font-size: clamp(30px, 5.2vw, 46px); letter-spacing: -.01em; }
+.hero .lede { font-size: 19px; color: var(--muted); }
+.hero .facts { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 600 11px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; padding: 6px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); }
+.chip.mark { background: var(--mark-soft); color: var(--mark); }
+
+section.part { display: grid; gap: 18px; scroll-margin-top: 80px; }
+.part > header { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.part > header h2 { font-size: clamp(24px, 3.4vw, 30px); }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose > *, .ex > *, .tool > *, .task > *, .worked > *, .part > *, .qcard > * { min-width: 0; }
+.prose h3 { font-size: 20px; margin-top: 10px; }
+.prose ul, .prose ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.prose strong { font-weight: 700; }
+.term { font-weight: 700; background: linear-gradient(transparent 62%, var(--mark-soft) 62%); }
+
+.key { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 14px 16px; max-width: 68ch; display: grid; gap: 6px; }
+.key b.lbl { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.key.warn { border-left-color: var(--down); }
+.key.warn b.lbl { color: var(--down); }
+.key.tip { border-left-color: var(--mark); }
+.key.tip b.lbl { color: var(--mark); }
+
+/* tables */
+.tbl { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.tbl thead th { border-top: 0; font: 600 12px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
+.tbl td.n, .tbl th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+.pos { color: var(--up); } .neg { color: var(--down); }
+
+/* charts */
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 16px 10px; display: grid; gap: 8px; min-width: 0; }
+figure.chart .ch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+figure.chart .ch-title { font: 700 17px/1.3 var(--f-display); }
+figure.chart .readout { font: 600 13px/1.3 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+figure.chart .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+figure.chart .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+figure.chart .ch-box { position: relative; overflow-x: auto; }
+figure.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+figure.chart svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+figure.chart svg .grid { stroke: var(--line); stroke-width: 1; }
+figure.chart svg .mk line { stroke: var(--mark); stroke-dasharray: 3 3; }
+figure.chart svg .mk text { fill: var(--ink); font-weight: 600; }
+figure.chart svg .mk rect { fill: var(--mark-soft); }
+figure.chart svg .hl { fill: var(--mark-soft); opacity: .55; }
+figure.chart svg .cross { stroke: var(--muted); stroke-width: 1; }
+figure.chart figcaption { font-size: 14px; color: var(--muted); max-width: 72ch; }
+.src { font-size: 12px; color: var(--muted); }
+
+/* worked examples */
+.worked { display: grid; gap: 16px; }
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; max-width: 76ch; }
+.ex h3 { font-size: 18px; }
+.ex .q { font-weight: 700; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; counter-increment: s; }
+.steps li::before { content: counter(s); font: 600 12px/22px var(--f-mono); width: 22px; height: 22px; text-align: center; border-radius: 50%; background: var(--sunken); color: var(--muted); }
+.calc { font-family: var(--f-mono); font-size: 14px; background: var(--sunken); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.ans { background: var(--up-soft); border-radius: 8px; padding: 10px 12px; }
+.ans b { color: var(--up); }
+
+/* tools / widgets */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 14px; }
+.tool h3 { font-size: 18px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.field input, .field select { font: 16px var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+.field input[type=range] { padding: 0; accent-color: var(--accent); }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.out div { background: var(--surface); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.out b { font: 600 19px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.out span { font-size: 13px; color: var(--muted); }
+.btn { font: 700 15px var(--f-body); border: 1px solid var(--ink); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 700 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* flow: a vertical timeline of steps */
+ol.flow { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--line); display: grid; gap: 16px; max-width: 72ch; }
+ol.flow li { position: relative; display: grid; gap: 2px; }
+ol.flow li::before { content: ""; position: absolute; left: -30px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+ol.flow li:last-child::before { background: var(--up); border-color: var(--up); }
+ol.flow b { font: 600 13px/1.4 var(--f-mono); color: var(--accent); }
+h3.prose { font-size: 20px; }
+
+/* day clock */
+.clock { display: grid; gap: 8px; }
+.seg-row { display: flex; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); min-height: 58px; }
+.seg-row .s { flex: var(--w) 1 0; min-width: 0; padding: 8px; display: grid; align-content: start; gap: 2px; font-size: 13px; font-weight: 700; color: var(--ink); overflow: hidden; }
+.seg-row .s b { font: 600 11px var(--f-mono); color: var(--muted); }
+.seg-row .pre { background: var(--mark-soft); flex-basis: 70px; flex-grow: 0; }
+.seg-row .open { background: var(--up-soft); }
+.seg-row .gap { background: var(--sunken); flex-basis: 30px; flex-grow: 0; }
+.seg-row .post { background: var(--accent-soft); flex-basis: 84px; flex-grow: 0; }
+.clock .now { font-size: 15px; }
+
+/* quiz */
+.quiz { display: grid; gap: 16px; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; }
+.qcard .qn { font: 600 12px var(--f-mono); color: var(--muted); letter-spacing: .06em; }
+.qcard .qq { font-weight: 700; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; font: 16px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+.opts button:hover:not(:disabled) { border-color: var(--accent); }
+.opts button .l { font: 600 13px/1.6 var(--f-mono); color: var(--muted); }
+.opts button:disabled { cursor: default; }
+.opts button.right { background: var(--up-soft); border-color: var(--up); }
+.opts button.wrong { background: var(--down-soft); border-color: var(--down); }
+.why { font-size: 15px; border-radius: 8px; padding: 10px 12px; background: var(--sunken); }
+.why b.ok { color: var(--up); } .why b.no { color: var(--down); }
+.score { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; }
+.score b { font: 600 24px var(--f-mono); }
+.score.pass { border-color: var(--up); background: var(--up-soft); }
+
+/* practice */
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 12px; }
+.task ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.task label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.tick { appearance: none; -webkit-appearance: none; margin: 2px 0 0; width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+.tick:checked { background: var(--up); border-color: var(--up); }
+.tick:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--surface); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.task textarea { width: 100%; min-height: 130px; font: 15px/1.5 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+.task .saved { font-size: 13px; color: var(--muted); }
+
+.finish { display: grid; gap: 12px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 20px; }
+.finish h2 { font-size: 24px; }
+.finish a { color: var(--bg); font-weight: 700; }
+.finish .row { display: flex; gap: 12px 20px; flex-wrap: wrap; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; font-weight: 700; }
+.pager a { text-decoration: none; }
+footer.f { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="brand" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="6" x2="5" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="10" width="5" height="7" fill="var(--down)"/><line x1="12" y1="3" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="5" width="5" height="8" fill="var(--up)"/><line x1="19" y1="1" x2="19" y2="12" stroke="currentColor" stroke-width="1.5"/><rect x="16.5" y="2" width="5" height="7" fill="var(--up)"/></svg>
+      Trading Course
+    </a>
+    <span class="where">Level 1 · Lesson 10 of 10</span>
+    <nav aria-label="Lessons"><a class="prev" href="https://claude.ai/artifact/6i1pYV92SFK52BuE8zyT5G" target="_blank" rel="noopener">← Prev</a></nav>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="rail" aria-label="On this page">
+    <a class="back" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">← Course hub</a>
+    <ol id="toc"></ol>
+  </aside>
+  <article id="lesson">
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.10</span>
+      <h1>Costs and taxes: what a trade really costs you</h1>
+      <p class="lede">Every trade has small charges that add up: brokerage, STT, exchange fees, GST, stamp duty and DP charges. Then profits are taxed. Short-term traders pay these far more often than investors, so knowing them exactly is part of trading, not paperwork.</p>
+      <div class="facts"><span class="chip mark">About 60 minutes</span><span class="chip">Rates checked Nov 2026 · Real example: a Reliance swing trade, Oct 2026</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The charges in plain words</h2></header>
+      <div class="prose"><p>When you buy and sell shares on NSE, these are charged on top of the share price. The rates below are for equity on NSE as listed on Zerodha's charges page in November 2026. Statutory charges (STT, stamp duty, SEBI fee, GST) are the same at every broker. Brokerage and DP charges vary.</p></div>
+      <div class="tbl"><table><thead><tr><th>Charge</th><th>Who gets it</th><th class="n">Delivery (CNC)</th><th class="n">Intraday (MIS)</th></tr></thead><tbody>
+        <tr><td><strong>Brokerage</strong></td><td>Your broker</td><td class="n">₹0 at many discount brokers</td><td class="n">₹20 or 0.03% per order, whichever is lower</td></tr>
+        <tr><td><strong>STT</strong> (Securities Transaction Tax)</td><td>Government</td><td class="n">0.1% on buy and on sell</td><td class="n">0.025% on sell only</td></tr>
+        <tr><td><strong>Exchange transaction charge</strong></td><td>NSE</td><td class="n">0.00307% each side</td><td class="n">0.00307% each side</td></tr>
+        <tr><td><strong>SEBI turnover fee</strong></td><td>SEBI</td><td class="n">₹10 per crore (0.0001%)</td><td class="n">₹10 per crore</td></tr>
+        <tr><td><strong>Stamp duty</strong></td><td>State government</td><td class="n">0.015% on buy only</td><td class="n">0.003% on buy only</td></tr>
+        <tr><td><strong>GST</strong></td><td>Government</td><td class="n" colspan="2">18% on (brokerage + exchange charge + SEBI fee)</td></tr>
+        <tr><td><strong>DP charge</strong></td><td>Depository and broker</td><td class="n">about ₹15.34 per stock, per day you sell</td><td class="n">none</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <p>The biggest cost on delivery trades is STT: 0.1% each way, so 0.2% of the trade value for a round trip. On a ₹10,000 trade that's ₹20 before anything else. On small trades the flat DP charge matters a lot: ₹15.34 on a ₹10,000 sale is another 0.15%.</p>
+        <h3>How trading profits are taxed</h3>
+        <p>Tax depends on how long you held the shares and how you traded. These are the rates for listed shares where STT was paid, as set in the July 2024 Budget and unchanged in the 2026 Budget. Check every year.</p>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Type</th><th>When</th><th>Tax</th></tr></thead><tbody>
+        <tr><td><strong>STCG</strong> (short-term capital gains)</td><td>Delivery shares sold within 12 months. All your swing trades.</td><td>20% of the gain, plus 4% cess</td></tr>
+        <tr><td><strong>LTCG</strong> (long-term capital gains)</td><td>Delivery shares held more than 12 months</td><td>12.5% on gains above ₹1.25 lakh a year, plus cess. The first ₹1.25 lakh each year is tax-free.</td></tr>
+        <tr><td><strong>Intraday profit</strong></td><td>Bought and sold the same day</td><td>Treated as speculative business income: added to your salary and taxed at your slab rate</td></tr>
+        <tr><td><strong>F&amp;O profit</strong></td><td>Futures and options (learn-only for you)</td><td>Non-speculative business income at slab rate</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <h3>Losses</h3>
+        <ul>
+          <li>Short-term capital losses can be set off against short-term or long-term gains, and carried forward for 8 years.</li>
+          <li>Intraday (speculative) losses can only be set off against speculative profits, and carried forward for 4 years.</li>
+          <li>To carry any loss forward you must file your income tax return on time. If you trade intraday, you'll usually need ITR-3, not ITR-1.</li>
+        </ul>
+        <p>Your broker's yearly <strong>tax P&amp;L report</strong> splits your trades into these buckets. Download it every April.</p>
+      </div>
+      <div class="key warn"><b class="lbl">Watch out</b><p>Charges are paid on every trade, win or lose. A trader who makes 100 small trades a month to earn ₹50 each can find that costs and taxes eat most of the profit. Fewer, better trades is the rule of this course.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE example">
+      <header><span class="eyebrow">Part 2</span><h2>A real swing trade, costed</h2></header>
+      <figure class="chart" data-series="reliance_d" data-type="candle" data-unit="₹" data-from="2026-10-01" data-title="Reliance daily candles on NSE, October 2026" data-marks='[["2026-10-12","Buy ₹1,180.30"],["2026-10-21","Sell ₹1,209"]]' data-band='["2026-10-12","2026-10-21"]'>
+        <figcaption>Suppose you bought 25 Reliance shares at the 12 October open of ₹1,180.30 and sold at the 21 October close of ₹1,209.00, nine days later. The table below works out what you really kept.</figcaption>
+      </figure>
+      <div class="tbl"><table><thead><tr><th>Item</th><th>Working</th><th class="n">₹</th></tr></thead><tbody id="rt"></tbody></table></div>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: The full cost of a ₹10,000 delivery round trip</h3>
+          <p class="q">Buy ₹10,000 of shares (CNC), sell later for ₹10,000. Brokerage ₹0. What do charges total?</p>
+          <div class="calc">STT          0.1% × 10,000 × 2       = ₹20.00
+Exchange     0.00307% × 20,000      = ₹0.61
+SEBI fee     0.0001% × 20,000       = ₹0.02
+Stamp duty   0.015% × 10,000 (buy)  = ₹1.50
+GST          18% × (0 + 0.61 + 0.02)= ₹0.11
+DP charge    one sale               = ₹15.34
+Total                               ≈ ₹37.58  (0.38% of ₹10,000)</div>
+          <p class="ans"><b>Answer:</b> about ₹38. So the share must rise about 0.38% just for you to break even. This is the Level 1 goal calculation. You can check it in the calculator below.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: The same ₹10,000 as an intraday trade</h3>
+          <div class="calc">Brokerage    0.03% × 10,000 = ₹3 per order × 2  = ₹6.00
+STT          0.025% × 10,000 (sell)          = ₹2.50
+Exchange     0.00307% × 20,000               = ₹0.61
+SEBI fee                                     = ₹0.02
+Stamp duty   0.003% × 10,000 (buy)           = ₹0.30
+GST          18% × (6 + 0.61 + 0.02)         = ₹1.19
+Total                                        ≈ ₹10.62  (0.11%)</div>
+          <p class="ans"><b>Answer:</b> cheaper per trade, about ₹11, because STT and stamp duty are lower and there's no DP charge. But intraday traders trade far more often, and the profit is taxed at your slab rate, which may be 20% or 30%.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Tax on a year of swing trading</h3>
+          <p class="q">In one year you made ₹60,000 of short-term gains and ₹18,000 of short-term losses on delivery trades. What tax do you owe on them?</p>
+          <div class="calc">net STCG = 60,000 − 18,000 = ₹42,000
+tax      = 20% × 42,000      = ₹8,400
+cess     = 4% × 8,400        = ₹336
+total    = ₹8,736</div>
+          <p class="ans"><b>Answer:</b> ₹8,736. If instead you'd held the winners over 12 months, the gains would be LTCG, and ₹42,000 is under the ₹1.25 lakh exemption: no tax at all. Long-term investing gets a much better tax deal than trading.</p>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Charges and tax calculator</h3>
+        <div class="seg" role="group" aria-label="Trade type" id="kind"><button type="button" data-k="del" aria-pressed="true">Delivery (CNC)</button><button type="button" data-k="intra" aria-pressed="false">Intraday (MIS)</button></div>
+        <div class="fields">
+          <label class="field">Buy price (₹)<input id="k-buy" type="number" step="0.05" value="1180.30"></label>
+          <label class="field">Sell price (₹)<input id="k-sell" type="number" step="0.05" value="1209"></label>
+          <label class="field">Quantity<input id="k-qty" type="number" min="1" value="25"></label>
+          <label class="field">Brokerage per order (₹, delivery)<input id="k-brk" type="number" min="0" step="1" value="0"></label>
+          <label class="field">Your income tax slab (%, for intraday)<input id="k-slab" type="number" min="0" max="30" value="30"></label>
+        </div>
+        <div class="tbl"><table><tbody id="k-rows"></tbody></table></div>
+        <div class="out" id="k-out"></div>
+        <p class="src">Rates as checked in November 2026 (Zerodha charges page; Budget 2026). Ignores surcharge and the yearly ₹1.25 lakh LTCG exemption. Check your broker's own calculator before relying on exact paise.</p>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"On a delivery trade, STT is charged…","o":["Only on the buy","Only on the sell","0.1% on both buy and sell","Never"],"a":2,"why":"Delivery STT is 0.1% on each side."},
+{"q":"Which charge is usually the largest on a ₹10,000 delivery round trip with zero brokerage?","o":["SEBI fee","GST","STT","Exchange charge"],"a":2,"why":"STT is ₹20 of the roughly ₹38 total."},
+{"q":"GST of 18% is charged on…","o":["The whole trade value","Brokerage + exchange charges + SEBI fee","Your profit","STT"],"a":1,"why":"GST applies to the service charges, not to the trade value or STT."},
+{"q":"When is the DP charge collected?","o":["On every buy","When you sell shares from your demat (once per stock per day)","Monthly","Only on intraday trades"],"a":1,"why":"It's charged on the day delivery shares leave your demat."},
+{"q":"You sell shares 3 months after buying them, at a profit. The tax is…","o":["LTCG 12.5%","STCG 20% plus cess","Slab rate","Zero"],"a":1,"why":"Held 12 months or less: short-term, taxed at 20% (plus 4% cess)."},
+{"q":"How is intraday trading profit taxed?","o":["As STCG at 20%","As speculative business income at your slab rate","Tax-free up to ₹1.25 lakh","At 12.5%"],"a":1,"why":"Same-day trades are speculative business income."},
+{"q":"You held a stock for 2 years and made ₹90,000 (your only gain this year). LTCG tax is…","o":["₹11,250","₹18,000","Zero","₹9,000"],"a":2,"why":"The first ₹1.25 lakh of LTCG each year is exempt."},
+{"q":"For a ₹10,000 delivery trade, roughly how much must the price rise just to cover charges?","o":["0.04%","About 0.4%","4%","10%"],"a":1,"why":"About ₹38 of charges on ₹10,000 ≈ 0.38%."},
+{"q":"Can an intraday loss be set off against your swing trading (STCG) profit?","o":["Yes, always","No: speculative losses only offset speculative profits","Only in March","Only if you ask your broker"],"a":1,"why":"Speculative losses stay in their own bucket, carried forward up to 4 years."},
+{"q":"To carry forward a trading loss to next year, you must…","o":["Do nothing","File your income tax return on time","Email SEBI","Sell all shares"],"a":1,"why":"Losses can only be carried forward if the return is filed by the due date."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: cost your own trades</h2><p>About 20 minutes. Completes the Level 1 goal on full trade cost.</p></header>
+      <div class="task" data-key="costs">
+        <ul class="check">
+          <li>Use the calculator to cost a ₹10,000 delivery round trip with no price change. Write the total and confirm it matches Example 1.</li>
+          <li>Open your chosen broker's official brokerage calculator and enter the same trade. Note any difference and why.</li>
+          <li>Add three columns to your trading journal: "charges", "net P&amp;L after charges", and "tax bucket" (STCG, LTCG or intraday).</li>
+          <li>Go back to your 5 simulator orders from lesson 1.08 and fill in the charges for each.</li>
+          <li>Work out your break-even move in % for a typical swing trade size you'd use (for example ₹20,000).</li>
+        </ul>
+        <textarea placeholder="₹10,000 round trip total: …  Broker calculator says: …  Break-even % for my trade size: …"></textarea>
+      </div>
+    </section>
+
+<script>
+/* Lesson 1.10 charges engine. Rates as of Nov 2026. */
+const RATES = { sttDel: 0.001, sttIntraSell: 0.00025, exch: 0.0000307, sebi: 0.000001, stampDel: 0.00015, stampIntra: 0.00003, gst: 0.18, dp: 15.34, brkIntraPct: 0.0003, brkIntraCap: 20, stcg: 0.20, cess: 0.04 };
+function charges(kind, buy, sell, qty, brkDel) {
+  const B = buy * qty, S = sell * qty, R = RATES, rows = [];
+  const brk = kind === "del" ? 2 * brkDel : Math.min(R.brkIntraCap, B * R.brkIntraPct) + Math.min(R.brkIntraCap, S * R.brkIntraPct);
+  const stt = kind === "del" ? R.sttDel * (B + S) : R.sttIntraSell * S;
+  const exch = R.exch * (B + S), sebi = R.sebi * (B + S), stamp = (kind === "del" ? R.stampDel : R.stampIntra) * B, gst = R.gst * (brk + exch + sebi), dp = kind === "del" ? R.dp : 0;
+  rows.push(["Brokerage", brk], ["STT", stt], ["Exchange charges", exch], ["SEBI fee", sebi], ["Stamp duty", stamp], ["GST", gst], ["DP charge", dp]);
+  const total = rows.reduce((a, r) => a + r[1], 0);
+  return { B, S, rows, total, gross: S - B, net: S - B - total };
+}
+window.lessonInit = function () {
+  // real trade table
+  const c = charges("del", 1180.30, 1209, 25, 0), rt = $("#rt");
+  const tr = (a, b, v, cls = "") => `<tr class="${cls}"><td>${a}</td><td>${b}</td><td class="n">${v}</td></tr>`;
+  const netTax = Math.max(0, c.net) * RATES.stcg * (1 + RATES.cess);
+  rt.innerHTML = tr("Bought", "25 × ₹1,180.30", inr(c.B, 2)) + tr("Sold", "25 × ₹1,209.00", inr(c.S, 2)) + tr("Gross profit", "sold − bought", inr(c.gross, 2))
+    + c.rows.filter(r => r[1] > 0).map(r => tr("− " + r[0], "", inr(r[1], 2))).join("")
+    + tr("Profit after charges", "", inr(c.net, 2), "total") + tr("− STCG tax", "20% + 4% cess on net gain (approx.)", inr(netTax, 2)) + tr("What you keep", `${pct((c.net - netTax) / c.B * 100, 2)} on ${inr(c.B)}`, inr(c.net - netTax, 2), "total");
+  // calculator
+  let kind = "del"; const pick = $("#kind");
+  pick.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; kind = b.dataset.k; $$("button", pick).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); run(); });
+  const run = () => {
+    const buy = +$("#k-buy").value || 0, sell = +$("#k-sell").value || 0, qty = Math.max(1, +$("#k-qty").value || 1), slab = (+$("#k-slab").value || 0) / 100;
+    const r = charges(kind, buy, sell, qty, +$("#k-brk").value || 0), rate = kind === "del" ? RATES.stcg : slab, tax = Math.max(0, r.net) * rate * (1 + RATES.cess);
+    $("#k-rows").innerHTML = r.rows.map(x => `<tr><td>${x[0]}</td><td class="n">${inr(x[1], 2)}</td></tr>`).join("") + `<tr class="total"><td>Total charges</td><td class="n">${inr(r.total, 2)}</td></tr>`;
+    const be = r.B ? (r.total / r.B * 100) : 0;
+    $("#k-out").innerHTML = `<div><b>${inr(r.gross, 2)}</b><span>Gross profit</span></div><div><b class="${r.net >= 0 ? "pos" : "neg"}">${inr(r.net, 2)}</b><span>After charges</span></div><div><b>${inr(tax, 2)}</b><span>Tax (${kind === "del" ? "STCG 20%" : "slab " + Math.round(slab * 100) + "%"} + cess)</span></div><div><b>${inr(r.net - tax, 2)}</b><span>What you keep</span></div><div><b>${be.toFixed(2)}%</b><span>Break-even move (charges ÷ buy value)</span></div>`;
+  };
+  $$("#k-buy,#k-sell,#k-qty,#k-brk,#k-slab").forEach(x => x.addEventListener("input", run)); run();
+};
+</script>
+
+    <section class="finish" aria-label="Finish the lesson">
+      <h2>Done with this lesson?</h2>
+      <p>Pass the quiz (8 or more correct) and finish the practice task, then tick lesson 1.10 in the course hub so your progress is saved to your account.</p>
+      <div class="row"><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Open the course hub ↗</a></div>
+    </section>
+    <nav class="pager" aria-label="Lesson pager"><a class="" href="https://claude.ai/artifact/6i1pYV92SFK52BuE8zyT5G" target="_blank" rel="noopener">← 1.09 Settlement and Liquidity</a><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Back to Level 1 in the hub →</a></nav>
+    <footer class="f">Indian market (NSE/BSE). For learning, not investment advice. Charts use real daily NSE/BSE closing data from a free public dataset (github.com/aswinv90/indian-market-historical-data), data to 30 Oct 2026. Rules and charges change: check the SEBI, NSE and broker pages named in the lesson before relying on a number.</footer>
+  </article>
+</div>
+
+<script id="series" type="application/json">{"reliance_d":[["2026-08-03",1315.2,1319.0,1306.0,1319.0,7508023],["2026-08-04",1315.0,1315.0,1286.4,1290.9,10759546],["2026-08-05",1293.0,1299.0,1270.1,1280.0,24820782],["2026-08-06",1285.0,1325.2,1281.2,1325.0,20342297],["2026-08-07",1320.0,1337.0,1316.6,1334.8,9885638],["2026-08-10",1330.1,1332.9,1321.3,1327.3,8207102],["2026-08-11",1326.6,1328.7,1314.1,1323.9,9953124],["2026-08-12",1323.9,1329.0,1309.2,1329.0,7901012],["2026-08-13",1327.8,1327.8,1307.2,1317.0,9397301],["2026-08-14",1317.0,1317.5,1301.5,1310.0,10497358],["2026-08-17",1314.0,1320.8,1298.1,1316.0,13383867],["2026-08-18",1314.0,1328.6,1311.2,1322.0,10180567],["2026-08-19",1320.3,1321.6,1303.5,1311.0,7489365],["2026-08-20",1315.5,1316.5,1307.0,1313.2,5546227],["2026-08-21",1314.0,1316.0,1308.0,1316.0,5434871],["2026-08-24",1316.6,1320.0,1302.4,1309.8,7277167],["2026-08-25",1304.3,1317.1,1300.0,1317.0,7115355],["2026-08-26",1310.0,1315.6,1298.0,1298.0,5744474],["2026-08-27",1305.0,1308.4,1282.2,1282.2,11271497],["2026-08-28",1284.9,1291.8,1280.0,1287.0,6830228],["2026-08-31",1278.7,1297.6,1271.0,1277.0,34871137],["2026-09-01",1285.0,1311.8,1280.0,1309.0,12617528],["2026-09-02",1298.0,1321.9,1293.1,1313.1,13497841],["2026-09-03",1313.1,1316.8,1302.5,1302.5,9721454],["2026-09-04",1304.1,1333.0,1304.1,1322.0,13031534],["2026-09-07",1323.1,1324.2,1301.9,1309.5,10210522],["2026-09-08",1304.1,1306.8,1288.0,1294.9,9799528],["2026-09-09",1283.5,1294.7,1277.2,1279.0,12152819],["2026-09-10",1278.5,1285.3,1266.3,1274.0,9296079],["2026-09-11",1267.0,1267.4,1253.0,1257.5,8777736],["2026-09-14",1257.5,1257.5,1257.5,1257.5,0],["2026-09-15",1252.5,1259.4,1235.3,1235.3,13754376],["2026-09-16",1243.0,1255.0,1240.0,1240.0,10023997],["2026-09-17",1244.8,1253.4,1238.5,1243.9,7752895],["2026-09-18",1245.0,1247.3,1226.4,1226.4,15122715],["2026-09-21",1234.1,1249.1,1232.5,1247.4,10007218],["2026-09-22",1247.6,1251.9,1237.4,1240.4,10684376],["2026-09-23",1242.0,1252.8,1238.9,1248.0,8352048],["2026-09-24",1236.6,1241.6,1219.2,1219.2,13923795],["2026-09-25",1210.5,1227.4,1210.5,1226.0,13138735],["2026-09-28",1218.0,1219.7,1197.0,1197.6,13602349],["2026-09-29",1193.8,1198.3,1181.8,1182.0,24191416],["2026-09-30",1182.0,1196.5,1181.7,1187.0,16376789],["2026-10-01",1180.1,1183.9,1160.8,1167.7,16771221],["2026-10-02",1167.7,1167.7,1167.7,1167.7,0],["2026-10-05",1171.2,1193.0,1171.2,1186.4,14254907],["2026-10-06",1188.1,1219.1,1188.1,1218.0,18003127],["2026-10-07",1212.0,1220.8,1203.5,1207.7,11880731],["2026-10-08",1207.7,1208.0,1173.0,1178.0,13965493],["2026-10-09",1179.0,1179.0,1160.2,1170.3,12086708],["2026-10-12",1180.3,1185.5,1153.2,1158.9,11338332],["2026-10-13",1158.9,1168.3,1152.2,1166.7,10988483],["2026-10-14",1167.0,1188.0,1162.7,1174.6,10938195],["2026-10-15",1185.2,1218.8,1177.2,1215.0,23456219],["2026-10-16",1215.0,1215.4,1193.0,1211.2,17225283],["2026-10-19",1212.0,1228.2,1201.0,1202.0,15572554],["2026-10-21",1212.0,1234.3,1199.3,1209.0,17607823],["2026-10-22",1206.2,1208.0,1184.5,1184.5,14957042],["2026-10-23",1184.0,1201.9,1163.1,1190.0,14905641],["2026-10-26",1186.1,1204.5,1174.5,1201.8,7490515],["2026-10-27",1195.0,1202.6,1184.0,1196.2,13067787],["2026-10-28",1194.5,1204.3,1156.4,1158.0,21866598],["2026-10-29",1159.0,1182.1,1155.6,1167.4,20939623],["2026-10-30",1170.4,1174.6,1152.5,1164.9,14753650]]}</script>
+<script>
+/* ===== Shared lesson engine: charts, quiz, practice notes. Same in every lesson. ===== */
+const LESSON_ID = "1.10";
+const SERIES = JSON.parse(document.getElementById("series").textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const inr = (v, d = 0) => "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v, d = 2) => Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function niceDate(s) { const p = s.split("-"); return (p[2] ? (+p[2]) + " " : "") + MONTHS[+p[1] - 1] + " " + p[0]; }
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem("tc-" + k) || "null"); localStorage.setItem("tc-" + k, JSON.stringify(v)); } catch (e) { return null; } }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t;
+}
+function shortNum(v) { const a = Math.abs(v); if (a >= 1e7) return (v / 1e7).toFixed(1).replace(/\.0$/, "") + "Cr"; if (a >= 1e5) return (v / 1e5).toFixed(1).replace(/\.0$/, "") + "L"; return Number(v).toLocaleString("en-IN", { maximumFractionDigits: a < 100 ? 2 : 0 }); }
+
+/* Chart options (data-* on <figure class="chart">):
+   series="a,b" names in SERIES · type=line|candle · from/to (date prefix) · norm=100 (rebase each series)
+   labels="Nifty 50,Sensex" · marks='[["2020-03-23","Covid low"]]' · band='["2020-02-20","2020-03-23"]'
+   unit="₹"|"pts"|"" · log · vol (show volume bars) · title */
+function drawChart(fig) {
+  const ds = fig.dataset, names = ds.series.split(","), labels = (ds.labels || ds.series).split(",");
+  const colors = ["--accent", "--mark", "--down", "--violet", "--up"].map(css);
+  const type = ds.type || "line", unit = ds.unit ?? "", norm = ds.norm ? +ds.norm : 0;
+  const inRange = d => (!ds.from || d >= ds.from) && (!ds.to || d <= ds.to + "~");
+  const sets = names.map(n => SERIES[n].filter(r => inRange(r[0])));
+  const isOHLC = sets[0][0].length >= 5;
+  const close = r => isOHLC ? r[4] : r[1];
+  const lines = sets.map(s => { const b = close(s[0]); return s.map(r => norm ? close(r) / b * norm : close(r)); });
+  const dates = sets[0].map(r => r[0]);
+  const W = Math.max(300, Math.round(fig.querySelector(".ch-box").clientWidth || 720)), H = (W < 520 ? 250 : 300) + (("vol" in ds) ? 40 : 0), padL = 58, padR = 14, volH = ("vol" in ds) ? 56 : 0, padB = 26;
+  let padT = 12;
+  const plotB = H - padB - volH - (("vol" in ds) ? 8 : 0);
+  let lo = Infinity, hi = -Infinity;
+  if (type === "candle") sets[0].forEach(r => { lo = Math.min(lo, r[3]); hi = Math.max(hi, r[2]); });
+  else lines.forEach(l => l.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+  const hl = ds.hline ? JSON.parse(ds.hline) : [];
+  hl.forEach(([v]) => { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+  const log = "log" in ds;
+  const pad = (hi - lo) * 0.06; if (!log) { lo -= pad; hi += pad; if (lo < 0 && Math.min(...lines.flat()) >= 0) lo = 0; }
+  const yv = v => log ? Math.log(v) : v;
+  const Y = v => plotB - (yv(v) - yv(lo)) / (yv(hi) - yv(lo)) * (plotB - padT);
+  const n = dates.length, X = i => padL + (n === 1 ? 0.5 : i / (n - 1)) * (W - padL - padR);
+  const idxOf = d => { let k = dates.findIndex(x => x >= d); return k < 0 ? n - 1 : k; };
+  const marks = ds.marks ? JSON.parse(ds.marks).map(([d, label]) => { const i = idxOf(d), x = X(i), tw = label.length * 6.6 + 10; return { i, x, label, tw, tx: Math.min(Math.max(x - tw / 2, padL), W - padR - tw) }; }) : [];
+  const placed = []; marks.forEach(m => { let row = 0; while (placed.some(p => p.row === row && !(m.tx + m.tw + 4 < p.tx || m.tx > p.tx + p.tw + 4))) row++; m.row = row; placed.push(m); });
+  if (marks.length) padT = 12 + 21 * (Math.max(...marks.map(m => m.row)) + 1);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": ds.title || labels.join(", ") });
+  // grid + y labels
+  let ticks = log ? (() => { const t = []; for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) [1, 2, 5].forEach(m => { const v = m * 10 ** p; if (v >= lo && v <= hi) t.push(v); }); return t; })() : niceTicks(lo, hi);
+  ticks.forEach(t => { const y = Y(t); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid" }, svg); const tx = el("text", { x: padL - 6, y: y + 4, "text-anchor": "end" }, svg); tx.textContent = (unit === "₹" ? "₹" : "") + shortNum(t); });
+  // x labels: years, or months, or days depending on span
+  const span = (new Date(dates[n - 1]) - new Date(dates[0])) / 864e5;
+  let lastKey = null, lastX = -99;
+  dates.forEach((d, i) => {
+    const key = span > 1500 ? d.slice(0, 4) : span > 75 ? d.slice(0, 7) : d;
+    if (key === lastKey) return; lastKey = key; const x = X(i);
+    if (x - lastX < (span > 75 ? 46 : 52) || x > W - padR - 14) return; lastX = x;
+    const tx = el("text", { x, y: H - 8, "text-anchor": "middle" }, svg);
+    tx.textContent = span > 1500 ? key : span > 75 ? MONTHS[+d.slice(5, 7) - 1] + (d.slice(5, 7) === "01" || i === 0 ? " " + d.slice(2, 4) : "") : (+d.slice(8)) + " " + MONTHS[+d.slice(5, 7) - 1];
+  });
+  if (ds.band) { const [a, b] = JSON.parse(ds.band); const xa = X(idxOf(a)), xb = X(idxOf(b)); el("rect", { x: xa, y: padT, width: Math.max(2, xb - xa), height: plotB - padT, class: "hl" }, svg); }
+  if (type === "candle") {
+    const w = Math.max(1.5, Math.min(10, (W - padL - padR) / n * 0.62));
+    sets[0].forEach((r, i) => { const up = r[4] >= r[1], c = up ? css("--up") : css("--down"), x = X(i);
+      el("line", { x1: x, x2: x, y1: Y(r[2]), y2: Y(r[3]), stroke: c, "stroke-width": 1.2 }, svg);
+      const y1 = Y(Math.max(r[1], r[4])), y2 = Y(Math.min(r[1], r[4]));
+      el("rect", { x: x - w / 2, y: y1, width: w, height: Math.max(1, y2 - y1), fill: up ? css("--surface") : c, stroke: c, "stroke-width": 1.2 }, svg); });
+  } else {
+    lines.forEach((l, k) => {
+      const d = l.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1)).join("");
+      if (lines.length === 1) el("path", { d: d + `L${X(n - 1)} ${plotB}L${X(0)} ${plotB}Z`, fill: colors[0], opacity: 0.08 }, svg);
+      el("path", { d, fill: "none", stroke: colors[k], "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    });
+  }
+  hl.forEach(([v, label]) => { const y = Y(v); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, stroke: css("--violet"), "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+    const t = el("text", { x: W - padR - 4, y: y - 5, "text-anchor": "end", fill: css("--violet"), "font-weight": 600 }, svg); t.textContent = label; t.style.fill = "var(--violet)"; });
+  if (("vol" in ds)) {
+    const vols = sets[0].map(r => r[5]), vmax = Math.max(...vols), vb = H - padB, w = Math.max(1.5, (W - padL - padR) / n * 0.62);
+    const t = el("text", { x: padL - 6, y: vb - 4, "text-anchor": "end" }, svg); t.textContent = "Vol";
+    sets[0].forEach((r, i) => el("rect", { x: X(i) - w / 2, y: vb - r[5] / vmax * volH, width: w, height: r[5] / vmax * volH, fill: r[4] >= r[1] ? css("--up") : css("--down"), opacity: .45 }, svg));
+    el("line", { x1: padL, x2: W - padR, y1: vb, y2: vb, class: "grid" }, svg);
+  }
+  marks.forEach(({ i, x, label, tw, tx, row }) => {
+    const g = el("g", { class: "mk" }, svg), y = 2 + row * 21;
+    el("line", { x1: x, x2: x, y1: y + 18, y2: plotB }, g);
+    el("rect", { x: tx, y, width: tw, height: 18, rx: 4 }, g);
+    const t = el("text", { x: tx + tw / 2, y: y + 13, "text-anchor": "middle" }, g); t.textContent = label;
+    if (type !== "candle") el("circle", { cx: x, cy: Y(lines[0][i]), r: 4, fill: css("--mark"), stroke: css("--surface"), "stroke-width": 2 }, g);
+  });
+  // hover readout
+  const cross = el("line", { y1: padT, y2: plotB, class: "cross", visibility: "hidden" }, svg);
+  const dots = lines.map((_, k) => el("circle", { r: 4, fill: colors[k], stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }, svg));
+  const ro = fig.querySelector(".readout");
+  const show = i => {
+    const r = sets[0][i]; cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    if (type === "candle") { ro.textContent = `${niceDate(r[0])} · O ${fmt(r[1])} H ${fmt(r[2])} L ${fmt(r[3])} C ${fmt(r[4])}` + (r[5] ? ` · Vol ${shortNum(r[5])}` : "") + (i ? ` · ${pct((r[4] / sets[0][i - 1][4] - 1) * 100, 2)}` : ""); return; }
+    dots.forEach((c, k) => { c.setAttribute("cx", X(i)); c.setAttribute("cy", Y(lines[k][i])); c.setAttribute("visibility", "visible"); });
+    ro.textContent = niceDate(r[0]) + " · " + lines.map((l, k) => (lines.length > 1 ? labels[k] + " " : "") + (unit === "₹" && !norm ? inr(l[i], 2) : fmt(l[i], norm ? 1 : 2))).join(" · ");
+  };
+  const def = () => { const i = n - 1; show(i); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); };
+  svg.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * W; show(Math.max(0, Math.min(n - 1, Math.round((x - padL) / (W - padL - padR) * (n - 1))))); });
+  svg.addEventListener("pointerleave", def);
+  fig.querySelector(".ch-box").appendChild(svg); def();
+  if (lines.length > 1) fig.querySelector(".legend").innerHTML = labels.map((l, k) => `<span><i style="background:var(${["--accent","--mark","--down","--violet","--up"][k]})"></i>${l}</span>`).join("");
+}
+function buildCharts(root = document) {
+  $$("figure.chart", root).forEach(fig => {
+    if (!fig.querySelector(".ch-box")) {
+      const head = document.createElement("div"); head.className = "ch-head";
+      head.innerHTML = `<span class="ch-title"></span><span class="readout" aria-live="off"></span>`;
+      head.firstChild.textContent = fig.dataset.title || "";
+      const legend = document.createElement("div"); legend.className = "legend";
+      const box = document.createElement("div"); box.className = "ch-box";
+      fig.prepend(head, legend, box);
+    } else fig.querySelector(".ch-box").innerHTML = "";
+    drawChart(fig);
+  });
+}
+
+/* Quiz: div.quiz[data-pass] holding a JSON script tag: [{q, o:[...], a:index, why}] */
+function buildQuiz(box) {
+  const Q = JSON.parse(box.querySelector("script").textContent), pass = +(box.dataset.pass || Math.ceil(Q.length * 0.8));
+  const saved = store("quiz-" + LESSON_ID) || {}; const answers = saved.answers || {};
+  const score = document.createElement("div"); score.className = "score";
+  const upd = () => { const done = Object.keys(answers).length, right = Q.filter((q, i) => answers[i] === q.a).length;
+    score.className = "score" + (done === Q.length && right >= pass ? " pass" : "");
+    score.innerHTML = `<b>${right} / ${Q.length}</b><span>${done < Q.length ? `Answered ${done} of ${Q.length}. You need ${pass} correct to pass.` : right >= pass ? "Passed. Well done." : `Not yet: you need ${pass}. Read the explanations, then retry.`}</span>`;
+    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store("quiz-" + LESSON_ID, { answers }); render(); }; score.appendChild(b); }
+  };
+  const render = () => {
+    box.querySelectorAll(".qcard").forEach(c => c.remove());
+    Q.forEach((q, i) => {
+      const c = document.createElement("div"); c.className = "qcard";
+      c.innerHTML = `<span class="qn">QUESTION ${i + 1} OF ${Q.length}</span><p class="qq"></p><div class="opts"></div>`;
+      c.querySelector(".qq").textContent = q.q;
+      q.o.forEach((o, j) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = `<span class="l">${"ABCD"[j]}</span><span></span>`; b.lastChild.textContent = o;
+        b.onclick = () => { answers[i] = j; store("quiz-" + LESSON_ID, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
+      const mark = () => { if (!(i in answers)) return; const bs = [...c.querySelectorAll(".opts button")];
+        bs.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === answers[i]) b.classList.add("wrong"); });
+        if (!c.querySelector(".why")) { const w = document.createElement("p"); w.className = "why"; w.innerHTML = `<b class="${answers[i] === q.a ? "ok" : "no"}">${answers[i] === q.a ? "Correct." : "Not quite."}</b> `; w.append(q.why); c.appendChild(w); } };
+      mark(); box.insertBefore(c, score);
+    });
+    upd();
+  };
+  box.appendChild(score); render();
+}
+
+/* Practice: <div class="task" data-key="x"> with <ul class="check"><li>..</li></ul> and optional <textarea> */
+function buildTask(t) {
+  const key = "task-" + LESSON_ID + "-" + (t.dataset.key || "a"), s = store(key) || { c: {}, notes: "" };
+  $$("ul.check li", t).forEach((li, i) => { const id = key + "-" + i; const lab = document.createElement("label"); lab.innerHTML = `<input type="checkbox" class="tick" id="${id}">`; const sp = document.createElement("span"); while (li.firstChild) sp.appendChild(li.firstChild); lab.appendChild(sp); li.appendChild(lab);
+    const cb = lab.firstChild; cb.checked = !!s.c[i]; cb.onchange = () => { s.c[i] = cb.checked; store(key, s); }; });
+  const ta = $("textarea", t); if (ta) { ta.id = key + "-notes"; ta.value = s.notes || ""; const sv = document.createElement("span"); sv.className = "saved"; sv.textContent = "Notes stay in this browser only. Copy anything important into your trading journal."; ta.after(sv); ta.oninput = () => { s.notes = ta.value; store(key, s); }; }
+}
+
+function buildToc() {
+  const toc = $("#toc"); const parts = $$("section.part");
+  parts.forEach(p => { const li = document.createElement("li"); const a = document.createElement("a"); a.href = "#" + p.id; a.textContent = p.dataset.toc || p.querySelector("h2").textContent; li.appendChild(a); toc.appendChild(li); });
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) $$("#toc a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-20% 0px -70% 0px" }); parts.forEach(p => io.observe(p)); }
+}
+
+buildToc();
+buildCharts();
+$$(".quiz").forEach(buildQuiz);
+$$(".task").forEach(buildTask);
+if (typeof window.lessonInit === "function") window.lessonInit();
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => buildCharts(), 200); });
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => buildCharts());
+new MutationObserver(() => buildCharts()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>

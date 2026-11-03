@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Indices: Nifty and Sensex</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lesson page from the same trading-desk notebook as the course hub.
+   Narrow reading column, a sticky "lesson map" rail on wide screens, real NSE charts
+   drawn in SVG from data embedded in this file. Tokens match the hub exactly. */
+:root {
+  --bg: #f3f4ef; --surface: #ffffff; --sunken: #e8eae2; --ink: #17222b; --muted: #5b6770;
+  --line: #d3d7cd; --accent: #0e5a6b; --accent-soft: #d6e8ea; --up: #1d7f55; --up-soft: #d5eee1;
+  --down: #b8423a; --down-soft: #f5dcd8; --mark: #c98a0b; --mark-soft: #f7e7c2; --violet: #6a4fa3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+    --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+    --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+  --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+  --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.65 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.top .in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
+.brand { font: 700 17px/1 var(--f-display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.top .where { color: var(--muted); font-size: 14px; }
+.top nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { background: var(--sunken); color: var(--ink); }
+.top nav a.off { pointer-events: none; opacity: .4; }
+
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-top: 32px; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); gap: 0; } .rail { display: none; } }
+.rail { position: sticky; top: 76px; align-self: start; display: grid; gap: 14px; font-size: 14px; }
+.rail ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); display: grid; }
+.rail a { display: block; padding: 6px 0 6px 14px; margin-left: -2px; border-left: 2px solid transparent; text-decoration: none; color: var(--muted); font-weight: 700; }
+.rail a:hover { color: var(--ink); }
+.rail a.on { color: var(--ink); border-left-color: var(--mark); }
+.rail .back { font-weight: 700; text-decoration: none; }
+
+article { min-width: 0; display: grid; gap: 56px; }
+.hero { display: grid; gap: 14px; max-width: 70ch; }
+.hero h1 { font-size: clamp(30px, 5.2vw, 46px); letter-spacing: -.01em; }
+.hero .lede { font-size: 19px; color: var(--muted); }
+.hero .facts { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 600 11px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; padding: 6px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); }
+.chip.mark { background: var(--mark-soft); color: var(--mark); }
+
+section.part { display: grid; gap: 18px; scroll-margin-top: 80px; }
+.part > header { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.part > header h2 { font-size: clamp(24px, 3.4vw, 30px); }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose > *, .ex > *, .tool > *, .task > *, .worked > *, .part > *, .qcard > * { min-width: 0; }
+.prose h3 { font-size: 20px; margin-top: 10px; }
+.prose ul, .prose ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.prose strong { font-weight: 700; }
+.term { font-weight: 700; background: linear-gradient(transparent 62%, var(--mark-soft) 62%); }
+
+.key { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 14px 16px; max-width: 68ch; display: grid; gap: 6px; }
+.key b.lbl { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.key.warn { border-left-color: var(--down); }
+.key.warn b.lbl { color: var(--down); }
+.key.tip { border-left-color: var(--mark); }
+.key.tip b.lbl { color: var(--mark); }
+
+/* tables */
+.tbl { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.tbl thead th { border-top: 0; font: 600 12px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
+.tbl td.n, .tbl th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+.pos { color: var(--up); } .neg { color: var(--down); }
+
+/* charts */
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 16px 10px; display: grid; gap: 8px; min-width: 0; }
+figure.chart .ch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+figure.chart .ch-title { font: 700 17px/1.3 var(--f-display); }
+figure.chart .readout { font: 600 13px/1.3 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+figure.chart .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+figure.chart .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+figure.chart .ch-box { position: relative; overflow-x: auto; }
+figure.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+figure.chart svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+figure.chart svg .grid { stroke: var(--line); stroke-width: 1; }
+figure.chart svg .mk line { stroke: var(--mark); stroke-dasharray: 3 3; }
+figure.chart svg .mk text { fill: var(--ink); font-weight: 600; }
+figure.chart svg .mk rect { fill: var(--mark-soft); }
+figure.chart svg .hl { fill: var(--mark-soft); opacity: .55; }
+figure.chart svg .cross { stroke: var(--muted); stroke-width: 1; }
+figure.chart figcaption { font-size: 14px; color: var(--muted); max-width: 72ch; }
+.src { font-size: 12px; color: var(--muted); }
+
+/* worked examples */
+.worked { display: grid; gap: 16px; }
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; max-width: 76ch; }
+.ex h3 { font-size: 18px; }
+.ex .q { font-weight: 700; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; counter-increment: s; }
+.steps li::before { content: counter(s); font: 600 12px/22px var(--f-mono); width: 22px; height: 22px; text-align: center; border-radius: 50%; background: var(--sunken); color: var(--muted); }
+.calc { font-family: var(--f-mono); font-size: 14px; background: var(--sunken); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.ans { background: var(--up-soft); border-radius: 8px; padding: 10px 12px; }
+.ans b { color: var(--up); }
+
+/* tools / widgets */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 14px; }
+.tool h3 { font-size: 18px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.field input, .field select { font: 16px var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+.field input[type=range] { padding: 0; accent-color: var(--accent); }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.out div { background: var(--surface); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.out b { font: 600 19px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.out span { font-size: 13px; color: var(--muted); }
+.btn { font: 700 15px var(--f-body); border: 1px solid var(--ink); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 700 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* flow: a vertical timeline of steps */
+ol.flow { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--line); display: grid; gap: 16px; max-width: 72ch; }
+ol.flow li { position: relative; display: grid; gap: 2px; }
+ol.flow li::before { content: ""; position: absolute; left: -30px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+ol.flow li:last-child::before { background: var(--up); border-color: var(--up); }
+ol.flow b { font: 600 13px/1.4 var(--f-mono); color: var(--accent); }
+h3.prose { font-size: 20px; }
+
+/* day clock */
+.clock { display: grid; gap: 8px; }
+.seg-row { display: flex; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); min-height: 58px; }
+.seg-row .s { flex: var(--w) 1 0; min-width: 0; padding: 8px; display: grid; align-content: start; gap: 2px; font-size: 13px; font-weight: 700; color: var(--ink); overflow: hidden; }
+.seg-row .s b { font: 600 11px var(--f-mono); color: var(--muted); }
+.seg-row .pre { background: var(--mark-soft); flex-basis: 70px; flex-grow: 0; }
+.seg-row .open { background: var(--up-soft); }
+.seg-row .gap { background: var(--sunken); flex-basis: 30px; flex-grow: 0; }
+.seg-row .post { background: var(--accent-soft); flex-basis: 84px; flex-grow: 0; }
+.clock .now { font-size: 15px; }
+
+/* quiz */
+.quiz { display: grid; gap: 16px; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; }
+.qcard .qn { font: 600 12px var(--f-mono); color: var(--muted); letter-spacing: .06em; }
+.qcard .qq { font-weight: 700; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; font: 16px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+.opts button:hover:not(:disabled) { border-color: var(--accent); }
+.opts button .l { font: 600 13px/1.6 var(--f-mono); color: var(--muted); }
+.opts button:disabled { cursor: default; }
+.opts button.right { background: var(--up-soft); border-color: var(--up); }
+.opts button.wrong { background: var(--down-soft); border-color: var(--down); }
+.why { font-size: 15px; border-radius: 8px; padding: 10px 12px; background: var(--sunken); }
+.why b.ok { color: var(--up); } .why b.no { color: var(--down); }
+.score { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; }
+.score b { font: 600 24px var(--f-mono); }
+.score.pass { border-color: var(--up); background: var(--up-soft); }
+
+/* practice */
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 12px; }
+.task ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.task label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.tick { appearance: none; -webkit-appearance: none; margin: 2px 0 0; width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+.tick:checked { background: var(--up); border-color: var(--up); }
+.tick:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--surface); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.task textarea { width: 100%; min-height: 130px; font: 15px/1.5 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+.task .saved { font-size: 13px; color: var(--muted); }
+
+.finish { display: grid; gap: 12px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 20px; }
+.finish h2 { font-size: 24px; }
+.finish a { color: var(--bg); font-weight: 700; }
+.finish .row { display: flex; gap: 12px 20px; flex-wrap: wrap; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; font-weight: 700; }
+.pager a { text-decoration: none; }
+footer.f { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="brand" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="6" x2="5" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="10" width="5" height="7" fill="var(--down)"/><line x1="12" y1="3" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="5" width="5" height="8" fill="var(--up)"/><line x1="19" y1="1" x2="19" y2="12" stroke="currentColor" stroke-width="1.5"/><rect x="16.5" y="2" width="5" height="7" fill="var(--up)"/></svg>
+      Trading Course
+    </a>
+    <span class="where">Level 1 · Lesson 5 of 10</span>
+    <nav aria-label="Lessons"><a class="prev" href="https://claude.ai/artifact/WMkt4zpP6gpCKMeP9Gx6jC" target="_blank" rel="noopener">← Prev</a><a class="next" href="https://claude.ai/artifact/WM6VW9vqWdMJ5eWkz8FjYp" target="_blank" rel="noopener">Next →</a></nav>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="rail" aria-label="On this page">
+    <a class="back" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">← Course hub</a>
+    <ol id="toc"></ol>
+  </aside>
+  <article id="lesson">
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.05</span>
+      <h1>Indices: Nifty 50, Sensex, Bank Nifty and sector indices</h1>
+      <p class="lede">When the news says "the market fell 1% today", it means an index fell 1%. An index is one number that sums up a basket of shares. As a trader you'll check the Nifty before every trade, because most stocks move with it.</p>
+      <div class="facts"><span class="chip mark">About 50 minutes</span><span class="chip">Real data: Nifty 50, Sensex, Nifty Bank, Nifty IT 2007–2026</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The idea in plain words</h2></header>
+      <div class="prose">
+        <p>There are over 2,000 companies trading on NSE. Nobody can watch all of them. So exchanges pick a basket of important shares and combine their prices into one number, an <span class="term">index</span>. If most of the basket goes up, the index goes up. It's like the Sensex is the "temperature" of the market: one reading that tells you if things are hot or cold.</p>
+        <div class="tbl"><table><thead><tr><th>Index</th><th>Exchange</th><th>What's in it</th><th>Started at</th></tr></thead><tbody>
+          <tr><td><strong>Nifty 50</strong></td><td>NSE</td><td>50 large, liquid companies across sectors</td><td>1,000 on 3 Nov 1995</td></tr>
+          <tr><td><strong>Sensex</strong></td><td>BSE</td><td>30 large companies</td><td>100 in 1978–79</td></tr>
+          <tr><td><strong>Nifty Bank</strong> ("Bank Nifty")</td><td>NSE</td><td>The largest, most traded banks, about 12 to 14 of them</td><td>1,000 on 1 Jan 2000</td></tr>
+          <tr><td><strong>Nifty IT</strong></td><td>NSE</td><td>10 IT services companies like TCS, Infosys, HCLTech</td><td>1,000 on 1 Jan 1996</td></tr>
+          <tr><td><strong>Other sectors</strong></td><td>NSE</td><td>Nifty Auto, Pharma, FMCG, Metal, Realty, PSU Bank and more</td><td></td></tr>
+          <tr><td><strong>Size indices</strong></td><td>NSE</td><td>Nifty Next 50, Nifty Midcap 150, Nifty Smallcap 250</td><td></td></tr>
+        </tbody></table></div>
+        <h3>How the number is calculated</h3>
+        <p>Big companies count for more. Both the Nifty and Sensex are weighted by <span class="term">free-float market cap</span>: the market value of the shares that are actually available to trade (shares locked up with promoters or the government are left out). So a 2% move in HDFC Bank or Reliance moves the Nifty far more than a 2% move in a smaller member. The few biggest members each make up roughly 8% to 13% of the Nifty.</p>
+        <p>The index doesn't care about the share price itself, only the company's weight. That's why a stock split or bonus doesn't change the index.</p>
+        <h3>Points vs percent</h3>
+        <p>News says "Nifty fell 230 points". Points alone mean little. 230 points is 1% when the Nifty is at 23,000, but was 4.6% when the Nifty was at 5,000 in 2009. Always convert to percent.</p>
+        <div class="calc">percent change = points change ÷ previous close × 100</div>
+        <h3>Why traders watch indices</h3>
+        <ul>
+          <li><strong>Direction:</strong> on a day the Nifty rises strongly, most stocks rise with it, and on a day it falls hard, most fall. Buying a stock when the whole market is falling is swimming against the tide.</li>
+          <li><strong>Sector strength:</strong> comparing sector indices shows where money is flowing. A swing trader prefers stocks from the strongest sectors.</li>
+          <li><strong>Benchmark:</strong> if your trading makes 8% in a year when the Nifty made 20%, you'd have done better buying an index fund.</li>
+        </ul>
+      </div>
+      <div class="key"><b class="lbl">Remember</b><p>You can't buy "the Nifty" as a share, but you can buy a Nifty index fund or ETF that holds all 50 stocks in the same weights. It's the simplest long-term investment there is, and the benchmark every trader is measured against.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>The real indices</h2></header>
+      <figure class="chart" data-series="nifty_last,sensex_last" data-labels="Nifty 50,Sensex" data-norm="100" data-title="Nifty 50 vs Sensex, Sep to Oct 2026 (both start at 100)">
+        <figcaption>Different exchanges, different baskets (50 vs 30 stocks), almost the same line. Over these two months the Nifty fell 4.2% (24,055.80 to 23,053.10) and the Sensex 3.2% (76,944 to 74,460). Because they overlap so much, traders usually just watch one: the Nifty.</figcaption>
+      </figure>
+      <figure class="chart" data-series="nifty_m" data-title="Nifty 50, monthly close since Sep 2007" data-marks='[["2008-10","2008 crash"],["2020-03","Covid"],["2025-12","26,130"]]'>
+        <figcaption>From 5,021 in September 2007 to 23,053 in October 2026, about 4.6 times. Notice how long the flat and falling stretches are: 2008 to 2013, and again since late 2025. Long-term growth comes in bursts.</figcaption>
+      </figure>
+      <figure class="chart" data-series="bank_m,it_m,nifty_m" data-labels="Nifty Bank,Nifty IT,Nifty 50" data-norm="100" data-log data-title="Sector indices vs Nifty 50, Sep 2007 = 100 (log scale)" data-band='["2021-12","2022-12"]'>
+        <figcaption>The highlighted year, 2022, shows why sector indices matter. Nifty IT fell 26% (38,701 to 28,622) as global tech stocks sank, while Nifty Bank rose 21% (35,482 to 42,986) as interest rates rose and bank profits grew. The Nifty 50 itself was up only 4%. A trader who knew which sector was strong was in the right stocks. In 2020–21 it was the other way round: IT up 147%, banks up 10%.</figcaption>
+      </figure>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: Points to percent</h3>
+          <p class="q">The Nifty closed at 24,055.80 on 1 September 2026 and at 23,053.10 on 30 October 2026. How many points and what percent did it fall?</p>
+          <div class="calc">points  = 23,053.10 − 24,055.80 = −1,002.70
+percent = −1,002.70 ÷ 24,055.80 × 100 = −4.17%</div>
+          <p class="ans"><b>Answer:</b> about 1,000 points, or 4.2%. A 1,000-point fall sounds scary; 4.2% over two months is a normal pullback.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: How weights move an index</h3>
+          <p class="q">A tiny index has three stocks with weights 50%, 30% and 20%. In a day they move +2%, −1% and +4%. How much does the index move?</p>
+          <div class="calc">0.50 × (+2%) + 0.30 × (−1%) + 0.20 × (+4%)
+= +1.0% − 0.3% + 0.8% = +1.5%</div>
+          <p class="ans"><b>Answer:</b> +1.5%. The biggest stock contributes most. On the Nifty, two or three heavyweights moving sharply can push the whole index while most other stocks barely move.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Was your trading worth it?</h3>
+          <p class="q">In 2023 you made 12% trading. The Nifty rose 20% that year. How did you do?</p>
+          <p class="ans"><b>Answer:</b> you underperformed the benchmark by 8 percentage points, with much more effort and risk. In a strong year a trader needs to beat a simple index fund to justify the time. In a weak year, like 2026 so far, holding cash and waiting can be a win.</p>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Try it: build your own three-stock index</h3>
+        <p>Set the market caps and today's moves. See how the weighted index moves compared with a simple average.</p>
+        <div class="fields" id="ix-fields"></div>
+        <div class="out" id="ix-out"></div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"How many companies are in the Nifty 50 and the Sensex?","o":["50 and 50","50 and 30","100 and 30","30 and 50"],"a":1,"why":"Nifty 50 has 50 stocks (NSE); the Sensex has 30 (BSE)."},
+{"q":"What does free-float market cap weighting mean?","o":["Each stock has equal weight","Bigger companies, counting only tradable shares, have more weight","Higher share price means more weight","Weights are chosen at random"],"a":1,"why":"Weight depends on the market value of shares available to trade."},
+{"q":"The Nifty is at 23,000 and falls 345 points. What percent is that?","o":["0.15%","1.5%","3.45%","15%"],"a":1,"why":"345 ÷ 23,000 = 1.5%."},
+{"q":"A company in the Nifty does a 1:5 stock split. What happens to the index?","o":["It falls 80%","Nothing, because the company's value didn't change","It rises 5 times","The company leaves the index"],"a":1,"why":"Weights depend on market cap, which a split doesn't change."},
+{"q":"In 2022, which did better?","o":["Nifty IT","Nifty Bank","Both fell the same","Neither existed"],"a":1,"why":"Nifty Bank rose about 21% while Nifty IT fell about 26%."},
+{"q":"Why does a swing trader compare sector indices?","o":["To find where money is flowing and trade stocks from strong sectors","To pay less tax","Because SEBI requires it","To choose a broker"],"a":0,"why":"Stocks in strong sectors tend to have the wind behind them."},
+{"q":"The Nifty and Sensex usually…","o":["Move in opposite directions","Move almost identically","Are unrelated","Only move on Mondays"],"a":1,"why":"Their baskets overlap heavily, so they move together."},
+{"q":"What is the simplest way to own the whole Nifty 50?","o":["Buy 1 share of each stock","A Nifty index fund or ETF","You can't","Buy Bank Nifty"],"a":1,"why":"Index funds and ETFs hold all 50 stocks in index weights."},
+{"q":"Three stocks weighted 60/30/10 move +1%, +1%, −10%. The index moves…","o":["−8%","−0.1%","−2.7%","+1%"],"a":1,"why":"0.6 × 1 + 0.3 × 1 + 0.1 × (−10) = 0.6 + 0.3 − 1.0 = −0.1%. The small stock's big fall barely moves the index."},
+{"q":"Your trading made 5% in a year the Nifty made 25%. What's the honest conclusion?","o":["Great year","You underperformed a simple index fund by 20 points","Index returns don't count","5% is above inflation, so it's fine either way"],"a":1,"why":"The index is the benchmark. Beating inflation is not enough if an index fund did far better."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: five days of the Nifty</h2><p>About 15 minutes, once, then 2 minutes a day.</p></header>
+      <div class="task" data-key="nifty5">
+        <ul class="check">
+          <li>On nseindia.com, open "Market Data", then "Indices" (or the historical index data page). Find the Nifty 50's closing value for each of the last 5 trading days.</li>
+          <li>Fill in the table below: daily change in points and percent.</li>
+          <li>For the same 5 days, note whether Nifty Bank and Nifty IT went up or down. Did they agree with the Nifty?</li>
+          <li>Find the top 3 Nifty 50 stocks by weight (search "Nifty 50 index weightage" or check NSE's index factsheet).</li>
+          <li>Write one sentence: which sector looked strongest this week?</li>
+        </ul>
+        <div class="tbl"><table><thead><tr><th>Day</th><th>Date</th><th class="n">Close</th><th class="n">Points</th><th class="n">%</th></tr></thead><tbody id="n5"></tbody></table></div>
+        <textarea placeholder="Bank vs IT this week: …  Top 3 by weight: …  Strongest sector: …"></textarea>
+      </div>
+    </section>
+
+<script>
+window.lessonInit = function () {
+  const def = [["Big Bank", 15, 1.5], ["Oil Co", 10, -2], ["Small Tech", 2, 8]], f = $("#ix-fields");
+  def.forEach((d, i) => { f.insertAdjacentHTML("beforeend", `<label class="field">${d[0]}: market cap (₹ lakh cr)<input id="ix-m${i}" type="number" min="0" step="0.5" value="${d[1]}"></label><label class="field">${d[0]}: today's move (%)<input id="ix-p${i}" type="number" step="0.1" value="${d[2]}"></label>`); });
+  const run = () => { const m = def.map((_, i) => +$("#ix-m" + i).value || 0), p = def.map((_, i) => +$("#ix-p" + i).value || 0), tot = m.reduce((a, b) => a + b, 0) || 1;
+    const w = m.map(x => x / tot), idx = w.reduce((a, x, i) => a + x * p[i], 0), avg = p.reduce((a, b) => a + b, 0) / p.length;
+    $("#ix-out").innerHTML = def.map((d, i) => `<div><b>${(w[i] * 100).toFixed(1)}%</b><span>${d[0]} weight</span></div>`).join("") + `<div><b class="${idx >= 0 ? "pos" : "neg"}">${pct(idx, 2)}</b><span>Weighted index move</span></div><div><b>${pct(avg, 2)}</b><span>Simple average of the three</span></div>`; };
+  $$("#ix-fields input").forEach(x => x.addEventListener("input", run)); run();
+  const tb = $("#n5"), s = store("n5-" + LESSON_ID) || [];
+  for (let i = 0; i < 6; i++) { const r = s[i] || {}; tb.insertAdjacentHTML("beforeend", `<tr><td>${i ? "Day " + i : "Day before"}</td><td><input aria-label="Date" id="n5d${i}" value="${r.d || ""}" style="width:7.5em"></td><td class="n"><input aria-label="Close" id="n5c${i}" type="number" step="0.05" value="${r.c || ""}" style="width:7em"></td><td class="n" id="n5p${i}"></td><td class="n" id="n5q${i}"></td></tr>`); }
+  const upd = () => { const rows = []; for (let i = 0; i < 6; i++) { rows.push({ d: $("#n5d" + i).value, c: $("#n5c" + i).value });
+      const c = +$("#n5c" + i).value, pv = i ? +$("#n5c" + (i - 1)).value : 0;
+      $("#n5p" + i).textContent = i && c && pv ? (c - pv > 0 ? "+" : "") + fmt(c - pv) : ""; $("#n5q" + i).textContent = i && c && pv ? pct((c / pv - 1) * 100, 2) : ""; }
+    store("n5-" + LESSON_ID, rows); };
+  $$("#n5 input").forEach(x => { x.style.font = "14px var(--f-mono)"; x.style.background = "var(--bg)"; x.style.color = "var(--ink)"; x.style.border = "1px solid var(--line)"; x.style.borderRadius = "6px"; x.style.padding = "4px 6px"; x.addEventListener("input", upd); }); upd();
+};
+</script>
+
+    <section class="finish" aria-label="Finish the lesson">
+      <h2>Done with this lesson?</h2>
+      <p>Pass the quiz (8 or more correct) and finish the practice task, then tick lesson 1.05 in the course hub so your progress is saved to your account.</p>
+      <div class="row"><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Open the course hub ↗</a><a class="" href="https://claude.ai/artifact/WM6VW9vqWdMJ5eWkz8FjYp" target="_blank" rel="noopener">Next: Brokers and Demat →</a></div>
+    </section>
+    <nav class="pager" aria-label="Lesson pager"><a class="" href="https://claude.ai/artifact/WMkt4zpP6gpCKMeP9Gx6jC" target="_blank" rel="noopener">← 1.04 NSE, BSE and SEBI</a><a class="" href="https://claude.ai/artifact/WM6VW9vqWdMJ5eWkz8FjYp" target="_blank" rel="noopener">1.06 Brokers and Demat →</a></nav>
+    <footer class="f">Indian market (NSE/BSE). For learning, not investment advice. Charts use real daily NSE/BSE closing data from a free public dataset (github.com/aswinv90/indian-market-historical-data), data to 30 Oct 2026. Rules and charges change: check the SEBI, NSE and broker pages named in the lesson before relying on a number.</footer>
+  </article>
+</div>
+
+<script id="series" type="application/json">{"bank_m":[["2007-09",8042.2],["2007-10",9013.15],["2007-11",9375.75],["2007-12",9863.45],["2008-01",9226.25],["2008-02",8688.35],["2008-03",6655.0],["2008-04",7629.0],["2008-05",6584.35],["2008-06",5027.05],["2008-07",5730.05],["2008-08",6102.05],["2008-09",5803.55],["2008-10",4521.7],["2008-11",4291.15],["2008-12",5001.55],["2009-01",4456.55],["2009-02",3892.4],["2009-03",4133.2],["2009-04",5130.95],["2009-05",7414.35],["2009-06",7338.85],["2009-07",7544.5],["2009-08",7431.65],["2009-09",8812.35],["2009-10",8438.6],["2009-11",9046.95],["2009-12",9029.5],["2010-01",8651.55],["2010-02",8722.75],["2010-03",9459.6],["2010-04",9870.35],["2010-05",9363.7],["2010-06",9464.6],["2010-07",10161.0],["2010-08",10746.35],["2010-09",12366.35],["2010-10",12330.75],["2010-11",11952.6],["2010-12",11791.45],["2011-01",10641.85],["2011-02",10435.35],["2011-03",11705.45],["2011-04",11483.75],["2011-05",11020.85],["2011-06",11244.65],["2011-07",10893.65],["2011-08",9533.4],["2011-09",9468.3],["2011-10",9989.65],["2011-11",8564.1],["2011-12",7968.65],["2012-01",9919.45],["2012-02",10414.2],["2012-03",10212.75],["2012-04",10276.8],["2012-05",9441.0],["2012-06",10340.65],["2012-07",10384.1],["2012-08",9990.5],["2012-09",11456.8],["2012-10",11268.8],["2012-11",12158.9],["2012-12",12474.25],["2013-01",12708.6],["2013-02",11487.35],["2013-03",11361.85],["2013-04",12561.55],["2013-05",12475.65],["2013-06",11617.25],["2013-07",10015.75],["2013-08",9049.2],["2013-09",9617.8],["2013-10",11473.15],["2013-11",11153.95],["2013-12",11385.25],["2014-01",10237.75],["2014-02",10764.7],["2014-03",12742.05],["2014-04",12855.85],["2014-05",14793.4],["2014-06",15241.9],["2014-07",15267.6],["2014-08",15740.4],["2014-09",15392.25],["2014-10",17045.05],["2014-11",18513.15],["2014-12",18736.65],["2015-01",19843.75],["2015-02",19074.55],["2015-03",18206.65],["2015-04",18338.1],["2015-05",18721.35],["2015-06",18296.1],["2015-07",18729.85],["2015-08",17146.55],["2015-09",17216.3],["2015-10",17354.5],["2015-11",17430.4],["2015-12",16922.2],["2016-01",15522.4],["2016-02",13946.4],["2016-03",16141.65],["2016-04",16795.0],["2016-05",17620.9],["2016-06",17935.4],["2016-07",18953.15],["2016-08",19787.6],["2016-09",19285.7],["2016-10",19555.95],["2016-11",18627.8],["2016-12",18177.2],["2017-01",19515.15],["2017-02",20607.25],["2017-03",21444.15],["2017-04",22358.25],["2017-05",23424.8],["2017-06",23211.2],["2017-07",25103.65],["2017-08",24318.4],["2017-09",24053.0],["2017-10",25019.35],["2017-11",25332.4],["2017-12",25539.45],["2018-01",27379.45],["2018-02",25107.4],["2018-03",24263.35],["2018-04",25531.6],["2018-05",26956.2],["2018-06",26364.2],["2018-07",27764.15],["2018-08",28061.75],["2018-09",25119.85],["2018-10",25153.25],["2018-11",26862.95],["2018-12",27160.2],["2019-01",27295.45],["2019-02",26789.9],["2019-03",30420.55],["2019-04",29764.8],["2019-05",31375.4],["2019-06",31105.2],["2019-07",28876.0],["2019-08",27427.85],["2019-09",29103.15],["2019-10",30066.25],["2019-11",31946.1],["2019-12",32161.65],["2020-01",30833.6],["2020-02",29147.15],["2020-03",19144.0],["2020-04",21534.5],["2020-05",19297.25],["2020-06",21370.15],["2020-07",21640.05],["2020-08",23754.35],["2020-09",21451.8],["2020-10",23900.9],["2020-11",29609.05],["2020-12",31264.05],["2021-01",30565.5],["2021-02",34803.6],["2021-03",33303.9],["2021-04",32781.8],["2021-05",35526.65],["2021-06",34772.2],["2021-07",34584.35],["2021-08",36424.6],["2021-09",37425.1],["2021-10",39115.6],["2021-11",35695.3],["2021-12",35481.7],["2022-01",37975.35],["2022-02",36205.3],["2022-03",36373.6],["2022-04",36088.15],["2022-05",35487.4],["2022-06",33425.1],["2022-07",37491.4],["2022-08",39536.75],["2022-09",38631.95],["2022-10",41307.9],["2022-11",43231.0],["2022-12",42986.45],["2023-01",40655.05],["2023-02",40269.05],["2023-03",40608.65],["2023-04",43233.9],["2023-05",44128.15],["2023-06",44747.35],["2023-07",45651.1],["2023-08",43989.15],["2023-09",44584.55],["2023-10",42845.95],["2023-11",44481.75],["2023-12",48292.25],["2024-01",45996.8],["2024-02",46120.9],["2024-03",47124.6],["2024-04",49396.75],["2024-05",48983.95],["2024-06",52342.25],["2024-07",51553.4],["2024-08",51351.0],["2024-09",52978.1],["2024-10",51475.35],["2024-11",52055.6],["2024-12",50860.2],["2025-01",49587.2],["2025-02",48344.7],["2025-03",51564.85],["2025-04",55087.15],["2025-05",55749.7],["2025-06",57312.75],["2025-07",55961.95],["2025-08",53655.65],["2025-09",54635.85],["2025-10",57776.35],["2025-11",59752.7],["2025-12",59581.85],["2026-01",59610.45],["2026-02",60529.0],["2026-03",50275.35],["2026-04",54863.35],["2026-05",54239.2],["2026-06",57542.9],["2026-07",57264.85],["2026-08",58024.95],["2026-09",54633.05],["2026-10",54686.95]],"it_m":[["2007-09",4804.2],["2007-10",4793.65],["2007-11",4431.15],["2007-12",4812.6],["2008-01",3838.15],["2008-02",3984.5],["2008-03",3704.95],["2008-04",4357.65],["2008-05",4688.35],["2008-06",3999.4],["2008-07",3752.85],["2008-08",3926.8],["2008-09",3107.05],["2008-10",2686.95],["2008-11",2449.95],["2008-12",2187.0],["2009-01",2225.75],["2009-02",2094.1],["2009-03",2318.7],["2009-04",2770.85],["2009-05",3191.85],["2009-06",3497.65],["2009-07",4330.05],["2009-08",4618.35],["2009-09",5122.1],["2009-10",5048.8],["2009-11",5364.2],["2009-12",5818.4],["2010-01",5594.15],["2010-02",5766.7],["2010-03",5855.95],["2010-04",5985.8],["2010-05",5761.95],["2010-06",5928.3],["2010-07",6086.85],["2010-08",5974.9],["2010-09",6613.4],["2010-10",6613.25],["2010-11",6703.6],["2010-12",7491.1],["2011-01",6971.25],["2011-02",6666.3],["2011-03",7148.1],["2011-04",6718.35],["2011-05",6538.5],["2011-06",6624.7],["2011-07",6335.1],["2011-08",5451.25],["2011-09",5678.9],["2011-10",6278.7],["2011-11",5893.25],["2011-12",6139.0],["2012-01",6193.85],["2012-02",6606.85],["2012-03",6516.0],["2012-04",6085.4],["2012-05",6008.8],["2012-06",6144.6],["2012-07",5695.25],["2012-08",6072.35],["2012-09",6313.8],["2012-10",6087.85],["2012-11",6263.25],["2012-12",6024.95],["2013-01",6778.0],["2013-02",7106.65],["2013-03",7219.05],["2013-04",6047.7],["2013-05",6472.05],["2013-06",6634.15],["2013-07",7787.35],["2013-08",8382.4],["2013-09",8167.8],["2013-10",8852.8],["2013-11",8820.75],["2013-12",9517.85],["2014-01",9957.45],["2014-02",10338.55],["2014-03",9298.0],["2014-04",9227.95],["2014-05",8970.3],["2014-06",9912.3],["2014-07",10304.7],["2014-08",10679.65],["2014-09",11302.7],["2014-10",11341.05],["2014-11",11898.05],["2014-12",11216.3],["2015-01",11824.75],["2015-02",12554.95],["2015-03",12083.0],["2015-04",11001.05],["2015-05",11575.05],["2015-06",11037.4],["2015-07",11594.15],["2015-08",11605.7],["2015-09",12032.1],["2015-10",11486.9],["2015-11",11206.0],["2015-12",11212.55],["2016-01",11236.15],["2016-02",10278.4],["2016-03",11309.3],["2016-04",11196.25],["2016-05",11395.85],["2016-06",11120.15],["2016-07",10913.3],["2016-08",10546.1],["2016-09",10292.3],["2016-10",10048.4],["2016-11",10087.7],["2016-12",10399.25],["2017-01",9848.5],["2017-02",10680.95],["2017-03",10703.25],["2017-04",9943.7],["2017-05",10549.1],["2017-06",10155.05],["2017-07",10755.75],["2017-08",10558.25],["2017-09",10475.35],["2017-10",10837.9],["2017-11",11115.35],["2017-12",11665.75],["2018-01",12986.4],["2018-02",12809.0],["2018-03",12511.55],["2018-04",13986.25],["2018-05",13666.0],["2018-06",13989.5],["2018-07",14587.8],["2018-08",15811.4],["2018-09",15838.05],["2018-10",14940.1],["2018-11",14638.05],["2018-12",14440.3],["2019-01",15499.3],["2019-02",15732.0],["2019-03",15566.75],["2019-04",16705.4],["2019-05",16160.65],["2019-06",15936.45],["2019-07",15620.2],["2019-08",16010.4],["2019-09",15540.15],["2019-10",15559.4],["2019-11",14998.05],["2019-12",15652.4],["2020-01",16144.15],["2020-02",15212.95],["2020-03",12763.65],["2020-04",14108.4],["2020-05",14010.5],["2020-06",14754.3],["2020-07",18071.85],["2020-08",17928.85],["2020-09",19951.35],["2020-10",20916.85],["2020-11",21764.9],["2020-12",24251.35],["2021-01",24645.75],["2021-02",24301.45],["2021-03",25855.0],["2021-04",25664.45],["2021-05",27115.05],["2021-06",29168.0],["2021-07",30480.05],["2021-08",34570.25],["2021-09",35028.0],["2021-10",34408.75],["2021-11",35043.75],["2021-12",38701.05],["2022-01",34824.55],["2022-02",33847.85],["2022-03",36317.2],["2022-04",31622.4],["2022-05",29679.05],["2022-06",27843.35],["2022-07",29152.3],["2022-08",28407.9],["2022-09",26981.15],["2022-10",28727.6],["2022-11",30391.7],["2022-12",28621.7],["2023-01",29740.35],["2023-02",29663.95],["2023-03",28698.6],["2023-04",27708.2],["2023-05",29319.75],["2023-06",29563.0],["2023-07",29928.45],["2023-08",31164.9],["2023-09",31784.4],["2023-10",30582.25],["2023-11",32582.2],["2023-12",35515.0],["2024-01",36638.4],["2024-02",37720.4],["2024-03",34898.15],["2024-04",33200.95],["2024-05",32386.1],["2024-06",36157.5],["2024-07",40851.1],["2024-08",42787.8],["2024-09",41946.1],["2024-10",40407.55],["2024-11",43146.25],["2024-12",43337.8],["2025-01",42662.75],["2025-02",37318.3],["2025-03",36886.15],["2025-04",35794.95],["2025-05",37321.75],["2025-06",38950.0],["2025-07",35301.65],["2025-08",35181.25],["2025-09",33655.1],["2025-10",35712.35],["2025-11",37405.5],["2025-12",37884.05],["2026-01",38036.15],["2026-02",30603.85],["2026-03",29062.6],["2026-04",29353.9],["2026-05",29080.15],["2026-06",26299.05],["2026-07",30708.95],["2026-08",31191.45],["2026-09",27704.8],["2026-10",32606.9]],"nifty_last":[["2026-09-01",24077.55,24143.15,23952.55,24055.8],["2026-09-02",23858.0,23914.45,23786.8,23914.45],["2026-09-03",23997.95,24025.4,23873.45,23873.45],["2026-09-04",23910.9,24005.75,23895.85,23897.7],["2026-09-07",23883.15,23890.0,23737.9,23779.15],["2026-09-08",23743.1,23758.95,23623.1,23635.1],["2026-09-09",23522.05,23571.55,23431.5,23431.5],["2026-09-10",23446.6,23494.95,23380.1,23477.8],["2026-09-11",23270.3,23448.1,23231.4,23398.1],["2026-09-15",23576.15,23592.85,23118.6,23118.6],["2026-09-16",23201.6,23284.75,23116.1,23217.6],["2026-09-17",23195.25,23363.55,23193.65,23270.6],["2026-09-18",23334.7,23389.15,23286.6,23346.4],["2026-09-21",23330.2,23466.8,23314.8,23414.3],["2026-09-22",23454.05,23489.0,23285.75,23329.0],["2026-09-23",23352.15,23466.9,23349.55,23446.8],["2026-09-24",23221.8,23281.95,23046.15,23063.1],["2026-09-25",23035.0,23162.7,23020.95,23140.5],["2026-09-28",23064.9,23080.25,22762.2,22780.25],["2026-09-29",22732.45,22753.25,22569.65,22716.2],["2026-09-30",22665.0,22809.35,22595.2,22620.45],["2026-10-01",22543.7,22610.6,22217.3,22421.95],["2026-10-05",22532.4,22621.8,22397.1,22555.75],["2026-10-06",22603.25,22776.1,22561.6,22776.1],["2026-10-07",22690.45,22717.65,22546.3,22603.05],["2026-10-08",22599.05,22599.05,22179.9,22231.8],["2026-10-09",22314.95,22580.75,22294.75,22520.45],["2026-10-12",22593.2,22651.1,22304.45,22363.35],["2026-10-13",22364.15,22721.95,22288.45,22721.95],["2026-10-14",22715.75,22757.95,22558.95,22622.7],["2026-10-15",22671.3,23056.4,22637.4,22997.35],["2026-10-16",23065.1,23149.85,22913.8,23146.15],["2026-10-19",23150.85,23175.25,22845.0,22888.95],["2026-10-21",23016.0,23120.9,22649.9,22811.35],["2026-10-22",22687.75,22785.0,22554.85,22687.65],["2026-10-23",22742.2,22787.25,22372.0,22600.0],["2026-10-26",22524.4,22753.2,22387.35,22753.2],["2026-10-27",22708.8,22829.75,22636.85,22749.75],["2026-10-28",22678.0,22778.05,22497.7,22698.85],["2026-10-29",22690.65,22961.95,22656.75,22936.75],["2026-10-30",22964.5,23118.1,22905.1,23053.1]],"nifty_m":[["2007-09",5021.35],["2007-10",5900.65],["2007-11",5762.75],["2007-12",6138.6],["2008-01",5137.45],["2008-02",5223.5],["2008-03",4734.5],["2008-04",5165.9],["2008-05",4870.1],["2008-06",4040.55],["2008-07",4332.95],["2008-08",4360.0],["2008-09",3921.2],["2008-10",2885.6],["2008-11",2755.1],["2008-12",2959.15],["2009-01",2874.8],["2009-02",2763.65],["2009-03",3020.95],["2009-04",3473.95],["2009-05",4448.95],["2009-06",4291.1],["2009-07",4636.45],["2009-08",4662.1],["2009-09",5083.95],["2009-10",4711.7],["2009-11",5032.7],["2009-12",5201.05],["2010-01",4882.05],["2010-02",4922.3],["2010-03",5249.1],["2010-04",5278.0],["2010-05",5086.3],["2010-06",5312.5],["2010-07",5367.6],["2010-08",5402.4],["2010-09",6029.95],["2010-10",6017.7],["2010-11",5862.7],["2010-12",6134.5],["2011-01",5505.9],["2011-02",5333.25],["2011-03",5833.75],["2011-04",5749.5],["2011-05",5473.1],["2011-06",5647.4],["2011-07",5482.0],["2011-08",5001.0],["2011-09",4943.25],["2011-10",5326.6],["2011-11",4832.05],["2011-12",4624.3],["2012-01",5199.25],["2012-02",5385.2],["2012-03",5295.55],["2012-04",5248.15],["2012-05",4924.25],["2012-06",5278.9],["2012-07",5229.0],["2012-08",5258.5],["2012-09",5703.3],["2012-10",5619.7],["2012-11",5879.85],["2012-12",5905.1],["2013-01",6034.75],["2013-02",5693.05],["2013-03",5682.55],["2013-04",5930.2],["2013-05",5985.95],["2013-06",5842.2],["2013-07",5742.0],["2013-08",5471.8],["2013-09",5735.3],["2013-10",6299.15],["2013-11",6176.1],["2013-12",6304.0],["2014-01",6089.5],["2014-02",6276.95],["2014-03",6704.2],["2014-04",6696.4],["2014-05",7229.95],["2014-06",7611.35],["2014-07",7721.3],["2014-08",7954.35],["2014-09",7964.8],["2014-10",8322.2],["2014-11",8588.25],["2014-12",8282.7],["2015-01",8808.9],["2015-02",8844.6],["2015-03",8491.0],["2015-04",8181.5],["2015-05",8433.65],["2015-06",8368.5],["2015-07",8532.85],["2015-08",7971.3],["2015-09",7948.9],["2015-10",8065.8],["2015-11",7935.25],["2015-12",7946.35],["2016-01",7563.55],["2016-02",6987.05],["2016-03",7738.4],["2016-04",7849.8],["2016-05",8160.1],["2016-06",8287.75],["2016-07",8638.5],["2016-08",8786.2],["2016-09",8611.15],["2016-10",8638.0],["2016-11",8224.5],["2016-12",8185.8],["2017-01",8561.3],["2017-02",8879.6],["2017-03",9173.75],["2017-04",9304.05],["2017-05",9621.25],["2017-06",9520.9],["2017-07",10077.1],["2017-08",9917.9],["2017-09",9788.6],["2017-10",10335.3],["2017-11",10226.55],["2017-12",10530.7],["2018-01",11027.7],["2018-02",10492.85],["2018-03",10113.7],["2018-04",10739.35],["2018-05",10736.15],["2018-06",10714.3],["2018-07",11356.5],["2018-08",11680.5],["2018-09",10930.45],["2018-10",10386.6],["2018-11",10876.75],["2018-12",10862.55],["2019-01",10830.95],["2019-02",10792.5],["2019-03",11570.0],["2019-04",11748.15],["2019-05",11922.8],["2019-06",11788.85],["2019-07",11118.0],["2019-08",11023.25],["2019-09",11474.45],["2019-10",11877.45],["2019-11",12056.05],["2019-12",12168.45],["2020-01",11962.1],["2020-02",11201.75],["2020-03",8597.75],["2020-04",9859.9],["2020-05",9580.3],["2020-06",10302.1],["2020-07",11073.45],["2020-08",11387.5],["2020-09",11247.55],["2020-10",11642.4],["2020-11",12968.95],["2020-12",13981.75],["2021-01",13634.6],["2021-02",14529.15],["2021-03",14690.7],["2021-04",14631.1],["2021-05",15582.8],["2021-06",15721.5],["2021-07",15763.05],["2021-08",17132.2],["2021-09",17618.15],["2021-10",17671.65],["2021-11",16983.2],["2021-12",17354.05],["2022-01",17339.85],["2022-02",16793.9],["2022-03",17464.75],["2022-04",17102.55],["2022-05",16584.55],["2022-06",15780.25],["2022-07",17158.25],["2022-08",17759.3],["2022-09",17094.35],["2022-10",18012.2],["2022-11",18758.35],["2022-12",18105.3],["2023-01",17662.15],["2023-02",17303.95],["2023-03",17359.75],["2023-04",18065.0],["2023-05",18534.4],["2023-06",19189.05],["2023-07",19753.8],["2023-08",19253.8],["2023-09",19638.3],["2023-10",19079.6],["2023-11",20133.15],["2023-12",21731.4],["2024-01",21725.7],["2024-02",21982.8],["2024-03",22326.9],["2024-04",22604.85],["2024-05",22530.7],["2024-06",24010.6],["2024-07",24951.15],["2024-08",25235.9],["2024-09",25810.85],["2024-10",24205.35],["2024-11",24131.1],["2024-12",23644.8],["2025-01",23508.4],["2025-02",22124.7],["2025-03",23519.35],["2025-04",24334.2],["2025-05",24750.7],["2025-06",25517.05],["2025-07",24768.35],["2025-08",24426.85],["2025-09",24611.1],["2025-10",25722.1],["2025-11",26202.95],["2025-12",26129.6],["2026-01",25320.65],["2026-02",25178.65],["2026-03",22331.4],["2026-04",23997.55],["2026-05",23547.75],["2026-06",23865.75],["2026-07",24383.6],["2026-08",24080.4],["2026-09",22620.45],["2026-10",23053.1]],"sensex_last":[["2026-09-01",76994.11,77231.87,76656.12,76944.28],["2026-09-02",76471.32,76570.35,76135.72,76570.35],["2026-09-03",76724.95,76924.48,76152.86,76152.86],["2026-09-04",76657.02,76883.14,76515.43,76515.43],["2026-09-07",76446.05,76477.19,75970.52,76132.81],["2026-09-08",75970.28,76012.11,75553.35,75577.58],["2026-09-09",75216.22,75251.23,74764.23,74764.23],["2026-09-10",74742.54,74910.96,74598.47,74902.59],["2026-09-11",74309.16,74917.15,74160.16,74781.76],["2026-09-15",75369.63,75436.44,73994.03,74003.82],["2026-09-16",74249.31,74505.86,73981.33,74336.45],["2026-09-17",74182.62,74677.56,74163.95,74314.59],["2026-09-18",74575.24,74728.44,74294.96,74294.96],["2026-09-21",74535.18,74987.4,74454.18,74858.99],["2026-09-22",74901.5,75038.93,74423.71,74529.08],["2026-09-23",74648.32,74973.74,74599.88,74828.25],["2026-09-24",74272.4,74362.29,73563.92,73580.54],["2026-09-25",73525.92,73968.05,73477.77,73895.74],["2026-09-28",73734.83,73740.85,72716.23,72771.72],["2026-09-29",72633.68,72684.9,72064.0,72529.07],["2026-09-30",72441.15,73062.23,72366.44,72480.29],["2026-10-01",72192.89,72572.9,71292.88,71909.7],["2026-10-05",72340.95,72631.93,71840.18,72382.47],["2026-10-06",72508.05,73067.81,72384.83,73067.81],["2026-10-07",72965.38,73018.82,72468.72,72638.7],["2026-10-08",72668.0,72693.97,71327.75,71593.24],["2026-10-09",71776.67,72669.2,71739.49,72472.33],["2026-10-12",72771.32,72884.25,71676.1,71924.68],["2026-10-13",71951.73,73045.67,71703.56,73033.78],["2026-10-14",73049.76,73195.26,72578.75,72781.89],["2026-10-15",72965.8,74330.29,72896.38,74315.61],["2026-10-16",74341.08,74778.78,74012.99,74729.27],["2026-10-19",74849.3,74849.75,73708.54,73852.9],["2026-10-21",74337.93,74682.19,73229.45,73709.69],["2026-10-22",73343.33,73720.83,73005.11,73249.39],["2026-10-23",73665.64,73766.51,72452.37,73123.83],["2026-10-26",72990.04,73606.75,72514.57,73606.75],["2026-10-27",73484.38,73762.98,73179.41,73598.67],["2026-10-28",73253.44,73525.44,72603.57,73246.03],["2026-10-29",73268.47,74166.16,73181.9,74151.04],["2026-10-30",74199.69,74742.59,74082.03,74459.53]]}</script>
+<script>
+/* ===== Shared lesson engine: charts, quiz, practice notes. Same in every lesson. ===== */
+const LESSON_ID = "1.05";
+const SERIES = JSON.parse(document.getElementById("series").textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const inr = (v, d = 0) => "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v, d = 2) => Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function niceDate(s) { const p = s.split("-"); return (p[2] ? (+p[2]) + " " : "") + MONTHS[+p[1] - 1] + " " + p[0]; }
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem("tc-" + k) || "null"); localStorage.setItem("tc-" + k, JSON.stringify(v)); } catch (e) { return null; } }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t;
+}
+function shortNum(v) { const a = Math.abs(v); if (a >= 1e7) return (v / 1e7).toFixed(1).replace(/\.0$/, "") + "Cr"; if (a >= 1e5) return (v / 1e5).toFixed(1).replace(/\.0$/, "") + "L"; return Number(v).toLocaleString("en-IN", { maximumFractionDigits: a < 100 ? 2 : 0 }); }
+
+/* Chart options (data-* on <figure class="chart">):
+   series="a,b" names in SERIES · type=line|candle · from/to (date prefix) · norm=100 (rebase each series)
+   labels="Nifty 50,Sensex" · marks='[["2020-03-23","Covid low"]]' · band='["2020-02-20","2020-03-23"]'
+   unit="₹"|"pts"|"" · log · vol (show volume bars) · title */
+function drawChart(fig) {
+  const ds = fig.dataset, names = ds.series.split(","), labels = (ds.labels || ds.series).split(",");
+  const colors = ["--accent", "--mark", "--down", "--violet", "--up"].map(css);
+  const type = ds.type || "line", unit = ds.unit ?? "", norm = ds.norm ? +ds.norm : 0;
+  const inRange = d => (!ds.from || d >= ds.from) && (!ds.to || d <= ds.to + "~");
+  const sets = names.map(n => SERIES[n].filter(r => inRange(r[0])));
+  const isOHLC = sets[0][0].length >= 5;
+  const close = r => isOHLC ? r[4] : r[1];
+  const lines = sets.map(s => { const b = close(s[0]); return s.map(r => norm ? close(r) / b * norm : close(r)); });
+  const dates = sets[0].map(r => r[0]);
+  const W = Math.max(300, Math.round(fig.querySelector(".ch-box").clientWidth || 720)), H = (W < 520 ? 250 : 300) + (("vol" in ds) ? 40 : 0), padL = 58, padR = 14, volH = ("vol" in ds) ? 56 : 0, padB = 26;
+  let padT = 12;
+  const plotB = H - padB - volH - (("vol" in ds) ? 8 : 0);
+  let lo = Infinity, hi = -Infinity;
+  if (type === "candle") sets[0].forEach(r => { lo = Math.min(lo, r[3]); hi = Math.max(hi, r[2]); });
+  else lines.forEach(l => l.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+  const hl = ds.hline ? JSON.parse(ds.hline) : [];
+  hl.forEach(([v]) => { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+  const log = "log" in ds;
+  const pad = (hi - lo) * 0.06; if (!log) { lo -= pad; hi += pad; if (lo < 0 && Math.min(...lines.flat()) >= 0) lo = 0; }
+  const yv = v => log ? Math.log(v) : v;
+  const Y = v => plotB - (yv(v) - yv(lo)) / (yv(hi) - yv(lo)) * (plotB - padT);
+  const n = dates.length, X = i => padL + (n === 1 ? 0.5 : i / (n - 1)) * (W - padL - padR);
+  const idxOf = d => { let k = dates.findIndex(x => x >= d); return k < 0 ? n - 1 : k; };
+  const marks = ds.marks ? JSON.parse(ds.marks).map(([d, label]) => { const i = idxOf(d), x = X(i), tw = label.length * 6.6 + 10; return { i, x, label, tw, tx: Math.min(Math.max(x - tw / 2, padL), W - padR - tw) }; }) : [];
+  const placed = []; marks.forEach(m => { let row = 0; while (placed.some(p => p.row === row && !(m.tx + m.tw + 4 < p.tx || m.tx > p.tx + p.tw + 4))) row++; m.row = row; placed.push(m); });
+  if (marks.length) padT = 12 + 21 * (Math.max(...marks.map(m => m.row)) + 1);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": ds.title || labels.join(", ") });
+  // grid + y labels
+  let ticks = log ? (() => { const t = []; for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) [1, 2, 5].forEach(m => { const v = m * 10 ** p; if (v >= lo && v <= hi) t.push(v); }); return t; })() : niceTicks(lo, hi);
+  ticks.forEach(t => { const y = Y(t); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid" }, svg); const tx = el("text", { x: padL - 6, y: y + 4, "text-anchor": "end" }, svg); tx.textContent = (unit === "₹" ? "₹" : "") + shortNum(t); });
+  // x labels: years, or months, or days depending on span
+  const span = (new Date(dates[n - 1]) - new Date(dates[0])) / 864e5;
+  let lastKey = null, lastX = -99;
+  dates.forEach((d, i) => {
+    const key = span > 1500 ? d.slice(0, 4) : span > 75 ? d.slice(0, 7) : d;
+    if (key === lastKey) return; lastKey = key; const x = X(i);
+    if (x - lastX < (span > 75 ? 46 : 52) || x > W - padR - 14) return; lastX = x;
+    const tx = el("text", { x, y: H - 8, "text-anchor": "middle" }, svg);
+    tx.textContent = span > 1500 ? key : span > 75 ? MONTHS[+d.slice(5, 7) - 1] + (d.slice(5, 7) === "01" || i === 0 ? " " + d.slice(2, 4) : "") : (+d.slice(8)) + " " + MONTHS[+d.slice(5, 7) - 1];
+  });
+  if (ds.band) { const [a, b] = JSON.parse(ds.band); const xa = X(idxOf(a)), xb = X(idxOf(b)); el("rect", { x: xa, y: padT, width: Math.max(2, xb - xa), height: plotB - padT, class: "hl" }, svg); }
+  if (type === "candle") {
+    const w = Math.max(1.5, Math.min(10, (W - padL - padR) / n * 0.62));
+    sets[0].forEach((r, i) => { const up = r[4] >= r[1], c = up ? css("--up") : css("--down"), x = X(i);
+      el("line", { x1: x, x2: x, y1: Y(r[2]), y2: Y(r[3]), stroke: c, "stroke-width": 1.2 }, svg);
+      const y1 = Y(Math.max(r[1], r[4])), y2 = Y(Math.min(r[1], r[4]));
+      el("rect", { x: x - w / 2, y: y1, width: w, height: Math.max(1, y2 - y1), fill: up ? css("--surface") : c, stroke: c, "stroke-width": 1.2 }, svg); });
+  } else {
+    lines.forEach((l, k) => {
+      const d = l.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1)).join("");
+      if (lines.length === 1) el("path", { d: d + `L${X(n - 1)} ${plotB}L${X(0)} ${plotB}Z`, fill: colors[0], opacity: 0.08 }, svg);
+      el("path", { d, fill: "none", stroke: colors[k], "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    });
+  }
+  hl.forEach(([v, label]) => { const y = Y(v); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, stroke: css("--violet"), "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+    const t = el("text", { x: W - padR - 4, y: y - 5, "text-anchor": "end", fill: css("--violet"), "font-weight": 600 }, svg); t.textContent = label; t.style.fill = "var(--violet)"; });
+  if (("vol" in ds)) {
+    const vols = sets[0].map(r => r[5]), vmax = Math.max(...vols), vb = H - padB, w = Math.max(1.5, (W - padL - padR) / n * 0.62);
+    const t = el("text", { x: padL - 6, y: vb - 4, "text-anchor": "end" }, svg); t.textContent = "Vol";
+    sets[0].forEach((r, i) => el("rect", { x: X(i) - w / 2, y: vb - r[5] / vmax * volH, width: w, height: r[5] / vmax * volH, fill: r[4] >= r[1] ? css("--up") : css("--down"), opacity: .45 }, svg));
+    el("line", { x1: padL, x2: W - padR, y1: vb, y2: vb, class: "grid" }, svg);
+  }
+  marks.forEach(({ i, x, label, tw, tx, row }) => {
+    const g = el("g", { class: "mk" }, svg), y = 2 + row * 21;
+    el("line", { x1: x, x2: x, y1: y + 18, y2: plotB }, g);
+    el("rect", { x: tx, y, width: tw, height: 18, rx: 4 }, g);
+    const t = el("text", { x: tx + tw / 2, y: y + 13, "text-anchor": "middle" }, g); t.textContent = label;
+    if (type !== "candle") el("circle", { cx: x, cy: Y(lines[0][i]), r: 4, fill: css("--mark"), stroke: css("--surface"), "stroke-width": 2 }, g);
+  });
+  // hover readout
+  const cross = el("line", { y1: padT, y2: plotB, class: "cross", visibility: "hidden" }, svg);
+  const dots = lines.map((_, k) => el("circle", { r: 4, fill: colors[k], stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }, svg));
+  const ro = fig.querySelector(".readout");
+  const show = i => {
+    const r = sets[0][i]; cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    if (type === "candle") { ro.textContent = `${niceDate(r[0])} · O ${fmt(r[1])} H ${fmt(r[2])} L ${fmt(r[3])} C ${fmt(r[4])}` + (r[5] ? ` · Vol ${shortNum(r[5])}` : "") + (i ? ` · ${pct((r[4] / sets[0][i - 1][4] - 1) * 100, 2)}` : ""); return; }
+    dots.forEach((c, k) => { c.setAttribute("cx", X(i)); c.setAttribute("cy", Y(lines[k][i])); c.setAttribute("visibility", "visible"); });
+    ro.textContent = niceDate(r[0]) + " · " + lines.map((l, k) => (lines.length > 1 ? labels[k] + " " : "") + (unit === "₹" && !norm ? inr(l[i], 2) : fmt(l[i], norm ? 1 : 2))).join(" · ");
+  };
+  const def = () => { const i = n - 1; show(i); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); };
+  svg.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * W; show(Math.max(0, Math.min(n - 1, Math.round((x - padL) / (W - padL - padR) * (n - 1))))); });
+  svg.addEventListener("pointerleave", def);
+  fig.querySelector(".ch-box").appendChild(svg); def();
+  if (lines.length > 1) fig.querySelector(".legend").innerHTML = labels.map((l, k) => `<span><i style="background:var(${["--accent","--mark","--down","--violet","--up"][k]})"></i>${l}</span>`).join("");
+}
+function buildCharts(root = document) {
+  $$("figure.chart", root).forEach(fig => {
+    if (!fig.querySelector(".ch-box")) {
+      const head = document.createElement("div"); head.className = "ch-head";
+      head.innerHTML = `<span class="ch-title"></span><span class="readout" aria-live="off"></span>`;
+      head.firstChild.textContent = fig.dataset.title || "";
+      const legend = document.createElement("div"); legend.className = "legend";
+      const box = document.createElement("div"); box.className = "ch-box";
+      fig.prepend(head, legend, box);
+    } else fig.querySelector(".ch-box").innerHTML = "";
+    drawChart(fig);
+  });
+}
+
+/* Quiz: div.quiz[data-pass] holding a JSON script tag: [{q, o:[...], a:index, why}] */
+function buildQuiz(box) {
+  const Q = JSON.parse(box.querySelector("script").textContent), pass = +(box.dataset.pass || Math.ceil(Q.length * 0.8));
+  const saved = store("quiz-" + LESSON_ID) || {}; const answers = saved.answers || {};
+  const score = document.createElement("div"); score.className = "score";
+  const upd = () => { const done = Object.keys(answers).length, right = Q.filter((q, i) => answers[i] === q.a).length;
+    score.className = "score" + (done === Q.length && right >= pass ? " pass" : "");
+    score.innerHTML = `<b>${right} / ${Q.length}</b><span>${done < Q.length ? `Answered ${done} of ${Q.length}. You need ${pass} correct to pass.` : right >= pass ? "Passed. Well done." : `Not yet: you need ${pass}. Read the explanations, then retry.`}</span>`;
+    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store("quiz-" + LESSON_ID, { answers }); render(); }; score.appendChild(b); }
+  };
+  const render = () => {
+    box.querySelectorAll(".qcard").forEach(c => c.remove());
+    Q.forEach((q, i) => {
+      const c = document.createElement("div"); c.className = "qcard";
+      c.innerHTML = `<span class="qn">QUESTION ${i + 1} OF ${Q.length}</span><p class="qq"></p><div class="opts"></div>`;
+      c.querySelector(".qq").textContent = q.q;
+      q.o.forEach((o, j) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = `<span class="l">${"ABCD"[j]}</span><span></span>`; b.lastChild.textContent = o;
+        b.onclick = () => { answers[i] = j; store("quiz-" + LESSON_ID, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
+      const mark = () => { if (!(i in answers)) return; const bs = [...c.querySelectorAll(".opts button")];
+        bs.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === answers[i]) b.classList.add("wrong"); });
+        if (!c.querySelector(".why")) { const w = document.createElement("p"); w.className = "why"; w.innerHTML = `<b class="${answers[i] === q.a ? "ok" : "no"}">${answers[i] === q.a ? "Correct." : "Not quite."}</b> `; w.append(q.why); c.appendChild(w); } };
+      mark(); box.insertBefore(c, score);
+    });
+    upd();
+  };
+  box.appendChild(score); render();
+}
+
+/* Practice: <div class="task" data-key="x"> with <ul class="check"><li>..</li></ul> and optional <textarea> */
+function buildTask(t) {
+  const key = "task-" + LESSON_ID + "-" + (t.dataset.key || "a"), s = store(key) || { c: {}, notes: "" };
+  $$("ul.check li", t).forEach((li, i) => { const id = key + "-" + i; const lab = document.createElement("label"); lab.innerHTML = `<input type="checkbox" class="tick" id="${id}">`; const sp = document.createElement("span"); while (li.firstChild) sp.appendChild(li.firstChild); lab.appendChild(sp); li.appendChild(lab);
+    const cb = lab.firstChild; cb.checked = !!s.c[i]; cb.onchange = () => { s.c[i] = cb.checked; store(key, s); }; });
+  const ta = $("textarea", t); if (ta) { ta.id = key + "-notes"; ta.value = s.notes || ""; const sv = document.createElement("span"); sv.className = "saved"; sv.textContent = "Notes stay in this browser only. Copy anything important into your trading journal."; ta.after(sv); ta.oninput = () => { s.notes = ta.value; store(key, s); }; }
+}
+
+function buildToc() {
+  const toc = $("#toc"); const parts = $$("section.part");
+  parts.forEach(p => { const li = document.createElement("li"); const a = document.createElement("a"); a.href = "#" + p.id; a.textContent = p.dataset.toc || p.querySelector("h2").textContent; li.appendChild(a); toc.appendChild(li); });
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) $$("#toc a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-20% 0px -70% 0px" }); parts.forEach(p => io.observe(p)); }
+}
+
+buildToc();
+buildCharts();
+$$(".quiz").forEach(buildQuiz);
+$$(".task").forEach(buildTask);
+if (typeof window.lessonInit === "function") window.lessonInit();
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => buildCharts(), 200); });
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => buildCharts());
+new MutationObserver(() => buildCharts()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>
