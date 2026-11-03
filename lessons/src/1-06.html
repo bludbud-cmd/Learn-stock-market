@@ -1,0 +1,117 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.06</span>
+      <h1>Brokers, demat and trading accounts: what happens when you press Buy</h1>
+      <p class="lede">To trade you need three accounts that work together: a bank account, a trading account and a demat account. This lesson explains each one, follows a real order from your phone to your demat account, and shows how to choose a broker.</p>
+      <div class="facts"><span class="chip mark">About 45 minutes</span><span class="chip">Real data: Reliance trade on NSE, demat account growth 2020–2025, Karvy 2019</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The idea in plain words</h2></header>
+      <div class="prose">
+        <p>Think of how you'd buy gold coins and keep them in a bank locker. You need money in your bank (to pay), a jeweller (to buy from) and a locker (to keep the coins safe in your name). Shares work the same way, just electronically:</p>
+        <div class="tbl"><table><thead><tr><th>Account</th><th>Like</th><th>What it does</th><th>Who runs it</th></tr></thead><tbody>
+          <tr><td><strong>Bank account</strong></td><td>Your wallet</td><td>Sends money to your broker and receives sale proceeds</td><td>Your bank</td></tr>
+          <tr><td><strong>Trading account</strong></td><td>The jeweller's counter</td><td>Lets you place buy and sell orders on NSE and BSE</td><td>Your broker</td></tr>
+          <tr><td><strong>Demat account</strong></td><td>The locker</td><td>Holds your shares electronically, in your name</td><td>A depository (CDSL or NSDL) through a <span class="term">DP</span> (Depository Participant), usually your broker</td></tr>
+        </tbody></table></div>
+        <p>Brokers open the trading and demat accounts together in one online application. Your demat account has a 16-character ID, called a BO ID or client ID. If your broker shut down tomorrow, your shares would still be safe in your demat account at CDSL or NSDL, and you could move them to another broker.</p>
+        <h3>What you need to open an account</h3>
+        <ul>
+          <li>PAN card (compulsory for any share trading)</li>
+          <li>Aadhaar linked to your mobile number, for e-KYC and e-signing</li>
+          <li>Bank account proof (a cancelled cheque or bank statement)</li>
+          <li>A short video or selfie check (in-person verification, IPV), done in the app</li>
+          <li>A nominee: who gets your shares if something happens to you. Add one, or formally opt out.</li>
+        </ul>
+        <p>Opening is fully online and usually takes one to three days. Most brokers open accounts free. Some charge a yearly demat <strong>AMC</strong> (annual maintenance charge).</p>
+        <h3>Full-service vs discount brokers</h3>
+        <p><strong>Full-service brokers</strong> (ICICI Securities, HDFC Securities, Kotak Securities) offer research, advice and branches, and charge a percentage of each trade. <strong>Discount brokers</strong> (Zerodha, Groww, Upstox, Angel One, Dhan) offer an app, low fixed fees and no advice. For a self-taught trader, a discount broker is usually the better fit.</p>
+        <h3>How to choose a broker</h3>
+        <ol>
+          <li><strong>Charges:</strong> delivery brokerage, intraday brokerage, DP charge on each sale, and AMC. Read the official "charges" page, not an ad. For example, Zerodha's own page (checked November 2026) lists ₹0 for delivery, ₹20 or 0.03% per intraday order (whichever is lower), and ₹15.34 DP charge per stock sold.</li>
+          <li><strong>Reliability:</strong> does the app stay up on busy days? Search "[broker] outage" for recent years.</li>
+          <li><strong>Tools you'll need later:</strong> good charts, GTT orders (lesson 1.08), and a trading API. From Level 4 this course uses a free broker API (Upstox or Angel One) for live paper trading, so one of those is a sensible first choice.</li>
+          <li><strong>Support and history:</strong> how they handle complaints. Check their SEBI registration and any SEBI orders against them.</li>
+        </ol>
+      </div>
+      <div class="key warn"><b class="lbl">Never do this</b><p>Never share your login, password, TPIN or OTP with anyone, including "relationship managers" or "account handlers" who offer to trade for you. Letting someone else trade your account is the most common way beginners lose money to fraud.</p></div>
+    </section>
+
+    <section class="part" id="press-buy" data-toc="When you press Buy">
+      <header><span class="eyebrow">Part 2</span><h2>What happens when you press Buy</h2><p>A real example: buying 10 Reliance shares with a limit order at ₹1,165 on Thursday 29 October 2026. Reliance traded between ₹1,155.60 and ₹1,182.10 that day (real NSE data).</p></header>
+      <ol class="flow" id="flow">
+        <li><b>9:47:12 am · Your phone</b><span>You choose Reliance, quantity 10, limit price ₹1,165, product CNC (delivery), and tap Buy.</span></li>
+        <li><b>+ a few milliseconds · Broker's risk check</b><span>The broker's system checks you have ₹11,650 plus charges available, that the price is inside the day's allowed range, and that the order is valid. If not, it is rejected here.</span></li>
+        <li><b>+ a few milliseconds · NSE order book</b><span>The order joins NSE's order book for Reliance. If a seller is waiting at ₹1,165 or lower, the exchange matches you instantly. If not, your order waits in line by price, then by time.</span></li>
+        <li><b>Matched · Trade confirmation</b><span>NSE sends a trade confirmation with a unique trade number. Your app shows "Executed". The money is blocked in your trading account.</span></li>
+        <li><b>Evening · Contract note</b><span>The broker emails a contract note listing the price, quantity, brokerage, STT, stamp duty and every other charge. Keep these: they're your tax records.</span></li>
+        <li><b>Friday (T+1) · Settlement</b><span>NSE Clearing collects ₹11,650 from your broker and pays the seller's broker. The 10 shares move from the seller's demat account to yours at CDSL or NSDL.</span></li>
+        <li><b>Friday evening · Shares in your demat</b><span>The shares appear in your holdings. You're now an owner, entitled to any dividend whose record date falls after this.</span></li>
+      </ol>
+      <div class="prose"><p>Selling works in reverse, with one extra step: you authorise the shares to leave your demat account, either with a one-time e-DIS/TPIN OTP from CDSL or NSDL, or with a standing DDPI authorisation you signed with your broker. This rule exists because of the Karvy case in lesson 1.04.</p></div>
+      <h3 class="prose">Real data: India's rush into demat accounts</h3>
+      <figure class="chart" data-series="demat_y" data-unit="" data-title="Demat accounts in India, crore (CDSL + NSDL, approximate)" data-marks='[["2020-03","Covid crash"]]'>
+        <figcaption>About 4 crore accounts in March 2020, over 21 crore by December 2025. Millions of new investors arrived during the 2020–21 rally, when the Nifty rose 42%. Many had never seen a falling market. Approximate figures from CDSL and NSDL announcements and news reports.</figcaption>
+      </figure>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: Money needed</h3>
+          <p class="q">You want 10 Reliance shares at ₹1,165 for delivery. Your trading account has ₹11,500. Will the order go through?</p>
+          <div class="calc">needed = 10 × 1,165 = ₹11,650 (plus about ₹13 of charges)
+have   = ₹11,500
+short  = ₹150+</div>
+          <p class="ans"><b>Answer:</b> no. The broker's risk check rejects it with "insufficient funds". For delivery (CNC) you must have the full amount. Add money by UPI first, which usually shows up within minutes.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: Broker shut down</h3>
+          <p class="q">Your broker suddenly stops working. You hold 20 TCS shares and ₹5,000 unused cash with them. What is safe?</p>
+          <p class="ans"><b>Answer:</b> the 20 TCS shares are in your demat account at the depository, in your name, so they can be moved to a new broker. The cash is held by the broker, which is why SEBI requires brokers to return unused client funds to your bank regularly. Don't leave large idle balances in a trading account.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: The yearly cost of a broker</h3>
+          <p class="q">You plan 50 swing trades a year (50 buys and 50 sells) and, on days off, 30 intraday trades a month of ₹40,000 each. Broker A charges ₹0 for delivery and "₹20 or 0.03% per order, whichever is lower" for intraday. What is the brokerage for a year?</p>
+          <div class="calc">delivery : 100 orders × ₹0                      = ₹0
+intraday : 0.03% of ₹40,000 = ₹12 (lower than ₹20) → ₹12 per order
+           30 trades × 2 orders × 12 months = 720 orders
+           720 × ₹12                              = ₹8,640
+DP charge: 50 delivery sales × ₹15.34              ≈ ₹767</div>
+          <p class="ans"><b>Answer:</b> about ₹9,400 a year, almost all from intraday. Small per trade, large over a year. Lesson 1.10 adds taxes and the other charges.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"Which account holds your shares?","o":["Bank account","Trading account","Demat account","PAN account"],"a":2,"why":"The demat account holds shares electronically, like a locker."},
+{"q":"What does the trading account let you do?","o":["Hold shares","Place buy and sell orders on the exchange","Pay income tax","Open an FD"],"a":1,"why":"The trading account is your window to place orders."},
+{"q":"CDSL and NSDL are…","o":["Brokers","Stock exchanges","Depositories","Banks"],"a":2,"why":"They are India's two depositories, which hold demat accounts."},
+{"q":"Which document is compulsory to trade shares in India?","o":["Passport","PAN card","Driving licence","Voter ID"],"a":1,"why":"PAN is mandatory for securities transactions."},
+{"q":"Your broker closes down. Your shares are…","o":["Lost","Safe in your demat account at the depository","Transferred to SEBI","Sold automatically"],"a":1,"why":"Shares sit at CDSL/NSDL in your name, not with the broker."},
+{"q":"You buy shares on Monday. When do they reach your demat account?","o":["Monday, instantly","Tuesday (T+1)","Wednesday","Next week"],"a":1,"why":"India settles trades on T+1, one working day after the trade."},
+{"q":"What must you do before shares can leave your demat account when you sell?","o":["Nothing","Authorise with a depository OTP/TPIN, or sign a DDPI","Send a letter","Call SEBI"],"a":1,"why":"Sales need your authorisation, by e-DIS OTP or a standing DDPI."},
+{"q":"A 'relationship manager' asks for your OTP so he can 'help you trade'. You should…","o":["Share it, he works for the broker","Never share it, and report the request","Share only on weekends","Share just the first 3 digits"],"a":1,"why":"No genuine broker employee needs your OTP or password."},
+{"q":"What is a contract note?","o":["An advertisement","The official record of a trade with price and every charge","An IPO form","A SEBI licence"],"a":1,"why":"The broker sends one for each trading day; it's your tax and dispute record."},
+{"q":"Which matters most when choosing your first broker for this course?","o":["The ad with the biggest celebrity","Low charges, a reliable app, GTT orders and a trading API","Whether it gives free tips","How many referral rewards it offers"],"a":1,"why":"You need low costs, reliability, the right order types, and an API for paper trading in Level 4."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: compare two brokers</h2><p>About 25 minutes. Don't open an account yet unless you want to; paper trading comes first.</p></header>
+      <div class="task" data-key="broker">
+        <ul class="check">
+          <li>Open the official charges pages of Upstox and Angel One (and your current broker, if you have one).</li>
+          <li>Fill in the table: delivery brokerage, intraday brokerage, DP charge per sale, AMC.</li>
+          <li>Check each broker offers GTT orders and a free trading API for retail users.</li>
+          <li>Look up each broker's SEBI registration number on sebi.gov.in.</li>
+          <li>Write down which one you'd pick and one reason why. If you already have a demat account, find your 16-character BO ID in the app.</li>
+        </ul>
+        <textarea placeholder="Upstox: delivery … intraday … DP … AMC … GTT? API?
+Angel One: delivery … intraday … DP … AMC … GTT? API?
+My pick and why: …"></textarea>
+      </div>
+    </section>

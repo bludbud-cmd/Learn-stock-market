@@ -1,0 +1,144 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.07</span>
+      <h1>Market timings: pre-open, the normal session and holidays</h1>
+      <p class="lede">The Indian stock market opens at 9:15 am and closes at 3:30 pm, Monday to Friday. But a lot happens before and after those times, and the first and last minutes behave differently from the rest of the day. This lesson builds the daily clock you'll trade around a 9-to-6 job.</p>
+      <div class="facts"><span class="chip mark">About 40 minutes</span><span class="chip">Real data: Nifty around election results, 3 and 4 June 2024</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The trading day on NSE (equity cash market)</h2></header>
+      <div class="clock" id="clock" aria-label="NSE trading day timeline">
+        <div class="seg-row">
+          <span style="--w:15" class="s pre"><b>9:00</b>Pre-open</span>
+          <span style="--w:375" class="s open"><b>9:15</b>Normal market</span>
+          <span style="--w:10" class="s gap"><b>3:30</b></span>
+          <span style="--w:20" class="s post"><b>3:40</b>Post-close</span>
+        </div>
+        <p class="now" id="nowLine"></p>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Time (IST)</th><th>Session</th><th>What happens</th></tr></thead><tbody>
+        <tr><td class="n">9:00 – 9:08</td><td><strong>Pre-open: order entry</strong></td><td>You can place, change and cancel orders. Nothing trades yet. It closes at a random moment in the last minute, so nobody can game the final second.</td></tr>
+        <tr><td class="n">9:08 – 9:12</td><td><strong>Pre-open: matching</strong></td><td>The exchange finds the single <span class="term">equilibrium price</span> where the most shares can be matched, and trades all matched orders at that price. This becomes the stock's opening price.</td></tr>
+        <tr><td class="n">9:12 – 9:15</td><td><strong>Buffer</strong></td><td>A short pause to move unmatched orders into the normal market.</td></tr>
+        <tr><td class="n">9:15 – 3:30</td><td><strong>Normal market</strong></td><td>Continuous trading. Orders match instantly whenever a buyer's price meets a seller's price.</td></tr>
+        <tr><td class="n">3:00 – 3:30</td><td><strong>Closing price window</strong></td><td>The official closing price is the volume-weighted average price of trades in these 30 minutes, not the last trade.</td></tr>
+        <tr><td class="n">around 3:15 – 3:25</td><td><strong>Intraday square-off</strong></td><td>Brokers automatically close open MIS (intraday) positions. Each broker sets its own time and may charge a fee.</td></tr>
+        <tr><td class="n">3:40 – 4:00</td><td><strong>Post-close</strong></td><td>You can buy or sell only at the official closing price.</td></tr>
+        <tr><td class="n">evening to 9:00</td><td><strong>After-market orders (AMO)</strong></td><td>Your broker accepts orders and sends them to the exchange at the next open. Exact AMO hours differ by broker.</td></tr>
+      </tbody></table></div>
+      <div class="prose">
+        <h3>Days the market is closed</h3>
+        <ul>
+          <li><strong>Every Saturday and Sunday</strong>, unless the exchange announces a special session (for example the live session on Saturday 1 February 2025, Union Budget day).</li>
+          <li><strong>Trading holidays</strong> published by NSE each December for the next year: Republic Day, Holi, Good Friday, Independence Day, Gandhi Jayanti, Diwali (Laxmi Pujan), Christmas and others. About 14 to 16 weekdays a year.</li>
+          <li><strong>Muhurat trading:</strong> on Diwali, NSE and BSE run a special one-hour session for the auspicious start of the new Samvat year. Timings are announced a few weeks before.</li>
+        </ul>
+        <h3>The shape of a normal day</h3>
+        <p>The day has a rhythm you'll study in Level 4. The first 15 to 30 minutes after 9:15 are the most volatile: overnight news gets priced in and big gaps appear. The middle of the day (roughly 11:30 to 1:30) is usually quieter. The last hour gets busy again as funds and intraday traders close positions.</p>
+        <h3>Your clock as a swing trader with a day job</h3>
+        <ol>
+          <li><strong>Evening (after 6 pm):</strong> review charts using the day's final prices. Decide on 0 to 3 trade ideas, each with an entry, a stop-loss and a target.</li>
+          <li><strong>Before 9:00 am:</strong> place an AMO or a GTT order (next lesson) with the exact entry, and a stop-loss GTT ready.</li>
+          <li><strong>During work:</strong> don't watch the screen. Your orders and stop-losses do the work.</li>
+          <li><strong>Lunch (optional):</strong> a quick check that orders behaved as expected.</li>
+        </ol>
+      </div>
+      <div class="key"><b class="lbl">Remember</b><p>A swing trader doesn't need to watch the market open. Planning in the evening and letting pre-set orders work is not a weakness: it removes the impulsive decisions that hurt most beginners.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>Two days that show why the open matters</h2></header>
+      <figure class="chart" data-series="nifty_jun2024" data-type="candle" data-title="Nifty 50 daily candles, 21 May to 14 Jun 2024" data-marks='[["2024-06-03","Exit polls"],["2024-06-04","Results day"]]'>
+        <figcaption>Saturday 1 June 2024: exit polls predicted a big win for the ruling alliance. Monday 3 June, the Nifty opened with a gap up at 23,337.90 (previous close 22,530.70, +3.6%) and closed at a record 23,263.90. Tuesday 4 June, as actual results showed a much narrower win, it opened at 23,179.50, crashed to 21,281.45 during the day (−8.5%) and closed at 21,884.50 (−5.9%). Three days later, on 7 June, it was back at a new record of 23,290.15.</figcaption>
+      </figure>
+      <div class="prose">
+        <p>Look at what these days mean for each kind of trader:</p>
+        <ul>
+          <li>Anyone who bought at the 3 June open paid the gap: most of the move had already happened overnight.</li>
+          <li>An intraday trader long on 4 June without a stop-loss could lose 8% in a few hours. With MIS leverage, much more.</li>
+          <li>A swing trader with a stop-loss already in the system was taken out automatically, which hurts, but is exactly what a stop-loss is for. Without one, they had to decide in a panic, at work, on a phone.</li>
+          <li>News days that are known in advance (results, the Budget, RBI policy) are days to reduce position size or stay out.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: Finding the pre-open price</h3>
+          <p class="q">At 9:08 these orders are waiting for a stock. What opening price does the exchange choose?</p>
+          <div class="tbl"><table><thead><tr><th class="n">Price</th><th class="n">Buyers willing at this price or higher</th><th class="n">Sellers willing at this price or lower</th><th class="n">Shares that can trade</th></tr></thead><tbody>
+            <tr><td class="n">₹1,190</td><td class="n">800</td><td class="n">150</td><td class="n">150</td></tr>
+            <tr><td class="n">₹1,195</td><td class="n">600</td><td class="n">400</td><td class="n"><strong>400</strong></td></tr>
+            <tr><td class="n">₹1,200</td><td class="n">300</td><td class="n">600</td><td class="n">300</td></tr>
+            <tr><td class="n">₹1,205</td><td class="n">100</td><td class="n">900</td><td class="n">100</td></tr>
+          </tbody></table></div>
+          <p class="src">Orders behind this table: buy 100 @ 1,205, 200 @ 1,200, 300 @ 1,195, 200 @ 1,190; sell 150 @ 1,190, 250 @ 1,195, 200 @ 1,200, 300 @ 1,205.</p>
+          <p class="ans"><b>Answer:</b> ₹1,195, because the most shares (400) can trade there. Everyone matched trades at ₹1,195, even a buyer who was willing to pay ₹1,205. That's the open price.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: Gap size</h3>
+          <p class="q">The Nifty closed at 22,530.70 on 31 May 2024 and opened at 23,337.90 on 3 June. How big was the gap?</p>
+          <div class="calc">gap = 23,337.90 − 22,530.70 = 807.20 points
+    = 807.20 ÷ 22,530.70 = +3.58%</div>
+          <p class="ans"><b>Answer:</b> a 3.6% gap up, one of the biggest in years. No order placed during market hours on 31 May could have been filled anywhere in between.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Planning around a day job</h3>
+          <p class="q">You finish work at 6 pm on Wednesday and spot a swing trade idea. When do you act?</p>
+          <ol class="steps"><li>Wednesday evening: write the plan (entry ₹1,200, stop-loss ₹1,165, target ₹1,270).</li><li>Wednesday night or before 9:00 Thursday: place a GTT buy order that triggers if the price reaches ₹1,200, plus a stop-loss.</li><li>Thursday: go to work. If price hits ₹1,200 the order fires; if not, nothing happens.</li></ol>
+          <p class="ans"><b>Answer:</b> you never needed to be at the screen at 9:15. You'll learn exactly how GTT and stop-loss orders work in lesson 1.08.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"When does normal trading on NSE start and end?","o":["9:00 am to 3:00 pm","9:15 am to 3:30 pm","10:00 am to 4:00 pm","9:30 am to 3:15 pm"],"a":1,"why":"The normal market runs 9:15 am to 3:30 pm IST."},
+{"q":"What happens in the pre-open session from 9:00 to 9:08?","o":["Continuous trading","Orders are collected; nothing trades yet","Only institutions trade","The market is closed"],"a":1,"why":"Orders are entered and changed; matching happens afterwards at one price."},
+{"q":"How is the pre-open (opening) price decided?","o":["The first order wins","The price where the most shares can be matched","The previous close","SEBI sets it"],"a":1,"why":"It's an auction: the equilibrium price that maximises traded quantity."},
+{"q":"How is NSE's official closing price calculated?","o":["The last trade at 3:29:59","The volume-weighted average of trades from 3:00 to 3:30","The day's high","The average of open and close"],"a":1,"why":"It's the VWAP of the last 30 minutes, which is harder to manipulate."},
+{"q":"You hold an MIS (intraday) position at 3:20 pm and forget about it. What happens?","o":["It becomes delivery","The broker squares it off automatically","It's held until tomorrow","SEBI fines you"],"a":1,"why":"MIS positions are closed by the broker near 3:15–3:25, often with a fee."},
+{"q":"Which part of the day is usually the most volatile?","o":["The first 15–30 minutes after 9:15","12:00 to 1:00","The post-close session","Saturday"],"a":0,"why":"Overnight news gets priced in at the open."},
+{"q":"On 4 June 2024 (election results), roughly how far did the Nifty fall from its open to its low?","o":["1%","3%","8%","20%"],"a":2,"why":"From 23,179.50 to 21,281.45, about −8.2%."},
+{"q":"What is an AMO?","o":["An order placed after market hours, sent at the next open","A type of mutual fund","An intraday-only order","A SEBI penalty"],"a":0,"why":"After-market orders queue with the broker until the next session."},
+{"q":"Muhurat trading happens…","o":["Every Friday","On Diwali, for about an hour","On Budget day only","Every month-end"],"a":1,"why":"A special session on Diwali marks the new Samvat year."},
+{"q":"For a 9-to-6 job, the best routine is…","o":["Watch charts at work all day","Plan in the evening and place orders with stop-losses before 9:00","Only trade in the first 5 minutes","Trade on weekends"],"a":1,"why":"Pre-planned orders and stops let you trade without watching the screen."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: your trading calendar</h2><p>About 15 minutes.</p></header>
+      <div class="task" data-key="clock">
+        <ul class="check">
+          <li>Download or open NSE's trading holiday list for this year (nseindia.com, "Holidays" under Resources). Note the next 3 holidays.</li>
+          <li>Check this year's Muhurat trading date and time on the NSE website.</li>
+          <li>On one weekday morning, open your broker's app (or nseindia.com) at about 9:10 and look at the pre-open price for Reliance or the Nifty. Compare it with the 9:15 price and the price at 9:45.</li>
+          <li>Write your personal weekly routine: which evenings you'll review charts, and which day off you'll use for intraday practice.</li>
+          <li>Find your broker's AMO time window and MIS square-off time, and write them down.</li>
+        </ul>
+        <textarea placeholder="Next 3 holidays: …  Muhurat: …  Pre-open vs 9:15 vs 9:45: …  My routine: Mon … Tue … Day off for intraday: …  AMO window: …  MIS square-off: …"></textarea>
+      </div>
+    </section>
+
+<script>
+window.lessonInit = function () {
+  const line = $("#nowLine");
+  const tick = () => {
+    const ist = new Date(Date.now() + (new Date().getTimezoneOffset() + 330) * 60000), d = ist.getDay(), m = ist.getHours() * 60 + ist.getMinutes();
+    const hhmm = ist.toTimeString().slice(0, 5); let s;
+    if (d === 0 || d === 6) s = "the market is closed for the weekend";
+    else if (m < 540) s = "before the pre-open; AMOs and GTTs can be placed with most brokers";
+    else if (m < 548) s = "pre-open order entry is running";
+    else if (m < 555) s = "pre-open matching and buffer";
+    else if (m < 930) s = m >= 900 ? "the normal market is open, inside the closing-price window" : "the normal market is open";
+    else if (m < 940) s = "the normal market has closed";
+    else if (m < 960) s = "the post-close session is running";
+    else s = "the market is closed; plan tomorrow's trades";
+    line.innerHTML = `<b>Now in India: ${hhmm} IST.</b> On a normal weekday, ${s}. (Check NSE's holiday list: this clock doesn't know about holidays.)`;
+  };
+  tick(); setInterval(tick, 30000);
+};
+</script>

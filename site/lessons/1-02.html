@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>What a Share Is</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lesson page from the same trading-desk notebook as the course hub.
+   Narrow reading column, a sticky "lesson map" rail on wide screens, real NSE charts
+   drawn in SVG from data embedded in this file. Tokens match the hub exactly. */
+:root {
+  --bg: #f3f4ef; --surface: #ffffff; --sunken: #e8eae2; --ink: #17222b; --muted: #5b6770;
+  --line: #d3d7cd; --accent: #0e5a6b; --accent-soft: #d6e8ea; --up: #1d7f55; --up-soft: #d5eee1;
+  --down: #b8423a; --down-soft: #f5dcd8; --mark: #c98a0b; --mark-soft: #f7e7c2; --violet: #6a4fa3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+    --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+    --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171c; --surface: #172128; --sunken: #0c1216; --ink: #e6ebe7; --muted: #9aa7ae;
+  --line: #2b3841; --accent: #6fc3d2; --accent-soft: #163640; --up: #3fbf86; --up-soft: #15382a;
+  --down: #ec7a70; --down-soft: #41201d; --mark: #f0b43c; --mark-soft: #3d2f12; --violet: #b39ce8; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.65 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.top .in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
+.brand { font: 700 17px/1 var(--f-display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.top .where { color: var(--muted); font-size: 14px; }
+.top nav { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { background: var(--sunken); color: var(--ink); }
+.top nav a.off { pointer-events: none; opacity: .4; }
+
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-top: 32px; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); gap: 0; } .rail { display: none; } }
+.rail { position: sticky; top: 76px; align-self: start; display: grid; gap: 14px; font-size: 14px; }
+.rail ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); display: grid; }
+.rail a { display: block; padding: 6px 0 6px 14px; margin-left: -2px; border-left: 2px solid transparent; text-decoration: none; color: var(--muted); font-weight: 700; }
+.rail a:hover { color: var(--ink); }
+.rail a.on { color: var(--ink); border-left-color: var(--mark); }
+.rail .back { font-weight: 700; text-decoration: none; }
+
+article { min-width: 0; display: grid; gap: 56px; }
+.hero { display: grid; gap: 14px; max-width: 70ch; }
+.hero h1 { font-size: clamp(30px, 5.2vw, 46px); letter-spacing: -.01em; }
+.hero .lede { font-size: 19px; color: var(--muted); }
+.hero .facts { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 600 11px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; padding: 6px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); }
+.chip.mark { background: var(--mark-soft); color: var(--mark); }
+
+section.part { display: grid; gap: 18px; scroll-margin-top: 80px; }
+.part > header { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.part > header h2 { font-size: clamp(24px, 3.4vw, 30px); }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose > *, .ex > *, .tool > *, .task > *, .worked > *, .part > *, .qcard > * { min-width: 0; }
+.prose h3 { font-size: 20px; margin-top: 10px; }
+.prose ul, .prose ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.prose strong { font-weight: 700; }
+.term { font-weight: 700; background: linear-gradient(transparent 62%, var(--mark-soft) 62%); }
+
+.key { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 0 var(--r) var(--r) 0; padding: 14px 16px; max-width: 68ch; display: grid; gap: 6px; }
+.key b.lbl { font: 600 12px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.key.warn { border-left-color: var(--down); }
+.key.warn b.lbl { color: var(--down); }
+.key.tip { border-left-color: var(--mark); }
+.key.tip b.lbl { color: var(--mark); }
+
+/* tables */
+.tbl { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.tbl thead th { border-top: 0; font: 600 12px/1.3 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
+.tbl td.n, .tbl th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+.pos { color: var(--up); } .neg { color: var(--down); }
+
+/* charts */
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 16px 10px; display: grid; gap: 8px; min-width: 0; }
+figure.chart .ch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+figure.chart .ch-title { font: 700 17px/1.3 var(--f-display); }
+figure.chart .readout { font: 600 13px/1.3 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+figure.chart .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+figure.chart .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+figure.chart .ch-box { position: relative; overflow-x: auto; }
+figure.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+figure.chart svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+figure.chart svg .grid { stroke: var(--line); stroke-width: 1; }
+figure.chart svg .mk line { stroke: var(--mark); stroke-dasharray: 3 3; }
+figure.chart svg .mk text { fill: var(--ink); font-weight: 600; }
+figure.chart svg .mk rect { fill: var(--mark-soft); }
+figure.chart svg .hl { fill: var(--mark-soft); opacity: .55; }
+figure.chart svg .cross { stroke: var(--muted); stroke-width: 1; }
+figure.chart figcaption { font-size: 14px; color: var(--muted); max-width: 72ch; }
+.src { font-size: 12px; color: var(--muted); }
+
+/* worked examples */
+.worked { display: grid; gap: 16px; }
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; max-width: 76ch; }
+.ex h3 { font-size: 18px; }
+.ex .q { font-weight: 700; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; counter-increment: s; }
+.steps li::before { content: counter(s); font: 600 12px/22px var(--f-mono); width: 22px; height: 22px; text-align: center; border-radius: 50%; background: var(--sunken); color: var(--muted); }
+.calc { font-family: var(--f-mono); font-size: 14px; background: var(--sunken); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.ans { background: var(--up-soft); border-radius: 8px; padding: 10px 12px; }
+.ans b { color: var(--up); }
+
+/* tools / widgets */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 14px; }
+.tool h3 { font-size: 18px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.field input, .field select { font: 16px var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+.field input[type=range] { padding: 0; accent-color: var(--accent); }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.out div { background: var(--surface); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.out b { font: 600 19px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.out span { font-size: 13px; color: var(--muted); }
+.btn { font: 700 15px var(--f-body); border: 1px solid var(--ink); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 700 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* flow: a vertical timeline of steps */
+ol.flow { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--line); display: grid; gap: 16px; max-width: 72ch; }
+ol.flow li { position: relative; display: grid; gap: 2px; }
+ol.flow li::before { content: ""; position: absolute; left: -30px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+ol.flow li:last-child::before { background: var(--up); border-color: var(--up); }
+ol.flow b { font: 600 13px/1.4 var(--f-mono); color: var(--accent); }
+h3.prose { font-size: 20px; }
+
+/* day clock */
+.clock { display: grid; gap: 8px; }
+.seg-row { display: flex; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); min-height: 58px; }
+.seg-row .s { flex: var(--w) 1 0; min-width: 0; padding: 8px; display: grid; align-content: start; gap: 2px; font-size: 13px; font-weight: 700; color: var(--ink); overflow: hidden; }
+.seg-row .s b { font: 600 11px var(--f-mono); color: var(--muted); }
+.seg-row .pre { background: var(--mark-soft); flex-basis: 70px; flex-grow: 0; }
+.seg-row .open { background: var(--up-soft); }
+.seg-row .gap { background: var(--sunken); flex-basis: 30px; flex-grow: 0; }
+.seg-row .post { background: var(--accent-soft); flex-basis: 84px; flex-grow: 0; }
+.clock .now { font-size: 15px; }
+
+/* quiz */
+.quiz { display: grid; gap: 16px; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 10px; }
+.qcard .qn { font: 600 12px var(--f-mono); color: var(--muted); letter-spacing: .06em; }
+.qcard .qq { font-weight: 700; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; font: 16px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+.opts button:hover:not(:disabled) { border-color: var(--accent); }
+.opts button .l { font: 600 13px/1.6 var(--f-mono); color: var(--muted); }
+.opts button:disabled { cursor: default; }
+.opts button.right { background: var(--up-soft); border-color: var(--up); }
+.opts button.wrong { background: var(--down-soft); border-color: var(--down); }
+.why { font-size: 15px; border-radius: 8px; padding: 10px 12px; background: var(--sunken); }
+.why b.ok { color: var(--up); } .why b.no { color: var(--down); }
+.score { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; }
+.score b { font: 600 24px var(--f-mono); }
+.score.pass { border-color: var(--up); background: var(--up-soft); }
+
+/* practice */
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 12px; }
+.task ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.task label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.tick { appearance: none; -webkit-appearance: none; margin: 2px 0 0; width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+.tick:checked { background: var(--up); border-color: var(--up); }
+.tick:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--surface); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.task textarea { width: 100%; min-height: 130px; font: 15px/1.5 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+.task .saved { font-size: 13px; color: var(--muted); }
+
+.finish { display: grid; gap: 12px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 20px; }
+.finish h2 { font-size: 24px; }
+.finish a { color: var(--bg); font-weight: 700; }
+.finish .row { display: flex; gap: 12px 20px; flex-wrap: wrap; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; font-weight: 700; }
+.pager a { text-decoration: none; }
+footer.f { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="brand" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="6" x2="5" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="10" width="5" height="7" fill="var(--down)"/><line x1="12" y1="3" x2="12" y2="16" stroke="currentColor" stroke-width="1.5"/><rect x="9.5" y="5" width="5" height="8" fill="var(--up)"/><line x1="19" y1="1" x2="19" y2="12" stroke="currentColor" stroke-width="1.5"/><rect x="16.5" y="2" width="5" height="7" fill="var(--up)"/></svg>
+      Trading Course
+    </a>
+    <span class="where">Level 1 · Lesson 2 of 10</span>
+    <nav aria-label="Lessons"><a class="prev" href="https://claude.ai/artifact/8Uh3nFEL9U5KxdPmP7B7y4" target="_blank" rel="noopener">← Prev</a><a class="next" href="https://claude.ai/artifact/8ZVpeHgi7YCz2rpm5aHeZo" target="_blank" rel="noopener">Next →</a></nav>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="rail" aria-label="On this page">
+    <a class="back" href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">← Course hub</a>
+    <ol id="toc"></ol>
+  </aside>
+  <article id="lesson">
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.02</span>
+      <h1>What a share is: owning a slice of Reliance or TCS</h1>
+      <p class="lede">A share is a small piece of ownership in a real company. When you buy one TCS share, you become one of TCS's owners, with a claim on its profits. This lesson explains what you actually own, how you get paid, and why the price moves.</p>
+      <div class="facts"><span class="chip mark">About 50 minutes</span><span class="chip">Real data: Reliance, TCS, HDFC Bank, Infosys 2005–2026, Reliance bonus Oct 2024</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The idea in plain words</h2></header>
+      <div class="prose">
+        <p>Imagine your friend opens a bakery that needs ₹10 lakh. She splits the ownership into 1,000 equal pieces worth ₹1,000 each and you buy 100 of them. You now own 10% of the bakery. If the bakery earns ₹2 lakh profit this year, 10% of that profit belongs to you. If someone later offers ₹15 lakh for the whole bakery, your 10% is worth ₹1.5 lakh.</p>
+        <p>Each of those pieces is a <span class="term">share</span>. Ownership through shares is called <span class="term">equity</span>, which is why you'll hear "equity market" and "stock market" used for the same thing. A big company like Tata Consultancy Services (TCS) works exactly like the bakery, just with about 362 crore shares instead of 1,000.</p>
+        <h3>What owning a share gives you</h3>
+        <ul>
+          <li><strong>A share of profits.</strong> The company may pay part of its profit to owners as a <span class="term">dividend</span>, a fixed rupee amount per share. The rest is kept to grow the business.</li>
+          <li><strong>A share of the company's value.</strong> If the business becomes more valuable, each share does too, and you can sell it to someone else for more than you paid.</li>
+          <li><strong>A vote.</strong> Shareholders vote on big decisions such as electing directors, usually online, at the Annual General Meeting (AGM).</li>
+          <li><strong>Limited risk.</strong> If the company fails, you can lose what you paid for the shares, but nobody can ask you to pay the company's debts. Your loss is limited to your investment.</li>
+        </ul>
+        <h3>Owners vs lenders</h3>
+        <p>A company raises money in two ways. It can <strong>borrow</strong> (loans, bonds), and lenders get fixed interest whether the company does well or badly. Or it can sell <strong>ownership</strong> (shares), and owners get whatever is left after everyone else is paid. Owners earn the most when things go well and lose first when things go badly. That's the risk and the reward of shares.</p>
+        <h3>Why the share price moves</h3>
+        <p>A share's price on the exchange is simply the last price at which a buyer and a seller agreed to trade. It moves every second because people keep changing their minds about what the company will earn in the future. Good results, a new product or a falling interest rate can make buyers willing to pay more. Bad news makes sellers willing to accept less. Over years, the price tends to follow the company's profits. Over days and weeks, which is where you'll trade, it follows news, emotion and the balance of buyers and sellers.</p>
+        <h3>Market capitalisation</h3>
+        <p>The value of the whole company, as the market sees it, is called <span class="term">market capitalisation</span> or market cap:</p>
+        <div class="calc">market cap = share price × number of shares</div>
+        <p>Indian market caps are usually given in crore (1 crore = ₹1,00,00,000) or lakh crore (1 lakh crore = ₹1,00,000 crore).</p>
+      </div>
+      <div class="key"><b class="lbl">Remember</b><p>A share is not a lottery ticket. It is a slice of a business. The price can swing wildly in the short term, but in the long run it follows how much that business earns.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>Four real Indian companies, 2005 to 2026</h2></header>
+      <div class="prose"><p>The chart starts each stock at 100 in January 2005, so you can compare how much ₹100 in each would have grown to. The prices are adjusted for bonuses and splits (explained below), so they show real growth for an owner who held on. Hover to compare.</p></div>
+      <figure class="chart" data-series="reliance_m_adj,hdfcbank_m_adj,tcs_m_adj,infy_m_adj" data-labels="Reliance,HDFC Bank,TCS,Infosys" data-norm="100" data-log data-title="₹100 invested in January 2005 (log scale, before dividends)">
+        <figcaption>By October 2026, ₹100 in Reliance had become about ₹3,065, HDFC Bank about ₹2,454, TCS about ₹1,540 and Infosys about ₹917. All four are huge, profitable companies, yet their results differ a lot, and every one of them had years when it fell 30% or more. Owning shares means accepting that path.</figcaption>
+      </figure>
+      <div class="prose">
+        <h3>A real example that confuses beginners: the Reliance bonus, October 2024</h3>
+        <p>In October 2024 Reliance gave every shareholder one free extra share for each share they held. This is a 1:1 <span class="term">bonus issue</span>. On 28 October 2024, the day the shares started trading "ex-bonus", the price roughly halved. Look at the real, unadjusted prices:</p>
+      </div>
+      <figure class="chart" data-series="reliance_oct2024" data-type="candle" data-unit="₹" data-title="Reliance, daily candles, 14 Oct to 8 Nov 2024 (as traded)" data-marks='[["2024-10-28","Ex-bonus day"]]'>
+        <figcaption>Close on 25 October: ₹2,655.70. Open on 28 October: ₹1,337.00. Nobody lost money. Someone with 10 shares worth ₹26,557 now had 20 shares worth about ₹26,740. The number of shares doubled and the price halved. Stock splits work the same way. This is why long-term charts use "adjusted" prices.</figcaption>
+      </figure>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: How much of TCS do you own?</h3>
+          <p class="q">TCS has about 361.8 crore shares. You buy 10 shares at ₹2,502.60 (the close on 30 Oct 2026). What do you pay, what is TCS's market cap, and what fraction do you own?</p>
+          <div class="calc">you pay     = 10 × 2,502.60 = ₹25,026
+market cap  = 2,502.60 × 361.8 crore ≈ ₹9,05,440 crore ≈ ₹9.05 lakh crore
+your share  = 10 ÷ 3,61,80,00,000 ≈ 0.0000003%</div>
+          <p class="ans"><b>Answer:</b> ₹25,026 makes you a real but tiny owner. Your vote barely counts, but your claim on profits is exactly proportional to the shares you hold.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: Dividend income</h3>
+          <p class="q">In calendar year 2025 TCS paid dividends of ₹76 (January, including a ₹66 special dividend), ₹30 (June), ₹11 (July) and ₹11 (October) per share. What did 10 shares earn, and what is the yield at ₹2,502.60?</p>
+          <div class="calc">dividend per share = 76 + 30 + 11 + 11 = ₹128
+for 10 shares      = ₹1,280
+dividend yield     = 128 ÷ 2,502.60 = 5.1%</div>
+          <p class="ans"><b>Answer:</b> ₹1,280 for the year. Special dividends don't repeat every year, so a normal yield is lower. Dividends are added to your income and taxed at your slab rate.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Bonus maths</h3>
+          <p class="q">You held 15 Reliance shares before the 1:1 bonus. The price was ₹2,655.70. What do you hold after, and at what price would the value be unchanged?</p>
+          <div class="calc">shares after  = 15 + 15 = 30
+value before  = 15 × 2,655.70 = ₹39,835.50
+break-even    = 39,835.50 ÷ 30 = ₹1,327.85</div>
+          <p class="ans"><b>Answer:</b> 30 shares. Any price above ₹1,327.85 means you're ahead. The stock opened at ₹1,337, so holders were very slightly better off, not 50% poorer.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 4: Price vs value</h3>
+          <p class="q">Share A costs ₹100 and share B costs ₹2,500. Which is "cheaper"?</p>
+          <p class="ans"><b>Answer:</b> you can't tell from the price. A ₹100 share of a company with 1,000 crore shares has a ₹1 lakh crore market cap. What matters is the price compared with the company's profits, which you learn in Level 2 (the P/E ratio). Never buy a stock just because its price looks low.</p>
+        </div>
+      </div>
+      <div class="tool" id="ownTool">
+        <h3>Try it: your slice of a company</h3>
+        <div class="fields">
+          <label class="field">Company<select id="o-co"><option value="tcs">TCS</option><option value="rel">Reliance</option><option value="hdfc">HDFC Bank</option><option value="infy">Infosys</option></select></label>
+          <label class="field">Shares you buy<input id="o-qty" type="number" min="1" value="10"></label>
+        </div>
+        <div class="out" id="o-out"></div>
+        <p class="src">Share counts are approximate (rounded, after recent bonuses and buybacks). Prices are NSE closes on 30 Oct 2026 from the dataset.</p>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"You own 100 shares of a company that has 10,000 shares in total. What do you own?","o":["1% of the company","10% of the company","100% of the profits","A loan to the company"],"a":0,"why":"100 ÷ 10,000 = 1%."},
+{"q":"What is a dividend?","o":["Interest the company pays on its loans","A part of the company's profit paid to shareholders per share","A fee you pay your broker","The rise in the share price"],"a":1,"why":"Dividends are profits paid out to owners, a fixed rupee amount per share."},
+{"q":"If a company goes bankrupt, what is the most a shareholder can lose?","o":["Everything they own, including their house","The amount they paid for the shares","Nothing, SEBI refunds it","Double their investment"],"a":1,"why":"Shareholders have limited liability: the worst case is losing the money put into the shares."},
+{"q":"Who gets paid first when a company is in trouble?","o":["Shareholders","Lenders, such as banks and bondholders","Whoever bought shares first","The promoters"],"a":1,"why":"Lenders are paid before owners. Owners get what's left, which is why shares are riskier."},
+{"q":"Market cap means…","o":["The highest price a share can reach","Share price × number of shares","The company's yearly profit","The money in the company's bank account"],"a":1,"why":"It's what the market values the whole company at."},
+{"q":"On 28 Oct 2024 Reliance's price fell from ₹2,655 to about ₹1,337 because of a 1:1 bonus. A holder of 10 shares…","o":["Lost about half their money","Now had 20 shares worth about the same total","Had to pay tax on the fall","Had their shares cancelled"],"a":1,"why":"A 1:1 bonus doubles the shares and halves the price. Total value stays about the same."},
+{"q":"Why do long-term charts use adjusted prices?","o":["To hide losses","So bonuses and splits don't look like crashes","Because SEBI requires it for all charts","To include brokerage"],"a":1,"why":"Adjusted prices remove the artificial jumps that bonuses and splits create."},
+{"q":"Share A is ₹50, share B is ₹5,000. Which statement is true?","o":["A is cheaper","B is a better company","You can't judge cheapness from the price alone","A will rise faster"],"a":2,"why":"Cheap or expensive depends on price compared with profits and value, not the rupee price."},
+{"q":"Over a few days or weeks, share prices are mostly moved by…","o":["The company's face value","News, emotion and the balance of buyers and sellers","The number of employees","The RBI's dividend"],"a":1,"why":"Short-term moves follow news and supply and demand. Long-term moves follow profits."},
+{"q":"From January 2005 to October 2026, which of these four grew the most (adjusted)?","o":["Infosys","TCS","HDFC Bank","Reliance"],"a":3,"why":"Reliance grew about 30 times, HDFC Bank about 24.5 times, TCS about 15 times and Infosys about 9 times."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: read a real stock page</h2><p>About 20 minutes on nseindia.com.</p></header>
+      <div class="task" data-key="share">
+        <ul class="check">
+          <li>Open nseindia.com and search for INFY (Infosys). Find the current price and the day's change in ₹ and %.</li>
+          <li>Find these numbers on the page and write each one down: previous close, open, day high, day low, 52-week high, 52-week low, face value, and total market cap (it may be under "Trade information").</li>
+          <li>Check the maths: market cap ÷ price should give the number of shares. Roughly how many crore shares does Infosys have?</li>
+          <li>Find the last dividend Infosys announced (search "Infosys dividend" or check the "Corporate actions" tab) and its record date.</li>
+          <li>Write one line: what part of Infosys would ₹10,000 buy you?</li>
+        </ul>
+        <textarea placeholder="INFY price: …  Prev close: …  Open: …  High/Low: …  52W high/low: …  Face value: …  Market cap: …  Shares (crore): …  Last dividend: …"></textarea>
+      </div>
+    </section>
+
+<script>
+/* Lesson 1.02 tool. */
+window.lessonInit = function () {
+  const CO = { tcs: ["TCS", 2502.6, 361.8], rel: ["Reliance", 1164.9, 1353.2], hdfc: ["HDFC Bank", 692.8, 1534], infy: ["Infosys", 1185.0, 414.6] };
+  const run = () => { const [nm, p, cr] = CO[$("#o-co").value], q = Math.max(1, +$("#o-qty").value || 1);
+    const mc = p * cr; $("#o-out").innerHTML = `<div><b>${inr(p * q)}</b><span>You pay for ${q} shares of ${nm}</span></div><div><b>₹${fmt(mc / 1e5, 2)} lakh cr</b><span>${nm} market cap (about ${fmt(cr, 1)} crore shares)</span></div><div><b>1 in ${Math.round(cr * 1e7 / q).toLocaleString("en-IN")}</b><span>Your slice: you own this fraction of ${nm}</span></div>`; };
+  $("#o-co").addEventListener("input", run); $("#o-qty").addEventListener("input", run); run();
+};
+</script>
+
+    <section class="finish" aria-label="Finish the lesson">
+      <h2>Done with this lesson?</h2>
+      <p>Pass the quiz (8 or more correct) and finish the practice task, then tick lesson 1.02 in the course hub so your progress is saved to your account.</p>
+      <div class="row"><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Open the course hub ↗</a><a class="" href="https://claude.ai/artifact/8ZVpeHgi7YCz2rpm5aHeZo" target="_blank" rel="noopener">Next: IPOs and Listing →</a></div>
+    </section>
+    <nav class="pager" aria-label="Lesson pager"><a class="" href="https://claude.ai/artifact/8Uh3nFEL9U5KxdPmP7B7y4" target="_blank" rel="noopener">← 1.01 Why People Invest</a><a class="" href="https://claude.ai/artifact/8ZVpeHgi7YCz2rpm5aHeZo" target="_blank" rel="noopener">1.03 IPOs and Listing →</a></nav>
+    <footer class="f">Indian market (NSE/BSE). For learning, not investment advice. Charts use real daily NSE/BSE closing data from a free public dataset (github.com/aswinv90/indian-market-historical-data), data to 30 Oct 2026. Rules and charges change: check the SEBI, NSE and broker pages named in the lesson before relying on a number.</footer>
+  </article>
+</div>
+
+<script id="series" type="application/json">{"hdfcbank_m_adj":[["2005-01",28.23],["2005-02",29.36],["2005-03",27.24],["2005-04",26.75],["2005-05",26.98],["2005-06",31.8],["2005-07",34.97],["2005-08",32.01],["2005-09",34.26],["2005-10",30.33],["2005-11",34.35],["2005-12",35.44],["2006-01",38.12],["2006-02",36.86],["2006-03",38.71],["2006-04",40.87],["2006-05",37.26],["2006-06",39.8],["2006-07",39.75],["2006-08",42.6],["2006-09",46.27],["2006-10",50.23],["2006-11",56.09],["2006-12",53.4],["2007-01",53.93],["2007-02",46.75],["2007-03",47.71],["2007-04",51.21],["2007-05",57.38],["2007-06",57.34],["2007-07",60.03],["2007-08",58.58],["2007-09",71.78],["2007-10",82.67],["2007-11",85.81],["2007-12",86.46],["2008-01",78.48],["2008-02",72.84],["2008-03",66.56],["2008-04",76.21],["2008-05",68.43],["2008-06",50.37],["2008-07",54.91],["2008-08",63.83],["2008-09",61.49],["2008-10",51.13],["2008-11",46.14],["2008-12",49.92],["2009-01",46.28],["2009-02",44.47],["2009-03",48.67],["2009-04",55.02],["2009-05",72.22],["2009-06",74.66],["2009-07",74.96],["2009-08",73.55],["2009-09",82.53],["2009-10",81.04],["2009-11",88.31],["2009-12",85.11],["2010-01",81.55],["2010-02",85.24],["2010-03",96.68],["2010-04",100.02],["2010-05",94.42],["2010-06",95.95],["2010-07",106.35],["2010-08",106.71],["2010-09",124.47],["2010-10",114.0],["2010-11",114.27],["2010-12",117.32],["2011-01",102.36],["2011-02",102.61],["2011-03",117.29],["2011-04",114.78],["2011-05",119.98],["2011-06",125.78],["2011-07",121.7],["2011-08",117.99],["2011-09",116.91],["2011-10",122.5],["2011-11",110.62],["2011-12",106.71],["2012-01",123.03],["2012-02",129.27],["2012-03",129.96],["2012-04",135.62],["2012-05",126.55],["2012-06",140.89],["2012-07",146.94],["2012-08",148.84],["2012-09",157.29],["2012-10",158.55],["2012-11",175.99],["2012-12",169.65],["2013-01",160.76],["2013-02",156.34],["2013-03",156.34],["2013-04",170.57],["2013-05",175.12],["2013-06",167.38],["2013-07",152.44],["2013-08",148.5],["2013-09",148.26],["2013-10",170.2],["2013-11",165.32],["2013-12",166.46],["2014-01",157.12],["2014-02",167.4],["2014-03",187.2],["2014-04",180.32],["2014-05",198.19],["2014-06",205.39],["2014-07",208.5],["2014-08",210.89],["2014-09",218.16],["2014-10",227.96],["2014-11",239.29],["2014-12",237.9],["2015-01",269.34],["2015-02",263.5],["2015-03",255.68],["2015-04",247.2],["2015-05",262.64],["2015-06",266.79],["2015-07",277.91],["2015-08",256.86],["2015-09",267.2],["2015-10",274.9],["2015-11",269.44],["2015-12",270.54],["2016-01",262.46],["2016-02",242.96],["2016-03",267.79],["2016-04",283.09],["2016-05",295.48],["2016-06",294.11],["2016-07",311.55],["2016-08",322.8],["2016-09",318.21],["2016-10",314.76],["2016-11",299.9],["2016-12",301.55],["2017-01",321.66],["2017-02",347.52],["2017-03",360.64],["2017-04",386.62],["2017-05",409.05],["2017-06",413.01],["2017-07",446.1],["2017-08",444.11],["2017-09",451.42],["2017-10",452.12],["2017-11",463.42],["2017-12",468.1],["2018-01",501.42],["2018-02",471.05],["2018-03",471.52],["2018-04",486.08],["2018-05",534.86],["2018-06",527.11],["2018-07",544.88],["2018-08",515.3],["2018-09",501.51],["2018-10",477.94],["2018-11",532.11],["2018-12",530.42],["2019-01",519.99],["2019-02",519.39],["2019-03",575.7],["2019-04",579.36],["2019-05",606.34],["2019-06",610.94],["2019-07",562.91],["2019-08",556.99],["2019-09",613.72],["2019-10",615.17],["2019-11",637.47],["2019-12",636.05],["2020-01",613.15],["2020-02",588.83],["2020-03",430.95],["2020-04",500.9],["2020-05",475.83],["2020-06",532.92],["2020-07",516.4],["2020-08",557.92],["2020-09",539.3],["2020-10",591.78],["2020-11",720.42],["2020-12",718.15],["2021-01",695.25],["2021-02",767.2],["2021-03",746.83],["2021-04",706.15],["2021-05",757.92],["2021-06",748.95],["2021-07",713.22],["2021-08",790.7],["2021-09",797.47],["2021-10",791.42],["2021-11",746.78],["2021-12",739.7],["2022-01",742.85],["2022-02",713.12],["2022-03",735.17],["2022-04",692.3],["2022-05",694.47],["2022-06",674.0],["2022-07",717.1],["2022-08",743.05],["2022-09",710.67],["2022-10",748.35],["2022-11",804.22],["2022-12",814.08],["2023-01",801.75],["2023-02",799.8],["2023-03",804.78],["2023-04",843.8],["2023-05",805.42],["2023-06",850.7],["2023-07",825.6],["2023-08",785.72],["2023-09",763.15],["2023-10",738.25],["2023-11",779.4],["2023-12",854.62],["2024-01",731.28],["2024-02",701.7],["2024-03",723.95],["2024-04",760.05],["2024-05",765.78],["2024-06",841.9],["2024-07",807.88],["2024-08",818.45],["2024-09",866.03],["2024-10",867.85],["2024-11",898.03],["2024-12",886.42],["2025-01",849.38],["2025-02",866.2],["2025-03",914.1],["2025-04",962.5],["2025-05",972.45],["2025-06",1000.75],["2025-07",1009.1],["2025-08",951.6],["2025-09",951.0],["2025-10",987.3],["2025-11",1007.6],["2025-12",991.2],["2026-01",929.25],["2026-02",887.75],["2026-03",731.55],["2026-04",771.7],["2026-05",744.55],["2026-06",797.95],["2026-07",748.15],["2026-08",709.0],["2026-09",708.7],["2026-10",692.8]],"infy_m_adj":[["2005-01",129.29],["2005-02",140.01],["2005-03",141.07],["2005-04",117.93],["2005-05",140.65],["2005-06",147.39],["2005-07",141.78],["2005-08",148.51],["2005-09",157.21],["2005-10",157.62],["2005-11",167.78],["2005-12",187.3],["2006-01",180.02],["2006-02",176.81],["2006-03",186.34],["2006-04",196.23],["2006-05",181.87],["2006-06",192.43],["2006-07",206.94],["2006-08",225.8],["2006-09",231.21],["2006-10",261.94],["2006-11",272.46],["2006-12",280.23],["2007-01",280.91],["2007-02",259.69],["2007-03",252.33],["2007-04",256.36],["2007-05",240.44],["2007-06",241.13],["2007-07",246.98],["2007-08",231.82],["2007-09",236.59],["2007-10",229.68],["2007-11",200.31],["2007-12",221.24],["2008-01",187.38],["2008-02",193.52],["2008-03",179.99],["2008-04",219.14],["2008-05",245.35],["2008-06",217.1],["2008-07",197.93],["2008-08",218.64],["2008-09",174.76],["2008-10",173.62],["2008-11",155.48],["2008-12",139.43],["2009-01",163.33],["2009-02",153.91],["2009-03",165.49],["2009-04",188.66],["2009-05",200.64],["2009-06",222.06],["2009-07",258.04],["2009-08",266.39],["2009-09",288.3],["2009-10",275.77],["2009-11",297.42],["2009-12",325.14],["2010-01",309.44],["2010-02",325.24],["2010-03",326.99],["2010-04",342.27],["2010-05",332.25],["2010-06",348.88],["2010-07",348.55],["2010-08",339.23],["2010-09",381.31],["2010-10",371.46],["2010-11",381.38],["2010-12",430.34],["2011-01",389.71],["2011-02",374.64],["2011-03",405.16],["2011-04",363.28],["2011-05",348.21],["2011-06",363.81],["2011-07",346.99],["2011-08",292.87],["2011-09",316.63],["2011-10",359.69],["2011-11",325.86],["2011-12",345.96],["2012-01",343.25],["2012-02",360.43],["2012-03",358.29],["2012-04",307.76],["2012-05",303.67],["2012-06",313.65],["2012-07",278.37],["2012-08",295.21],["2012-09",316.87],["2012-10",295.38],["2012-11",304.61],["2012-12",289.84],["2013-01",348.69],["2013-02",363.38],["2013-03",361.17],["2013-04",279.43],["2013-05",301.46],["2013-06",312.36],["2013-07",371.21],["2013-08",388.23],["2013-09",376.62],["2013-10",413.74],["2013-11",419.32],["2013-12",435.71],["2014-01",462.64],["2014-02",478.11],["2014-03",410.35],["2014-04",397.6],["2014-05",367.42],["2014-06",406.94],["2014-07",420.96],["2014-08",449.85],["2014-09",468.47],["2014-10",506.41],["2014-11",544.98],["2014-12",493.14],["2015-01",535.47],["2015-02",566.44],["2015-03",554.59],["2015-04",485.56],["2015-05",505.79],["2015-06",492.17],["2015-07",538.53],["2015-08",547.2],["2015-09",580.97],["2015-10",567.72],["2015-11",543.95],["2015-12",552.7],["2016-01",582.45],["2016-02",542.03],["2016-03",609.15],["2016-04",604.05],["2016-05",624.33],["2016-06",585.4],["2016-07",536.92],["2016-08",517.92],["2016-09",518.03],["2016-10",498.75],["2016-11",487.77],["2016-12",505.3],["2017-01",464.3],["2017-02",506.2],["2017-03",511.12],["2017-04",459.48],["2017-05",488.52],["2017-06",467.77],["2017-07",505.6],["2017-08",457.48],["2017-09",449.95],["2017-10",460.92],["2017-11",488.05],["2017-12",521.03],["2018-01",575.12],["2018-02",586.3],["2018-03",565.9],["2018-04",599.75],["2018-05",615.9],["2018-06",653.6],["2018-07",682.55],["2018-08",720.55],["2018-09",730.05],["2018-10",686.4],["2018-11",667.45],["2018-12",658.95],["2019-01",749.55],["2019-02",734.3],["2019-03",737.8],["2019-04",751.35],["2019-05",737.75],["2019-06",732.0],["2019-07",793.65],["2019-08",814.9],["2019-09",805.65],["2019-10",685.6],["2019-11",696.35],["2019-12",731.15],["2020-01",775.95],["2020-02",731.7],["2020-03",641.5],["2020-04",715.5],["2020-05",691.0],["2020-06",735.95],["2020-07",966.0],["2020-08",928.6],["2020-09",1008.25],["2020-10",1060.6],["2020-11",1100.0],["2020-12",1255.8],["2021-01",1239.05],["2021-02",1253.3],["2021-03",1368.05],["2021-04",1354.35],["2021-05",1393.75],["2021-06",1580.8],["2021-07",1610.5],["2021-08",1706.45],["2021-09",1675.2],["2021-10",1667.75],["2021-11",1712.65],["2021-12",1887.75],["2022-01",1736.2],["2022-02",1715.6],["2022-03",1906.85],["2022-04",1567.55],["2022-05",1503.6],["2022-06",1461.9],["2022-07",1549.7],["2022-08",1492.95],["2022-09",1413.45],["2022-10",1537.65],["2022-11",1634.95],["2022-12",1508.2],["2023-01",1533.75],["2023-02",1487.55],["2023-03",1427.95],["2023-04",1252.75],["2023-05",1318.3],["2023-06",1335.5],["2023-07",1355.7],["2023-08",1435.45],["2023-09",1435.45],["2023-10",1368.4],["2023-11",1455.15],["2023-12",1542.9],["2024-01",1660.9],["2024-02",1673.9],["2024-03",1498.05],["2024-04",1420.55],["2024-05",1406.9],["2024-06",1566.75],["2024-07",1868.25],["2024-08",1943.7],["2024-09",1875.6],["2024-10",1757.25],["2024-11",1857.85],["2024-12",1880.0],["2025-01",1879.8],["2025-02",1687.7],["2025-03",1570.65],["2025-04",1500.1],["2025-05",1562.7],["2025-06",1601.8],["2025-07",1509.0],["2025-08",1469.6],["2025-09",1441.8],["2025-10",1482.3],["2025-11",1560.1],["2025-12",1615.4],["2026-01",1641.0],["2026-02",1300.1],["2026-03",1250.6],["2026-04",1181.8],["2026-05",1160.9],["2026-06",1000.4],["2026-07",1130.1],["2026-08",1133.8],["2026-09",994.1],["2026-10",1185.0]],"reliance_m_adj":[["2005-01",38.01],["2005-02",39.72],["2005-03",38.99],["2005-04",37.71],["2005-05",38.2],["2005-06",45.88],["2005-07",50.22],["2005-08",51.37],["2005-09",56.66],["2005-10",54.45],["2005-11",59.46],["2005-12",63.5],["2006-01",81.59],["2006-02",81.02],["2006-03",90.9],["2006-04",115.31],["2006-05",109.05],["2006-06",121.13],["2006-07",111.87],["2006-08",127.7],["2006-09",133.92],["2006-10",140.12],["2006-11",142.23],["2006-12",145.17],["2007-01",156.17],["2007-02",154.58],["2007-03",156.61],["2007-04",178.41],["2007-05",201.02],["2007-06",194.36],["2007-07",216.41],["2007-08",224.11],["2007-09",262.65],["2007-10",318.16],["2007-11",325.92],["2007-12",329.47],["2008-01",283.32],["2008-02",281.55],["2008-03",258.96],["2008-04",298.82],["2008-05",274.7],["2008-06",239.46],["2008-07",252.3],["2008-08",244.15],["2008-09",222.79],["2008-10",157.2],["2008-11",129.66],["2008-12",140.89],["2009-01",151.28],["2009-02",144.7],["2009-03",174.27],["2009-04",206.89],["2009-05",259.66],["2009-06",231.26],["2009-07",223.49],["2009-08",229.17],["2009-09",251.63],["2009-10",220.71],["2009-11",243.1],["2009-12",249.28],["2010-01",239.14],["2010-02",223.77],["2010-03",245.56],["2010-04",236.26],["2010-05",239.01],["2010-06",249.12],["2010-07",230.79],["2010-08",210.11],["2010-09",225.67],["2010-10",250.58],["2010-11",225.29],["2010-12",242.0],["2011-01",210.14],["2011-02",220.41],["2011-03",239.81],["2011-04",224.87],["2011-05",217.58],["2011-06",205.38],["2011-07",189.26],["2011-08",178.89],["2011-09",184.78],["2011-10",200.59],["2011-11",177.89],["2011-12",158.4],["2012-01",186.78],["2012-02",187.61],["2012-03",171.57],["2012-04",170.32],["2012-05",161.29],["2012-06",168.66],["2012-07",169.97],["2012-08",175.19],["2012-09",191.37],["2012-10",184.12],["2012-11",181.43],["2012-12",191.91],["2013-01",202.67],["2013-02",186.03],["2013-03",176.67],["2013-04",180.17],["2013-05",184.31],["2013-06",197.18],["2013-07",199.34],["2013-08",195.18],["2013-09",187.99],["2013-10",209.09],["2013-11",195.03],["2013-12",204.63],["2014-01",189.99],["2014-02",182.86],["2014-03",212.75],["2014-04",213.91],["2014-05",243.37],["2014-06",232.1],["2014-07",230.06],["2014-08",228.29],["2014-09",216.17],["2014-10",228.71],["2014-11",226.66],["2014-12",203.7],["2015-01",209.21],["2015-02",195.56],["2015-03",188.81],["2015-04",197.12],["2015-05",200.47],["2015-06",228.61],["2015-07",229.01],["2015-08",195.64],["2015-09",197.11],["2015-10",216.63],["2015-11",221.06],["2015-12",231.92],["2016-01",236.68],["2016-02",220.96],["2016-03",238.92],["2016-04",224.63],["2016-05",218.95],["2016-06",221.53],["2016-07",231.99],["2016-08",242.3],["2016-09",247.72],["2016-10",241.14],["2016-11",226.31],["2016-12",247.42],["2017-01",238.92],["2017-02",283.0],["2017-03",301.94],["2017-04",318.92],["2017-05",306.46],["2017-06",315.44],["2017-07",369.21],["2017-08",364.48],["2017-09",357.0],["2017-10",430.12],["2017-11",421.3],["2017-12",421.07],["2018-01",439.47],["2018-02",436.39],["2018-03",403.54],["2018-04",440.39],["2018-05",421.21],["2018-06",444.57],["2018-07",542.2],["2018-08",567.64],["2018-09",575.09],["2018-10",485.17],["2018-11",533.76],["2018-12",512.6],["2019-01",561.01],["2019-02",562.79],["2019-03",621.75],["2019-04",636.74],["2019-05",608.1],["2019-06",572.88],["2019-07",533.17],["2019-08",570.8],["2019-09",609.06],["2019-10",669.45],["2019-11",709.13],["2019-12",692.17],["2020-01",645.36],["2020-02",607.41],["2020-03",509.17],["2020-04",670.21],["2020-05",675.82],["2020-06",786.44],["2020-07",953.97],["2020-08",960.24],["2020-09",1031.15],["2020-10",948.15],["2020-11",890.6],["2020-12",916.22],["2021-01",850.06],["2021-02",962.6],["2021-03",924.43],["2021-04",920.46],["2021-05",996.98],["2021-06",974.06],["2021-07",939.29],["2021-08",1042.14],["2021-09",1162.63],["2021-10",1170.48],["2021-11",1110.09],["2021-12",1092.9],["2022-01",1101.42],["2022-02",1088.93],["2022-03",1215.94],["2022-04",1287.7],["2022-05",1214.97],["2022-06",1197.89],["2022-07",1158.11],["2022-08",1217.41],["2022-09",1097.33],["2022-10",1176.64],["2022-11",1260.52],["2022-12",1175.53],["2023-01",1086.3],["2023-02",1071.86],["2023-03",1075.78],["2023-04",1117.06],["2023-05",1139.86],["2023-06",1176.94],["2023-07",1274.62],["2023-08",1203.5],["2023-09",1172.5],["2023-10",1143.95],["2023-11",1188.72],["2023-12",1292.47],["2024-01",1426.62],["2024-02",1460.8],["2024-03",1485.85],["2024-04",1467.0],["2024-05",1430.4],["2024-06",1565.4],["2024-07",1505.43],["2024-08",1509.62],["2024-09",1476.57],["2024-10",1332.05],["2024-11",1292.2],["2024-12",1215.45],["2025-01",1265.1],["2025-02",1200.1],["2025-03",1275.1],["2025-04",1405.0],["2025-05",1420.9],["2025-06",1500.6],["2025-07",1390.2],["2025-08",1357.2],["2025-09",1364.0],["2025-10",1486.4],["2025-11",1567.5],["2025-12",1570.4],["2026-01",1395.4],["2026-02",1393.9],["2026-03",1343.9],["2026-04",1430.8],["2026-05",1321.2],["2026-06",1293.9],["2026-07",1307.8],["2026-08",1277.0],["2026-09",1187.0],["2026-10",1164.9]],"reliance_oct2024":[["2024-10-14",2758.9,2760.15,2736.5,2745.05,6110716],["2024-10-15",2717.05,2743.4,2681.4,2688.05,16881397],["2024-10-16",2680.0,2728.0,2675.25,2708.15,10017219],["2024-10-17",2731.4,2736.9,2704.1,2712.85,7771830],["2024-10-18",2704.35,2736.85,2682.65,2718.6,6041226],["2024-10-21",2734.25,2748.0,2715.45,2738.4,7033704],["2024-10-22",2738.4,2752.0,2680.45,2686.7,7915980],["2024-10-23",2675.0,2714.95,2670.0,2677.05,8607371],["2024-10-24",2670.55,2687.4,2646.25,2679.6,11077967],["2024-10-25",2687.0,2688.7,2644.0,2655.7,9298748],["2024-10-28",1337.0,1353.0,1322.1,1334.35,10824350],["2024-10-29",1328.1,1343.2,1320.3,1340.0,12008361],["2024-10-30",1335.0,1350.0,1325.35,1343.9,11984423],["2024-10-31",1340.0,1343.0,1326.15,1332.05,9331650],["2024-11-01",1333.05,1341.95,1333.0,1338.65,2127335],["2024-11-04",1337.85,1340.0,1285.1,1302.15,19796890],["2024-11-05",1293.0,1309.55,1286.15,1305.3,16267479],["2024-11-06",1310.0,1328.3,1300.2,1325.35,21625209],["2024-11-07",1324.0,1324.0,1302.6,1305.65,9611974],["2024-11-08",1297.65,1301.65,1275.0,1283.75,19814406]],"tcs_m_adj":[["2005-01",162.55],["2005-02",172.61],["2005-03",179.01],["2005-04",141.39],["2005-05",166.78],["2005-06",169.76],["2005-07",158.6],["2005-08",175.61],["2005-09",185.29],["2005-10",175.16],["2005-11",190.14],["2005-12",212.86],["2006-01",208.8],["2006-02",212.6],["2006-03",239.44],["2006-04",247.26],["2006-05",222.86],["2006-06",217.35],["2006-07",234.04],["2006-08",249.51],["2006-09",255.51],["2006-10",271.77],["2006-11",299.7],["2006-12",305.5],["2007-01",319.48],["2007-02",298.35],["2007-03",308.46],["2007-04",316.5],["2007-05",302.09],["2007-06",287.34],["2007-07",289.08],["2007-08",266.09],["2007-09",265.04],["2007-10",259.5],["2007-11",253.05],["2007-12",269.35],["2008-01",218.44],["2008-02",219.35],["2008-03",202.61],["2008-04",230.25],["2008-05",259.79],["2008-06",214.55],["2008-07",208.44],["2008-08",203.05],["2008-09",166.4],["2008-10",134.38],["2008-11",139.85],["2008-12",119.47],["2009-01",127.9],["2009-02",120.78],["2009-03",134.64],["2009-04",155.52],["2009-05",176.15],["2009-06",194.93],["2009-07",262.98],["2009-08",263.52],["2009-09",310.5],["2009-10",314.15],["2009-11",344.2],["2009-12",375.12],["2010-01",368.1],["2010-02",380.9],["2010-03",390.33],["2010-04",382.7],["2010-05",371.52],["2010-06",375.5],["2010-07",419.9],["2010-08",421.88],["2010-09",463.48],["2010-10",526.45],["2010-11",538.0],["2010-12",582.83],["2011-01",579.75],["2011-02",555.12],["2011-03",591.95],["2011-04",582.83],["2011-05",578.58],["2011-06",592.1],["2011-07",568.5],["2011-08",521.2],["2011-09",518.65],["2011-10",557.9],["2011-11",557.78],["2011-12",580.33],["2012-01",566.2],["2012-02",610.97],["2012-03",584.4],["2012-04",623.3],["2012-05",622.67],["2012-06",638.72],["2012-07",621.83],["2012-08",671.88],["2012-09",647.95],["2012-10",657.75],["2012-11",657.0],["2012-12",627.92],["2013-01",672.08],["2013-02",758.5],["2013-03",787.88],["2013-04",689.2],["2013-05",749.22],["2013-06",759.08],["2013-07",907.75],["2013-08",1016.6],["2013-09",963.9],["2013-10",1056.03],["2013-11",1002.17],["2013-12",1086.03],["2014-01",1120.53],["2014-02",1137.88],["2014-03",1066.57],["2014-04",1094.6],["2014-05",1070.68],["2014-06",1212.7],["2014-07",1290.03],["2014-08",1261.18],["2014-09",1368.3],["2014-10",1303.93],["2014-11",1321.5],["2014-12",1279.12],["2015-01",1241.03],["2015-02",1331.18],["2015-03",1276.97],["2015-04",1231.85],["2015-05",1305.15],["2015-06",1275.47],["2015-07",1255.38],["2015-08",1282.03],["2015-09",1294.03],["2015-10",1247.6],["2015-11",1186.78],["2015-12",1218.43],["2016-01",1195.65],["2016-02",1088.4],["2016-03",1260.15],["2016-04",1267.75],["2016-05",1284.7],["2016-06",1276.55],["2016-07",1309.65],["2016-08",1255.65],["2016-09",1215.4],["2016-10",1199.35],["2016-11",1138.03],["2016-12",1182.78],["2017-01",1114.9],["2017-02",1233.12],["2017-03",1215.9],["2017-04",1136.57],["2017-05",1273.3],["2017-06",1181.18],["2017-07",1245.9],["2017-08",1248.18],["2017-09",1217.97],["2017-10",1312.0],["2017-11",1318.5],["2017-12",1350.6],["2018-01",1556.18],["2018-02",1517.53],["2018-03",1424.57],["2018-04",1766.05],["2018-05",1741.05],["2018-06",1847.75],["2018-07",1940.2],["2018-08",2078.4],["2018-09",2183.7],["2018-10",1938.15],["2018-11",1968.25],["2018-12",1893.05],["2019-01",2014.1],["2019-02",1983.45],["2019-03",2000.3],["2019-04",2260.35],["2019-05",2196.55],["2019-06",2227.2],["2019-07",2205.7],["2019-08",2259.6],["2019-09",2099.3],["2019-10",2269.65],["2019-11",2053.25],["2019-12",2161.7],["2020-01",2079.05],["2020-02",2000.15],["2020-03",1826.1],["2020-04",2014.45],["2020-05",1972.35],["2020-06",2082.15],["2020-07",2281.4],["2020-08",2257.25],["2020-09",2492.3],["2020-10",2664.85],["2020-11",2679.65],["2020-12",2862.75],["2021-01",3111.35],["2021-02",2894.3],["2021-03",3177.85],["2021-04",3035.65],["2021-05",3159.15],["2021-06",3345.75],["2021-07",3167.45],["2021-08",3786.45],["2021-09",3775.55],["2021-10",3397.75],["2021-11",3529.15],["2021-12",3738.35],["2022-01",3736.25],["2022-02",3554.2],["2022-03",3739.95],["2022-04",3546.7],["2022-05",3364.35],["2022-06",3267.1],["2022-07",3301.9],["2022-08",3211.15],["2022-09",3004.55],["2022-10",3193.15],["2022-11",3390.8],["2022-12",3256.7],["2023-01",3358.7],["2023-02",3312.85],["2023-03",3205.9],["2023-04",3219.25],["2023-05",3289.5],["2023-06",3302.25],["2023-07",3421.45],["2023-08",3356.8],["2023-09",3528.6],["2023-10",3368.75],["2023-11",3487.6],["2023-12",3793.4],["2024-01",3815.95],["2024-02",4095.1],["2024-03",3876.3],["2024-04",3820.65],["2024-05",3670.95],["2024-06",3904.15],["2024-07",4385.35],["2024-08",4553.75],["2024-09",4268.5],["2024-10",3968.45],["2024-11",4270.85],["2024-12",4094.8],["2025-01",4112.4],["2025-02",3483.25],["2025-03",3606.15],["2025-04",3453.7],["2025-05",3463.4],["2025-06",3462.0],["2025-07",3036.8],["2025-08",3084.7],["2025-09",2888.4],["2025-10",3058.0],["2025-11",3137.5],["2025-12",3206.2],["2026-01",3123.9],["2026-02",2637.4],["2026-03",2358.9],["2026-04",2473.9],["2026-05",2258.9],["2026-06",2031.5],["2026-07",2365.6],["2026-08",2399.3],["2026-09",2050.6],["2026-10",2502.6]]}</script>
+<script>
+/* ===== Shared lesson engine: charts, quiz, practice notes. Same in every lesson. ===== */
+const LESSON_ID = "1.02";
+const SERIES = JSON.parse(document.getElementById("series").textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const inr = (v, d = 0) => "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v, d = 2) => Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function niceDate(s) { const p = s.split("-"); return (p[2] ? (+p[2]) + " " : "") + MONTHS[+p[1] - 1] + " " + p[0]; }
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem("tc-" + k) || "null"); localStorage.setItem("tc-" + k, JSON.stringify(v)); } catch (e) { return null; } }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t;
+}
+function shortNum(v) { const a = Math.abs(v); if (a >= 1e7) return (v / 1e7).toFixed(1).replace(/\.0$/, "") + "Cr"; if (a >= 1e5) return (v / 1e5).toFixed(1).replace(/\.0$/, "") + "L"; return Number(v).toLocaleString("en-IN", { maximumFractionDigits: a < 100 ? 2 : 0 }); }
+
+/* Chart options (data-* on <figure class="chart">):
+   series="a,b" names in SERIES · type=line|candle · from/to (date prefix) · norm=100 (rebase each series)
+   labels="Nifty 50,Sensex" · marks='[["2020-03-23","Covid low"]]' · band='["2020-02-20","2020-03-23"]'
+   unit="₹"|"pts"|"" · log · vol (show volume bars) · title */
+function drawChart(fig) {
+  const ds = fig.dataset, names = ds.series.split(","), labels = (ds.labels || ds.series).split(",");
+  const colors = ["--accent", "--mark", "--down", "--violet", "--up"].map(css);
+  const type = ds.type || "line", unit = ds.unit ?? "", norm = ds.norm ? +ds.norm : 0;
+  const inRange = d => (!ds.from || d >= ds.from) && (!ds.to || d <= ds.to + "~");
+  const sets = names.map(n => SERIES[n].filter(r => inRange(r[0])));
+  const isOHLC = sets[0][0].length >= 5;
+  const close = r => isOHLC ? r[4] : r[1];
+  const lines = sets.map(s => { const b = close(s[0]); return s.map(r => norm ? close(r) / b * norm : close(r)); });
+  const dates = sets[0].map(r => r[0]);
+  const W = Math.max(300, Math.round(fig.querySelector(".ch-box").clientWidth || 720)), H = (W < 520 ? 250 : 300) + (("vol" in ds) ? 40 : 0), padL = 58, padR = 14, volH = ("vol" in ds) ? 56 : 0, padB = 26;
+  let padT = 12;
+  const plotB = H - padB - volH - (("vol" in ds) ? 8 : 0);
+  let lo = Infinity, hi = -Infinity;
+  if (type === "candle") sets[0].forEach(r => { lo = Math.min(lo, r[3]); hi = Math.max(hi, r[2]); });
+  else lines.forEach(l => l.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+  const hl = ds.hline ? JSON.parse(ds.hline) : [];
+  hl.forEach(([v]) => { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+  const log = "log" in ds;
+  const pad = (hi - lo) * 0.06; if (!log) { lo -= pad; hi += pad; if (lo < 0 && Math.min(...lines.flat()) >= 0) lo = 0; }
+  const yv = v => log ? Math.log(v) : v;
+  const Y = v => plotB - (yv(v) - yv(lo)) / (yv(hi) - yv(lo)) * (plotB - padT);
+  const n = dates.length, X = i => padL + (n === 1 ? 0.5 : i / (n - 1)) * (W - padL - padR);
+  const idxOf = d => { let k = dates.findIndex(x => x >= d); return k < 0 ? n - 1 : k; };
+  const marks = ds.marks ? JSON.parse(ds.marks).map(([d, label]) => { const i = idxOf(d), x = X(i), tw = label.length * 6.6 + 10; return { i, x, label, tw, tx: Math.min(Math.max(x - tw / 2, padL), W - padR - tw) }; }) : [];
+  const placed = []; marks.forEach(m => { let row = 0; while (placed.some(p => p.row === row && !(m.tx + m.tw + 4 < p.tx || m.tx > p.tx + p.tw + 4))) row++; m.row = row; placed.push(m); });
+  if (marks.length) padT = 12 + 21 * (Math.max(...marks.map(m => m.row)) + 1);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": ds.title || labels.join(", ") });
+  // grid + y labels
+  let ticks = log ? (() => { const t = []; for (let p = Math.floor(Math.log10(lo)); p <= Math.ceil(Math.log10(hi)); p++) [1, 2, 5].forEach(m => { const v = m * 10 ** p; if (v >= lo && v <= hi) t.push(v); }); return t; })() : niceTicks(lo, hi);
+  ticks.forEach(t => { const y = Y(t); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, class: "grid" }, svg); const tx = el("text", { x: padL - 6, y: y + 4, "text-anchor": "end" }, svg); tx.textContent = (unit === "₹" ? "₹" : "") + shortNum(t); });
+  // x labels: years, or months, or days depending on span
+  const span = (new Date(dates[n - 1]) - new Date(dates[0])) / 864e5;
+  let lastKey = null, lastX = -99;
+  dates.forEach((d, i) => {
+    const key = span > 1500 ? d.slice(0, 4) : span > 75 ? d.slice(0, 7) : d;
+    if (key === lastKey) return; lastKey = key; const x = X(i);
+    if (x - lastX < (span > 75 ? 46 : 52) || x > W - padR - 14) return; lastX = x;
+    const tx = el("text", { x, y: H - 8, "text-anchor": "middle" }, svg);
+    tx.textContent = span > 1500 ? key : span > 75 ? MONTHS[+d.slice(5, 7) - 1] + (d.slice(5, 7) === "01" || i === 0 ? " " + d.slice(2, 4) : "") : (+d.slice(8)) + " " + MONTHS[+d.slice(5, 7) - 1];
+  });
+  if (ds.band) { const [a, b] = JSON.parse(ds.band); const xa = X(idxOf(a)), xb = X(idxOf(b)); el("rect", { x: xa, y: padT, width: Math.max(2, xb - xa), height: plotB - padT, class: "hl" }, svg); }
+  if (type === "candle") {
+    const w = Math.max(1.5, Math.min(10, (W - padL - padR) / n * 0.62));
+    sets[0].forEach((r, i) => { const up = r[4] >= r[1], c = up ? css("--up") : css("--down"), x = X(i);
+      el("line", { x1: x, x2: x, y1: Y(r[2]), y2: Y(r[3]), stroke: c, "stroke-width": 1.2 }, svg);
+      const y1 = Y(Math.max(r[1], r[4])), y2 = Y(Math.min(r[1], r[4]));
+      el("rect", { x: x - w / 2, y: y1, width: w, height: Math.max(1, y2 - y1), fill: up ? css("--surface") : c, stroke: c, "stroke-width": 1.2 }, svg); });
+  } else {
+    lines.forEach((l, k) => {
+      const d = l.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1)).join("");
+      if (lines.length === 1) el("path", { d: d + `L${X(n - 1)} ${plotB}L${X(0)} ${plotB}Z`, fill: colors[0], opacity: 0.08 }, svg);
+      el("path", { d, fill: "none", stroke: colors[k], "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    });
+  }
+  hl.forEach(([v, label]) => { const y = Y(v); el("line", { x1: padL, x2: W - padR, y1: y, y2: y, stroke: css("--violet"), "stroke-width": 1.5, "stroke-dasharray": "6 4" }, svg);
+    const t = el("text", { x: W - padR - 4, y: y - 5, "text-anchor": "end", fill: css("--violet"), "font-weight": 600 }, svg); t.textContent = label; t.style.fill = "var(--violet)"; });
+  if (("vol" in ds)) {
+    const vols = sets[0].map(r => r[5]), vmax = Math.max(...vols), vb = H - padB, w = Math.max(1.5, (W - padL - padR) / n * 0.62);
+    const t = el("text", { x: padL - 6, y: vb - 4, "text-anchor": "end" }, svg); t.textContent = "Vol";
+    sets[0].forEach((r, i) => el("rect", { x: X(i) - w / 2, y: vb - r[5] / vmax * volH, width: w, height: r[5] / vmax * volH, fill: r[4] >= r[1] ? css("--up") : css("--down"), opacity: .45 }, svg));
+    el("line", { x1: padL, x2: W - padR, y1: vb, y2: vb, class: "grid" }, svg);
+  }
+  marks.forEach(({ i, x, label, tw, tx, row }) => {
+    const g = el("g", { class: "mk" }, svg), y = 2 + row * 21;
+    el("line", { x1: x, x2: x, y1: y + 18, y2: plotB }, g);
+    el("rect", { x: tx, y, width: tw, height: 18, rx: 4 }, g);
+    const t = el("text", { x: tx + tw / 2, y: y + 13, "text-anchor": "middle" }, g); t.textContent = label;
+    if (type !== "candle") el("circle", { cx: x, cy: Y(lines[0][i]), r: 4, fill: css("--mark"), stroke: css("--surface"), "stroke-width": 2 }, g);
+  });
+  // hover readout
+  const cross = el("line", { y1: padT, y2: plotB, class: "cross", visibility: "hidden" }, svg);
+  const dots = lines.map((_, k) => el("circle", { r: 4, fill: colors[k], stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }, svg));
+  const ro = fig.querySelector(".readout");
+  const show = i => {
+    const r = sets[0][i]; cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    if (type === "candle") { ro.textContent = `${niceDate(r[0])} · O ${fmt(r[1])} H ${fmt(r[2])} L ${fmt(r[3])} C ${fmt(r[4])}` + (r[5] ? ` · Vol ${shortNum(r[5])}` : "") + (i ? ` · ${pct((r[4] / sets[0][i - 1][4] - 1) * 100, 2)}` : ""); return; }
+    dots.forEach((c, k) => { c.setAttribute("cx", X(i)); c.setAttribute("cy", Y(lines[k][i])); c.setAttribute("visibility", "visible"); });
+    ro.textContent = niceDate(r[0]) + " · " + lines.map((l, k) => (lines.length > 1 ? labels[k] + " " : "") + (unit === "₹" && !norm ? inr(l[i], 2) : fmt(l[i], norm ? 1 : 2))).join(" · ");
+  };
+  const def = () => { const i = n - 1; show(i); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); };
+  svg.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * W; show(Math.max(0, Math.min(n - 1, Math.round((x - padL) / (W - padL - padR) * (n - 1))))); });
+  svg.addEventListener("pointerleave", def);
+  fig.querySelector(".ch-box").appendChild(svg); def();
+  if (lines.length > 1) fig.querySelector(".legend").innerHTML = labels.map((l, k) => `<span><i style="background:var(${["--accent","--mark","--down","--violet","--up"][k]})"></i>${l}</span>`).join("");
+}
+function buildCharts(root = document) {
+  $$("figure.chart", root).forEach(fig => {
+    if (!fig.querySelector(".ch-box")) {
+      const head = document.createElement("div"); head.className = "ch-head";
+      head.innerHTML = `<span class="ch-title"></span><span class="readout" aria-live="off"></span>`;
+      head.firstChild.textContent = fig.dataset.title || "";
+      const legend = document.createElement("div"); legend.className = "legend";
+      const box = document.createElement("div"); box.className = "ch-box";
+      fig.prepend(head, legend, box);
+    } else fig.querySelector(".ch-box").innerHTML = "";
+    drawChart(fig);
+  });
+}
+
+/* Quiz: div.quiz[data-pass] holding a JSON script tag: [{q, o:[...], a:index, why}] */
+function buildQuiz(box) {
+  const Q = JSON.parse(box.querySelector("script").textContent), pass = +(box.dataset.pass || Math.ceil(Q.length * 0.8));
+  const saved = store("quiz-" + LESSON_ID) || {}; const answers = saved.answers || {};
+  const score = document.createElement("div"); score.className = "score";
+  const upd = () => { const done = Object.keys(answers).length, right = Q.filter((q, i) => answers[i] === q.a).length;
+    score.className = "score" + (done === Q.length && right >= pass ? " pass" : "");
+    score.innerHTML = `<b>${right} / ${Q.length}</b><span>${done < Q.length ? `Answered ${done} of ${Q.length}. You need ${pass} correct to pass.` : right >= pass ? "Passed. Well done." : `Not yet: you need ${pass}. Read the explanations, then retry.`}</span>`;
+    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store("quiz-" + LESSON_ID, { answers }); render(); }; score.appendChild(b); }
+  };
+  const render = () => {
+    box.querySelectorAll(".qcard").forEach(c => c.remove());
+    Q.forEach((q, i) => {
+      const c = document.createElement("div"); c.className = "qcard";
+      c.innerHTML = `<span class="qn">QUESTION ${i + 1} OF ${Q.length}</span><p class="qq"></p><div class="opts"></div>`;
+      c.querySelector(".qq").textContent = q.q;
+      q.o.forEach((o, j) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = `<span class="l">${"ABCD"[j]}</span><span></span>`; b.lastChild.textContent = o;
+        b.onclick = () => { answers[i] = j; store("quiz-" + LESSON_ID, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
+      const mark = () => { if (!(i in answers)) return; const bs = [...c.querySelectorAll(".opts button")];
+        bs.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === answers[i]) b.classList.add("wrong"); });
+        if (!c.querySelector(".why")) { const w = document.createElement("p"); w.className = "why"; w.innerHTML = `<b class="${answers[i] === q.a ? "ok" : "no"}">${answers[i] === q.a ? "Correct." : "Not quite."}</b> `; w.append(q.why); c.appendChild(w); } };
+      mark(); box.insertBefore(c, score);
+    });
+    upd();
+  };
+  box.appendChild(score); render();
+}
+
+/* Practice: <div class="task" data-key="x"> with <ul class="check"><li>..</li></ul> and optional <textarea> */
+function buildTask(t) {
+  const key = "task-" + LESSON_ID + "-" + (t.dataset.key || "a"), s = store(key) || { c: {}, notes: "" };
+  $$("ul.check li", t).forEach((li, i) => { const id = key + "-" + i; const lab = document.createElement("label"); lab.innerHTML = `<input type="checkbox" class="tick" id="${id}">`; const sp = document.createElement("span"); while (li.firstChild) sp.appendChild(li.firstChild); lab.appendChild(sp); li.appendChild(lab);
+    const cb = lab.firstChild; cb.checked = !!s.c[i]; cb.onchange = () => { s.c[i] = cb.checked; store(key, s); }; });
+  const ta = $("textarea", t); if (ta) { ta.id = key + "-notes"; ta.value = s.notes || ""; const sv = document.createElement("span"); sv.className = "saved"; sv.textContent = "Notes stay in this browser only. Copy anything important into your trading journal."; ta.after(sv); ta.oninput = () => { s.notes = ta.value; store(key, s); }; }
+}
+
+function buildToc() {
+  const toc = $("#toc"); const parts = $$("section.part");
+  parts.forEach(p => { const li = document.createElement("li"); const a = document.createElement("a"); a.href = "#" + p.id; a.textContent = p.dataset.toc || p.querySelector("h2").textContent; li.appendChild(a); toc.appendChild(li); });
+  if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) $$("#toc a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-20% 0px -70% 0px" }); parts.forEach(p => io.observe(p)); }
+}
+
+buildToc();
+buildCharts();
+$$(".quiz").forEach(buildQuiz);
+$$(".task").forEach(buildTask);
+if (typeof window.lessonInit === "function") window.lessonInit();
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => buildCharts(), 200); });
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => buildCharts());
+new MutationObserver(() => buildCharts()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>

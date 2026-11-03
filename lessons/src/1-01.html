@@ -1,0 +1,151 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.01</span>
+      <h1>Why people invest: ₹100 today vs in 10 years</h1>
+      <p class="lede">Money kept still loses value every year, because prices rise. Investing is how you make your money grow faster than prices do. This lesson shows you, with real Indian data, how big that difference becomes.</p>
+      <div class="facts"><span class="chip mark">About 50 minutes</span><span class="chip">Real data: India CPI 2000–2025, Sensex, Nifty 50, gold</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The idea in plain words</h2></header>
+      <div class="prose">
+        <p>Think of a plate of idli at your favourite canteen. If it cost ₹30 ten years ago and costs ₹50 today, your ₹100 note now buys fewer plates. The note didn't change. Prices did. This slow, steady rise in prices is called <span class="term">inflation</span>.</p>
+        <p>In India, the government measures inflation with the <span class="term">Consumer Price Index (CPI)</span>. It tracks the price of a fixed basket of things households buy: food, fuel, rent, clothes, school fees, medicine. If the CPI goes up 5% in a year, the same basket costs 5% more than it did a year ago.</p>
+        <p>So every rupee you keep has a hidden enemy. If your money earns less than inflation, you are getting poorer even though the number in your account goes up. The number that matters is your <span class="term">real return</span>:</p>
+        <div class="calc">real return ≈ what your money earned − inflation</div>
+        <p>A savings account paying 3% while inflation runs at 5% gives a real return of about −2% a year. You lose buying power slowly and quietly.</p>
+        <h3>Where money can go</h3>
+        <ul>
+          <li><strong>Cash at home:</strong> earns 0%. Loses the full rate of inflation every year.</li>
+          <li><strong>Savings account:</strong> about 2.5% to 3.5%. Safe and instant, but usually below inflation.</li>
+          <li><strong>Fixed deposit (FD):</strong> about 6% to 7.5% at most banks in recent years. Safe and predictable, roughly equal to inflation after tax.</li>
+          <li><strong>Gold:</strong> no income, but historically has kept up with or beaten inflation over long periods, with big swings in between.</li>
+          <li><strong>Shares (the stock market):</strong> you own part of real businesses. Over long periods Indian shares have beaten inflation by a wide margin, but they can fall 30% to 60% along the way.</li>
+        </ul>
+        <p>The last line is the whole story of this course. Shares grow faster <em>because</em> they are bumpy. Investors are paid for sitting through the bumps. Traders, which is what you are training to become, try to profit from the bumps themselves. Both need you to understand why the market exists in the first place: companies need money to grow, and people with savings want those savings to grow.</p>
+        <h3>Compounding: growth on top of growth</h3>
+        <p>When your money grows, next year's growth is on the bigger amount. ₹1,00,000 growing 10% becomes ₹1,10,000, then ₹1,21,000, then ₹1,33,100. That extra ₹1,000 and ₹2,100 is growth on growth. It is called <span class="term">compounding</span>, and over 20 years it does most of the work.</p>
+        <div class="calc">future value = today's amount × (1 + yearly rate) ^ years</div>
+        <p>A quick shortcut is the <strong>Rule of 72</strong>: divide 72 by the yearly rate to see roughly how many years it takes to double. At 6% money doubles in about 12 years. At 12% it doubles in about 6.</p>
+      </div>
+      <div class="key"><b class="lbl">Remember</b><p>Inflation is a tax on doing nothing. Investing is not about getting rich quickly. Its first job is to stop your savings from shrinking.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>What really happened in India</h2></header>
+      <div class="prose"><p>Here is India's real Consumer Price Index from January 2000 to March 2025. Hover or tap the chart to read any month.</p></div>
+      <figure class="chart" data-series="cpi_m" data-title="India CPI, all items (base 2012 = 100)" data-unit="" data-marks='[["2010-01","Inflation 16% (Jan 2010)"],["2020-04","Covid"]]'>
+        <figcaption>The index went from 35.7 in January 2000 to 157.6 in March 2025: prices rose about 4.4 times. Something that cost ₹100 in 2000 cost about ₹441 in 2025. That works out to roughly 6.1% inflation every year for 25 years. Source: CPI series in the public dataset (MOSPI data).</figcaption>
+      </figure>
+      <div class="prose"><p>Now the stock market. The <strong>Sensex</strong> is a number that tracks 30 of India's biggest companies on the Bombay Stock Exchange (you'll meet it properly in lesson 1.05). Here it is since 2000, on a log scale, where equal heights mean equal percentage moves.</p></div>
+      <figure class="chart" data-series="sensex_m" data-title="BSE Sensex, monthly close, 2000 to 2026 (log scale)" data-log data-marks='[["2008-01","2008 crash starts"],["2020-03","Covid crash"]]'>
+        <figcaption>From 5,205 in January 2000 to 74,460 at the end of October 2026: about 14 times, or roughly 10.5% a year before dividends. That beat the 6.1% inflation by about 4 percentage points every year. But look at the drops: in 2008 the market lost more than half its value, and in March 2020 it fell nearly 40% in six weeks.</figcaption>
+      </figure>
+      <div class="tool" id="growTool">
+        <h3>What would ₹1,00,000 have become?</h3>
+        <p>Pick a start year. Sensex and gold values come from the real data. The FD and savings lines use a steady rate you can change, because real rates moved over the years.</p>
+        <div class="fields">
+          <label class="field">Start in January of<select id="g-year"></select></label>
+          <label class="field">FD rate per year (%)<input id="g-fd" type="number" min="0" max="15" step="0.25" value="7"></label>
+          <label class="field">Savings rate per year (%)<input id="g-sav" type="number" min="0" max="10" step="0.25" value="3"></label>
+        </div>
+        <div class="tbl"><table><thead><tr><th>Where you kept ₹1,00,000</th><th class="n">Value at end Oct 2026</th><th class="n">Per year</th></tr></thead><tbody id="g-out"></tbody></table></div>
+        <p class="src">Sensex is the price index only. Dividends of about 1% to 1.5% a year would add more. Gold is the 24-carat price per 10 g at each year end, so a January start uses the previous December's price. Tax is ignored here; lesson 1.10 covers it.</p>
+      </div>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: ₹100 in 10 years</h3>
+          <p class="q">If inflation averages 5% a year, what will ₹100 buy in 10 years, in today's money?</p>
+          <ol class="steps"><li>Prices after 10 years = 1.05 ^ 10 = 1.629 times today's prices.</li><li>So ₹100 then buys what ₹100 ÷ 1.629 buys today.</li></ol>
+          <div class="calc">100 ÷ 1.05^10 = 100 ÷ 1.629 = ₹61.39</div>
+          <p class="ans"><b>Answer:</b> about ₹61. Your ₹100 note loses almost 40% of its buying power in 10 years. India's real CPI from March 2015 to March 2025 rose 1.62 times, so this is exactly what happened.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: FD vs inflation</h3>
+          <p class="q">You put ₹2,00,000 in an FD at 7% for 5 years. Inflation averages 5.5%. What is your real gain?</p>
+          <ol class="steps"><li>FD value = 2,00,000 × 1.07^5 = 2,00,000 × 1.4026 = ₹2,80,510.</li><li>Prices rise 1.055^5 = 1.3070 times.</li><li>In today's money, 2,80,510 ÷ 1.3070 = ₹2,14,622.</li></ol>
+          <p class="ans"><b>Answer:</b> the account shows ₹80,510 of interest, but your real gain is only about ₹14,600. And FD interest is taxed at your income slab, which can wipe out most of that.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Rule of 72 with real Sensex numbers</h3>
+          <p class="q">The Sensex grew about 10.5% a year from 2000 to 2026. Roughly how often did it double?</p>
+          <div class="calc">72 ÷ 10.5 ≈ 6.9 years per doubling
+26.8 years ÷ 6.9 ≈ 3.9 doublings
+2^3.9 ≈ 14.9 times</div>
+          <p class="ans"><b>Answer:</b> about every 7 years. 5,205 × 14.3 = 74,460, which matches the real chart closely. The rule works.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 4: The price of the bumps</h3>
+          <p class="q">The Nifty 50 closed at 6,287.85 on 8 January 2008 and at 2,524.20 on 27 October 2008. How much did it fall, and what gain was needed to get back?</p>
+          <div class="calc">fall = 2,524.20 ÷ 6,287.85 − 1 = −59.9%
+gain needed = 6,287.85 ÷ 2,524.20 − 1 = +149%</div>
+          <p class="ans"><b>Answer:</b> a 60% fall needs a 149% rise to recover. The Nifty only closed above its January 2008 level again in late 2010. This maths of losses comes back in Level 5, because it's why traders cut losing trades early.</p>
+        </div>
+      </div>
+      <div class="tool" id="inflTool">
+        <h3>Try it: what will your money be worth?</h3>
+        <div class="fields">
+          <label class="field">Amount today (₹)<input id="i-amt" type="number" min="0" step="1000" value="100000"></label>
+          <label class="field">Years<input id="i-yrs" type="number" min="1" max="50" value="10"></label>
+          <label class="field">Inflation per year (%)<input id="i-inf" type="number" min="0" max="20" step="0.1" value="5"></label>
+          <label class="field">Your return per year (%)<input id="i-ret" type="number" min="0" max="30" step="0.5" value="10"></label>
+        </div>
+        <div class="out" id="i-out"></div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass. Your answers are kept in this browser.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"Inflation in India is 6% this year. Your savings account pays 3%. What happened to your money's buying power?","o":["It grew by 3%","It fell by roughly 3%","It stayed the same","It grew by 9%"],"a":1,"why":"Real return ≈ 3% − 6% = −3%. The balance went up, but it buys about 3% less."},
+{"q":"What does the CPI measure?","o":["The value of the Sensex","The interest rate set by RBI","The price of a fixed basket of things households buy","The number of shares traded on NSE"],"a":2,"why":"The Consumer Price Index tracks the cost of a household basket: food, fuel, rent, education and so on."},
+{"q":"Using India's real CPI, something that cost ₹100 in January 2000 cost about how much in March 2025?","o":["₹160","₹250","₹441","₹1,000"],"a":2,"why":"The CPI rose from 35.7 to 157.6, about 4.4 times."},
+{"q":"By the Rule of 72, at 9% a year your money doubles in about…","o":["4 years","8 years","12 years","72 years"],"a":1,"why":"72 ÷ 9 = 8 years."},
+{"q":"Why have shares beaten FDs over long periods?","o":["Shares are guaranteed by the government","Investors are paid for accepting big ups and downs in value","Shares never fall","Banks have to give shares a bonus"],"a":1,"why":"Shares are riskier and bumpier. That extra risk is why they have offered higher long-run returns."},
+{"q":"The Nifty fell about 60% in 2008. What rise was needed to get back to the old high?","o":["60%","100%","About 150%","About 40%"],"a":2,"why":"From 40 back to 100 is a 150% gain. Losses need bigger gains to recover."},
+{"q":"₹1,00,000 grows 10% a year. After 2 years it is…","o":["₹1,20,000","₹1,21,000","₹1,10,000","₹2,00,000"],"a":1,"why":"1,00,000 × 1.1 × 1.1 = 1,21,000. The extra ₹1,000 is compounding."},
+{"q":"Which one usually earns the least after inflation?","o":["Cash at home","Fixed deposit","Shares over 20 years","Gold over 20 years"],"a":0,"why":"Cash earns 0%, so it loses the full rate of inflation every year."},
+{"q":"In March 2020 the Sensex fell almost 40% in six weeks. What does this tell a beginner?","o":["The market is broken and should be avoided","Shares can fall sharply even though they grow over the long run, so never invest money you need soon","It only happens once in 100 years","FDs can fall 40% too"],"a":1,"why":"Big drops are normal. That's why money you need in the next few years shouldn't sit in shares."},
+{"q":"What is the Sensex chart in this lesson missing that would make returns look even better?","o":["Dividends","Inflation","Taxes","Brokerage"],"a":0,"why":"The Sensex is a price index. Companies also paid dividends of about 1% to 1.5% a year, which the index doesn't include."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: your money map</h2><p>About 15 minutes. This is the first page of your trading journal.</p></header>
+      <div class="task" data-key="money">
+        <ul class="check">
+          <li>Check your own savings account and any FD. Write down the interest rate each one pays.</li>
+          <li>Search "CPI inflation India latest" and note the most recent yearly inflation figure published by MOSPI.</li>
+          <li>Work out the real return of each account: interest rate − inflation.</li>
+          <li>Use the calculator above: if you leave ₹1,00,000 in your savings account for 10 years, what is it worth in today's money?</li>
+          <li>Write one sentence on why you are learning to trade, and one rule: "I will only use money I won't need for at least ___ years."</li>
+        </ul>
+        <textarea placeholder="Savings rate: …  FD rate: …  Latest CPI inflation: …  Real return: …  Why I'm learning: …"></textarea>
+      </div>
+    </section>
+
+<script>
+/* Lesson 1.01 tools. Data used: <!-- data: gold_y, sensex_m --> */
+window.lessonInit = function () {
+  const sx = SERIES.sensex_m, gold = SERIES.gold_y;
+  const sel = $("#g-year"); for (let y = 2001; y <= 2025; y++) sel.add(new Option(y, y)); sel.value = "2008";
+  const end = sx[sx.length - 1], goldEnd = gold[gold.length - 1][1];
+  const run = () => {
+    const y = +sel.value, fd = +$("#g-fd").value / 100, sv = +$("#g-sav").value / 100;
+    const s0 = sx.find(r => r[0] === y + "-01")[1], g0 = gold.find(r => r[0].startsWith(String(y - 1)))[1];
+    const yrs = (2026 + 10 / 12) - y;
+    const rows = [["Sensex (shares)", 1e5 * end[1] / s0], ["Gold (24K)", 1e5 * goldEnd / g0], ["Fixed deposit at " + (fd * 100) + "%", 1e5 * Math.pow(1 + fd, yrs)], ["Savings at " + (sv * 100) + "%", 1e5 * Math.pow(1 + sv, yrs)], ["Cash at home", 1e5]];
+    $("#g-out").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td class="n">${inr(v)}</td><td class="n">${pct((Math.pow(v / 1e5, 1 / yrs) - 1) * 100)}</td></tr>`).join("");
+  };
+  ["#g-year", "#g-fd", "#g-sav"].forEach(s => $(s).addEventListener("input", run)); run();
+  const calc = () => {
+    const a = +$("#i-amt").value || 0, n = +$("#i-yrs").value || 0, i = +$("#i-inf").value / 100, r = +$("#i-ret").value / 100;
+    const cashReal = a / Math.pow(1 + i, n), fv = a * Math.pow(1 + r, n), fvReal = fv / Math.pow(1 + i, n);
+    $("#i-out").innerHTML = `<div><b>${inr(cashReal)}</b><span>Cash left idle, in today's money</span></div><div><b>${inr(fv)}</b><span>Invested at ${(r * 100).toFixed(1)}%, as the account shows it</span></div><div><b>${inr(fvReal)}</b><span>Invested, in today's money</span></div><div><b>${(72 / (r * 100 || 1)).toFixed(1)} yrs</b><span>Rule of 72: time to double</span></div>`;
+  };
+  ["#i-amt", "#i-yrs", "#i-inf", "#i-ret"].forEach(s => $(s).addEventListener("input", calc)); calc();
+};
+</script>

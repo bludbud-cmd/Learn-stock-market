@@ -1,0 +1,127 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.05</span>
+      <h1>Indices: Nifty 50, Sensex, Bank Nifty and sector indices</h1>
+      <p class="lede">When the news says "the market fell 1% today", it means an index fell 1%. An index is one number that sums up a basket of shares. As a trader you'll check the Nifty before every trade, because most stocks move with it.</p>
+      <div class="facts"><span class="chip mark">About 50 minutes</span><span class="chip">Real data: Nifty 50, Sensex, Nifty Bank, Nifty IT 2007–2026</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The idea in plain words</h2></header>
+      <div class="prose">
+        <p>There are over 2,000 companies trading on NSE. Nobody can watch all of them. So exchanges pick a basket of important shares and combine their prices into one number, an <span class="term">index</span>. If most of the basket goes up, the index goes up. It's like the Sensex is the "temperature" of the market: one reading that tells you if things are hot or cold.</p>
+        <div class="tbl"><table><thead><tr><th>Index</th><th>Exchange</th><th>What's in it</th><th>Started at</th></tr></thead><tbody>
+          <tr><td><strong>Nifty 50</strong></td><td>NSE</td><td>50 large, liquid companies across sectors</td><td>1,000 on 3 Nov 1995</td></tr>
+          <tr><td><strong>Sensex</strong></td><td>BSE</td><td>30 large companies</td><td>100 in 1978–79</td></tr>
+          <tr><td><strong>Nifty Bank</strong> ("Bank Nifty")</td><td>NSE</td><td>The largest, most traded banks, about 12 to 14 of them</td><td>1,000 on 1 Jan 2000</td></tr>
+          <tr><td><strong>Nifty IT</strong></td><td>NSE</td><td>10 IT services companies like TCS, Infosys, HCLTech</td><td>1,000 on 1 Jan 1996</td></tr>
+          <tr><td><strong>Other sectors</strong></td><td>NSE</td><td>Nifty Auto, Pharma, FMCG, Metal, Realty, PSU Bank and more</td><td></td></tr>
+          <tr><td><strong>Size indices</strong></td><td>NSE</td><td>Nifty Next 50, Nifty Midcap 150, Nifty Smallcap 250</td><td></td></tr>
+        </tbody></table></div>
+        <h3>How the number is calculated</h3>
+        <p>Big companies count for more. Both the Nifty and Sensex are weighted by <span class="term">free-float market cap</span>: the market value of the shares that are actually available to trade (shares locked up with promoters or the government are left out). So a 2% move in HDFC Bank or Reliance moves the Nifty far more than a 2% move in a smaller member. The few biggest members each make up roughly 8% to 13% of the Nifty.</p>
+        <p>The index doesn't care about the share price itself, only the company's weight. That's why a stock split or bonus doesn't change the index.</p>
+        <h3>Points vs percent</h3>
+        <p>News says "Nifty fell 230 points". Points alone mean little. 230 points is 1% when the Nifty is at 23,000, but was 4.6% when the Nifty was at 5,000 in 2009. Always convert to percent.</p>
+        <div class="calc">percent change = points change ÷ previous close × 100</div>
+        <h3>Why traders watch indices</h3>
+        <ul>
+          <li><strong>Direction:</strong> on a day the Nifty rises strongly, most stocks rise with it, and on a day it falls hard, most fall. Buying a stock when the whole market is falling is swimming against the tide.</li>
+          <li><strong>Sector strength:</strong> comparing sector indices shows where money is flowing. A swing trader prefers stocks from the strongest sectors.</li>
+          <li><strong>Benchmark:</strong> if your trading makes 8% in a year when the Nifty made 20%, you'd have done better buying an index fund.</li>
+        </ul>
+      </div>
+      <div class="key"><b class="lbl">Remember</b><p>You can't buy "the Nifty" as a share, but you can buy a Nifty index fund or ETF that holds all 50 stocks in the same weights. It's the simplest long-term investment there is, and the benchmark every trader is measured against.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>The real indices</h2></header>
+      <figure class="chart" data-series="nifty_last,sensex_last" data-labels="Nifty 50,Sensex" data-norm="100" data-title="Nifty 50 vs Sensex, Sep to Oct 2026 (both start at 100)">
+        <figcaption>Different exchanges, different baskets (50 vs 30 stocks), almost the same line. Over these two months the Nifty fell 4.2% (24,055.80 to 23,053.10) and the Sensex 3.2% (76,944 to 74,460). Because they overlap so much, traders usually just watch one: the Nifty.</figcaption>
+      </figure>
+      <figure class="chart" data-series="nifty_m" data-title="Nifty 50, monthly close since Sep 2007" data-marks='[["2008-10","2008 crash"],["2020-03","Covid"],["2025-12","26,130"]]'>
+        <figcaption>From 5,021 in September 2007 to 23,053 in October 2026, about 4.6 times. Notice how long the flat and falling stretches are: 2008 to 2013, and again since late 2025. Long-term growth comes in bursts.</figcaption>
+      </figure>
+      <figure class="chart" data-series="bank_m,it_m,nifty_m" data-labels="Nifty Bank,Nifty IT,Nifty 50" data-norm="100" data-log data-title="Sector indices vs Nifty 50, Sep 2007 = 100 (log scale)" data-band='["2021-12","2022-12"]'>
+        <figcaption>The highlighted year, 2022, shows why sector indices matter. Nifty IT fell 26% (38,701 to 28,622) as global tech stocks sank, while Nifty Bank rose 21% (35,482 to 42,986) as interest rates rose and bank profits grew. The Nifty 50 itself was up only 4%. A trader who knew which sector was strong was in the right stocks. In 2020–21 it was the other way round: IT up 147%, banks up 10%.</figcaption>
+      </figure>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: Points to percent</h3>
+          <p class="q">The Nifty closed at 24,055.80 on 1 September 2026 and at 23,053.10 on 30 October 2026. How many points and what percent did it fall?</p>
+          <div class="calc">points  = 23,053.10 − 24,055.80 = −1,002.70
+percent = −1,002.70 ÷ 24,055.80 × 100 = −4.17%</div>
+          <p class="ans"><b>Answer:</b> about 1,000 points, or 4.2%. A 1,000-point fall sounds scary; 4.2% over two months is a normal pullback.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: How weights move an index</h3>
+          <p class="q">A tiny index has three stocks with weights 50%, 30% and 20%. In a day they move +2%, −1% and +4%. How much does the index move?</p>
+          <div class="calc">0.50 × (+2%) + 0.30 × (−1%) + 0.20 × (+4%)
+= +1.0% − 0.3% + 0.8% = +1.5%</div>
+          <p class="ans"><b>Answer:</b> +1.5%. The biggest stock contributes most. On the Nifty, two or three heavyweights moving sharply can push the whole index while most other stocks barely move.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Was your trading worth it?</h3>
+          <p class="q">In 2023 you made 12% trading. The Nifty rose 20% that year. How did you do?</p>
+          <p class="ans"><b>Answer:</b> you underperformed the benchmark by 8 percentage points, with much more effort and risk. In a strong year a trader needs to beat a simple index fund to justify the time. In a weak year, like 2026 so far, holding cash and waiting can be a win.</p>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Try it: build your own three-stock index</h3>
+        <p>Set the market caps and today's moves. See how the weighted index moves compared with a simple average.</p>
+        <div class="fields" id="ix-fields"></div>
+        <div class="out" id="ix-out"></div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"How many companies are in the Nifty 50 and the Sensex?","o":["50 and 50","50 and 30","100 and 30","30 and 50"],"a":1,"why":"Nifty 50 has 50 stocks (NSE); the Sensex has 30 (BSE)."},
+{"q":"What does free-float market cap weighting mean?","o":["Each stock has equal weight","Bigger companies, counting only tradable shares, have more weight","Higher share price means more weight","Weights are chosen at random"],"a":1,"why":"Weight depends on the market value of shares available to trade."},
+{"q":"The Nifty is at 23,000 and falls 345 points. What percent is that?","o":["0.15%","1.5%","3.45%","15%"],"a":1,"why":"345 ÷ 23,000 = 1.5%."},
+{"q":"A company in the Nifty does a 1:5 stock split. What happens to the index?","o":["It falls 80%","Nothing, because the company's value didn't change","It rises 5 times","The company leaves the index"],"a":1,"why":"Weights depend on market cap, which a split doesn't change."},
+{"q":"In 2022, which did better?","o":["Nifty IT","Nifty Bank","Both fell the same","Neither existed"],"a":1,"why":"Nifty Bank rose about 21% while Nifty IT fell about 26%."},
+{"q":"Why does a swing trader compare sector indices?","o":["To find where money is flowing and trade stocks from strong sectors","To pay less tax","Because SEBI requires it","To choose a broker"],"a":0,"why":"Stocks in strong sectors tend to have the wind behind them."},
+{"q":"The Nifty and Sensex usually…","o":["Move in opposite directions","Move almost identically","Are unrelated","Only move on Mondays"],"a":1,"why":"Their baskets overlap heavily, so they move together."},
+{"q":"What is the simplest way to own the whole Nifty 50?","o":["Buy 1 share of each stock","A Nifty index fund or ETF","You can't","Buy Bank Nifty"],"a":1,"why":"Index funds and ETFs hold all 50 stocks in index weights."},
+{"q":"Three stocks weighted 60/30/10 move +1%, +1%, −10%. The index moves…","o":["−8%","−0.1%","−2.7%","+1%"],"a":1,"why":"0.6 × 1 + 0.3 × 1 + 0.1 × (−10) = 0.6 + 0.3 − 1.0 = −0.1%. The small stock's big fall barely moves the index."},
+{"q":"Your trading made 5% in a year the Nifty made 25%. What's the honest conclusion?","o":["Great year","You underperformed a simple index fund by 20 points","Index returns don't count","5% is above inflation, so it's fine either way"],"a":1,"why":"The index is the benchmark. Beating inflation is not enough if an index fund did far better."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: five days of the Nifty</h2><p>About 15 minutes, once, then 2 minutes a day.</p></header>
+      <div class="task" data-key="nifty5">
+        <ul class="check">
+          <li>On nseindia.com, open "Market Data", then "Indices" (or the historical index data page). Find the Nifty 50's closing value for each of the last 5 trading days.</li>
+          <li>Fill in the table below: daily change in points and percent.</li>
+          <li>For the same 5 days, note whether Nifty Bank and Nifty IT went up or down. Did they agree with the Nifty?</li>
+          <li>Find the top 3 Nifty 50 stocks by weight (search "Nifty 50 index weightage" or check NSE's index factsheet).</li>
+          <li>Write one sentence: which sector looked strongest this week?</li>
+        </ul>
+        <div class="tbl"><table><thead><tr><th>Day</th><th>Date</th><th class="n">Close</th><th class="n">Points</th><th class="n">%</th></tr></thead><tbody id="n5"></tbody></table></div>
+        <textarea placeholder="Bank vs IT this week: …  Top 3 by weight: …  Strongest sector: …"></textarea>
+      </div>
+    </section>
+
+<script>
+window.lessonInit = function () {
+  const def = [["Big Bank", 15, 1.5], ["Oil Co", 10, -2], ["Small Tech", 2, 8]], f = $("#ix-fields");
+  def.forEach((d, i) => { f.insertAdjacentHTML("beforeend", `<label class="field">${d[0]}: market cap (₹ lakh cr)<input id="ix-m${i}" type="number" min="0" step="0.5" value="${d[1]}"></label><label class="field">${d[0]}: today's move (%)<input id="ix-p${i}" type="number" step="0.1" value="${d[2]}"></label>`); });
+  const run = () => { const m = def.map((_, i) => +$("#ix-m" + i).value || 0), p = def.map((_, i) => +$("#ix-p" + i).value || 0), tot = m.reduce((a, b) => a + b, 0) || 1;
+    const w = m.map(x => x / tot), idx = w.reduce((a, x, i) => a + x * p[i], 0), avg = p.reduce((a, b) => a + b, 0) / p.length;
+    $("#ix-out").innerHTML = def.map((d, i) => `<div><b>${(w[i] * 100).toFixed(1)}%</b><span>${d[0]} weight</span></div>`).join("") + `<div><b class="${idx >= 0 ? "pos" : "neg"}">${pct(idx, 2)}</b><span>Weighted index move</span></div><div><b>${pct(avg, 2)}</b><span>Simple average of the three</span></div>`; };
+  $$("#ix-fields input").forEach(x => x.addEventListener("input", run)); run();
+  const tb = $("#n5"), s = store("n5-" + LESSON_ID) || [];
+  for (let i = 0; i < 6; i++) { const r = s[i] || {}; tb.insertAdjacentHTML("beforeend", `<tr><td>${i ? "Day " + i : "Day before"}</td><td><input aria-label="Date" id="n5d${i}" value="${r.d || ""}" style="width:7.5em"></td><td class="n"><input aria-label="Close" id="n5c${i}" type="number" step="0.05" value="${r.c || ""}" style="width:7em"></td><td class="n" id="n5p${i}"></td><td class="n" id="n5q${i}"></td></tr>`); }
+  const upd = () => { const rows = []; for (let i = 0; i < 6; i++) { rows.push({ d: $("#n5d" + i).value, c: $("#n5c" + i).value });
+      const c = +$("#n5c" + i).value, pv = i ? +$("#n5c" + (i - 1)).value : 0;
+      $("#n5p" + i).textContent = i && c && pv ? (c - pv > 0 ? "+" : "") + fmt(c - pv) : ""; $("#n5q" + i).textContent = i && c && pv ? pct((c / pv - 1) * 100, 2) : ""; }
+    store("n5-" + LESSON_ID, rows); };
+  $$("#n5 input").forEach(x => { x.style.font = "14px var(--f-mono)"; x.style.background = "var(--bg)"; x.style.color = "var(--ink)"; x.style.border = "1px solid var(--line)"; x.style.borderRadius = "6px"; x.style.padding = "4px 6px"; x.addEventListener("input", upd); }); upd();
+};
+</script>

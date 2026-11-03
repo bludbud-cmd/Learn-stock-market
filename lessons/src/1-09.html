@@ -1,0 +1,139 @@
+    <header class="hero">
+      <span class="eyebrow">Level 1 · Market basics · Lesson 1.09</span>
+      <h1>Settlement, circuits, bid and ask, volume and liquidity</h1>
+      <p class="lede">This lesson covers the plumbing of every trade: when the money and shares actually move, the limits on how far a price can move in a day, and how to tell whether you'll be able to get in and out of a stock at a fair price.</p>
+      <div class="facts"><span class="chip mark">About 55 minutes</span><span class="chip">Real data: Nifty circuit breakers March 2020, Yes Bank March 2020, Reliance vs Yes Bank volume</span></div>
+    </header>
+
+    <section class="part" id="explain" data-toc="Explanation">
+      <header><span class="eyebrow">Part 1</span><h2>The ideas in plain words</h2></header>
+      <div class="prose">
+        <h3>Settlement: T+1</h3>
+        <p>When you buy, the trade is agreed instantly, but the money and shares change hands later. This is <span class="term">settlement</span>. India settles all stock trades on <span class="term">T+1</span>: one working day after the trade day (T). India finished moving every stock to T+1 on 27 January 2023, earlier than most big markets. Since March 2024 an optional same-day (T+0) settlement also exists for a limited list of stocks, but T+1 is the normal case.</p>
+        <ul>
+          <li><strong>Buy on Monday</strong>: shares reach your demat on Tuesday. Weekends and holidays don't count, so a Friday buy settles on Monday.</li>
+          <li><strong>Sell on Monday</strong>: the money is credited to your trading account on Tuesday, and you can withdraw it to your bank after that.</li>
+          <li><strong>Selling something you don't own</strong> (for example a CNC sell with no shares in your demat) causes a <strong>short delivery</strong>. The exchange buys the shares in an auction and charges you the difference plus a penalty. It can be very expensive.</li>
+        </ul>
+        <h3>Bid, ask and spread</h3>
+        <p>At any moment there are buyers waiting and sellers waiting. The highest price a buyer is offering is the <span class="term">bid</span>. The lowest price a seller will accept is the <span class="term">ask</span> (or offer). The gap between them is the <span class="term">spread</span>. Your broker app shows them in the <strong>market depth</strong>: the top 5 bids and asks with the quantity waiting at each.</p>
+        <p>If you place a market buy, you pay the ask. A market sell gets the bid. So every round trip with market orders costs you the spread. In Reliance it's usually 5 or 10 paise on a ₹1,165 share. In a small, thinly traded stock it can be 1% or more.</p>
+        <h3>Volume and liquidity</h3>
+        <p><span class="term">Volume</span> is how many shares traded in a period. <span class="term">Liquidity</span> is how easily you can buy or sell a meaningful amount without moving the price. High volume, a tight spread and deep market depth mean good liquidity. For trading, compare <strong>rupee turnover</strong> (volume × price), not just share volume: a ₹15 stock can trade 10 crore shares and still be far less liquid than a ₹1,165 stock trading 1.2 crore.</p>
+        <h3>Circuits: limits on how far a price can move</h3>
+        <ul>
+          <li><strong>Stock price bands:</strong> most stocks may move only 2%, 5%, 10% or 20% from the previous close in one day, as set by the exchange. At the limit the stock is "in upper circuit" (only buyers left, no sellers) or "lower circuit" (only sellers). You may not be able to sell at all until the next day, or longer.</li>
+          <li><strong>F&amp;O stocks</strong> (large, liquid stocks like Reliance) have no fixed band but a dynamic band that the exchange widens step by step during big moves.</li>
+          <li><strong>Market-wide circuit breakers:</strong> if the Nifty or Sensex falls (or rises) 10%, 15% or 20% in a day, trading in the whole market halts. A 10% move before 1 pm stops trading for 45 minutes. A 20% move ends trading for the day.</li>
+        </ul>
+      </div>
+      <div class="key warn"><b class="lbl">Watch out</b><p>Small, cheap stocks with 5% bands can hit lower circuit for days in a row. If you're stuck holding one, you can't sell however much you want to. As a swing trader you'll stick to liquid stocks (Nifty 200 and similar) for exactly this reason.</p></div>
+    </section>
+
+    <section class="part" id="real" data-toc="Real NSE data">
+      <header><span class="eyebrow">Part 2</span><h2>Real cases from March 2020</h2></header>
+      <figure class="chart" data-series="nifty_2020" data-type="candle" data-from="2020-02-17" data-to="2020-04-09" data-title="Nifty 50 daily candles, 17 Feb to 9 Apr 2020" data-marks='[["2020-03-13","Circuit, then +3.8%"],["2020-03-23","Circuit, −13%"]]'>
+        <figcaption>Friday 13 March 2020: the Nifty fell 10% within minutes of opening (low 8,555.15). A market-wide halt stopped all trading for 45 minutes. When it reopened, buyers rushed in and it closed at 9,955.20, up 3.8% on the day. Monday 23 March: another 10% halt, and this time no recovery; it closed at 7,610.25, down 13% from 8,745.45, the Nifty's biggest one-day fall on record. From there the market began its long recovery.</figcaption>
+      </figure>
+      <figure class="chart" data-series="yesbank_2020" data-type="candle" data-unit="₹" data-vol data-title="Yes Bank daily candles and volume, 20 Feb to 31 Mar 2020" data-marks='[["2020-03-06","RBI moratorium"]]'>
+        <figcaption>On the evening of 5 March 2020 the RBI placed Yes Bank under a moratorium, limiting withdrawals to ₹50,000. On 6 March the stock traded as low as ₹5.65 against the previous close of ₹36.80, an 85% fall at the worst point, before closing at ₹16.15. Look at the volume bars: tens of crores of shares changed hands as people rushed to exit. A rescue plan led by SBI followed, and the price swung wildly for weeks.</figcaption>
+      </figure>
+      <div class="prose"><h3>Liquidity: Reliance vs Yes Bank, Aug to Oct 2026</h3></div>
+      <div class="tbl"><table><thead><tr><th>Stock</th><th class="n">Price (30 Oct)</th><th class="n">Avg shares traded per day</th><th class="n">Avg rupee turnover per day</th></tr></thead><tbody>
+        <tr><td>Reliance</td><td class="n">₹1,164.90</td><td class="n">1.24 crore</td><td class="n">about ₹1,538 crore</td></tr>
+        <tr><td>Yes Bank</td><td class="n">₹15.15</td><td class="n">8.75 crore</td><td class="n">about ₹175 crore</td></tr>
+      </tbody></table></div>
+      <p class="src">Averages over 64 NSE trading days, 3 Aug to 30 Oct 2026, from the dataset. Yes Bank trades 7 times more shares but about 9 times less money.</p>
+    </section>
+
+    <section class="part" id="worked" data-toc="Worked examples">
+      <header><span class="eyebrow">Part 3</span><h2>Worked examples</h2></header>
+      <div class="worked">
+        <div class="ex">
+          <h3>Example 1: Settlement dates</h3>
+          <p class="q">You buy on Friday 30 October 2026 and sell on Monday 2 November. When do the shares arrive and when do you get the money?</p>
+          <ol class="steps"><li>Friday's buy settles on the next working day: Monday 2 November. The shares reach your demat on Monday.</li><li>Monday's sale settles on Tuesday 3 November. The money is credited on Tuesday.</li></ol>
+          <p class="ans"><b>Answer:</b> shares Monday, money Tuesday. If you had sold on Friday itself, before the shares were in your demat, it would be a same-day intraday trade (which needs MIS or is treated as intraday for charges and tax).</p>
+        </div>
+        <div class="ex">
+          <h3>Example 2: The cost of the spread</h3>
+          <p class="q">A small stock shows bid ₹198.00 and ask ₹200.00. You market-buy 100 shares and immediately market-sell them. What did you lose?</p>
+          <div class="calc">buy  at ask = 100 × 200.00 = ₹20,000
+sell at bid = 100 × 198.00 = ₹19,800
+lost to the spread         = ₹200  (1% of the trade, before any charges)</div>
+          <p class="ans"><b>Answer:</b> ₹200 just for crossing the spread. The same round trip in Reliance with a 10 paise spread costs about ₹10 on 100 shares. Use limit orders in wide-spread stocks, or avoid them.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 3: Circuit limits</h3>
+          <p class="q">A stock with a 5% price band closed at ₹240 yesterday. What are today's upper and lower circuit prices?</p>
+          <div class="calc">upper = 240 × 1.05 = ₹252.00
+lower = 240 × 0.95 = ₹228.00</div>
+          <p class="ans"><b>Answer:</b> ₹252 and ₹228. If it's stuck at ₹228 with only sellers, your sell order waits in a queue and may not fill today.</p>
+        </div>
+        <div class="ex">
+          <h3>Example 4: The market-wide halt</h3>
+          <p class="q">The Nifty closed at 8,745.45 on 20 March 2020. At what level does a 10% market-wide circuit trigger?</p>
+          <div class="calc">8,745.45 × 0.90 = 7,870.9</div>
+          <p class="ans"><b>Answer:</b> about 7,871. On 23 March the Nifty fell through it, trading halted for 45 minutes, then continued falling to a low of 7,583.60.</p>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Try it: what does a market order really cost?</h3>
+        <p>Market depth (sample books for illustration, not live data). Enter how many shares you'd market-buy and see the average price you'd pay as your order eats through the asks.</p>
+        <div class="seg" role="group" aria-label="Choose a stock" id="bookPick"><button type="button" data-k="liq" aria-pressed="true">Liquid large cap (₹1,165)</button><button type="button" data-k="thin" aria-pressed="false">Thin small cap (₹200)</button></div>
+        <div class="fields"><label class="field">Shares to market-buy<input id="b-qty" type="number" min="1" value="500"></label></div>
+        <div class="tbl"><table><thead><tr><th class="n">Bid qty</th><th class="n">Bid ₹</th><th class="n">Ask ₹</th><th class="n">Ask qty</th><th class="n">You take</th></tr></thead><tbody id="b-book"></tbody></table></div>
+        <div class="out" id="b-out"></div>
+      </div>
+    </section>
+
+    <section class="part" id="quiz" data-toc="Quiz">
+      <header><span class="eyebrow">Part 4</span><h2>Quiz</h2><p>10 questions. Get 8 right to pass.</p></header>
+      <div class="quiz" data-pass="8"><script type="application/json">[
+{"q":"You buy shares on Wednesday. When does settlement happen?","o":["Wednesday","Thursday (T+1)","Friday","Next Monday"],"a":1,"why":"India settles on T+1: one working day later."},
+{"q":"You buy on a Friday. With no holiday, the shares arrive…","o":["Saturday","Monday","Tuesday","Friday itself"],"a":1,"why":"Weekends aren't working days, so T+1 is Monday."},
+{"q":"The bid is ₹500.10 and the ask is ₹500.30. You place a market buy. You'll pay about…","o":["₹500.10","₹500.20","₹500.30","₹500.00"],"a":2,"why":"A market buy takes the lowest ask."},
+{"q":"The spread is…","o":["Brokerage","The gap between the best ask and the best bid","The day's high minus low","STT"],"a":1,"why":"Spread = ask − bid. A small spread means a liquid stock."},
+{"q":"Which stock is more liquid for trading?","o":["10 crore shares a day at ₹15 (₹150 crore)","1 crore shares a day at ₹1,500 (₹1,500 crore)","They're the same","You can't compare"],"a":1,"why":"Compare rupee turnover; ₹1,500 crore a day is far more liquid."},
+{"q":"A stock in lower circuit means…","o":["Only buyers are left","The price is at its daily lower limit and mostly only sellers are left","Trading is permanently stopped","It's a good buy"],"a":1,"why":"At lower circuit, sell orders pile up with few or no buyers."},
+{"q":"What happens if the Nifty falls 10% before 1 pm?","o":["Nothing","Trading in the whole market halts for 45 minutes","The market closes for a week","Only Nifty stocks stop"],"a":1,"why":"That's the first market-wide circuit breaker."},
+{"q":"On 23 March 2020 the Nifty closed down about…","o":["3%","8%","13%","25%"],"a":2,"why":"From 8,745.45 to 7,610.25: −13%."},
+{"q":"You sell 50 shares (CNC) that you don't have in your demat. This can lead to…","o":["A bonus","A short delivery, an auction and a penalty","Nothing","A free loan"],"a":1,"why":"The exchange auctions shares to complete the trade and charges you."},
+{"q":"On 6 March 2020, Yes Bank fell how far at its lowest point from the previous close?","o":["About 10%","About 30%","About 85%","It rose"],"a":2,"why":"From ₹36.80 to a low of ₹5.65: about −85%, before closing at ₹16.15."}
+]</script></div>
+    </section>
+
+    <section class="part" id="practice" data-toc="Practice task">
+      <header><span class="eyebrow">Part 5</span><h2>Practice task: read market depth</h2><p>About 15 minutes during market hours (a day off or a lunch break works).</p></header>
+      <div class="task" data-key="depth">
+        <ul class="check">
+          <li>Open the market depth for Reliance in your broker's app or on nseindia.com. Write down the best bid, best ask and spread.</li>
+          <li>Do the same for one small cap stock outside the Nifty 500 (any you've heard of). Compare the spreads in % (spread ÷ ask × 100).</li>
+          <li>On nseindia.com, find each stock's price band (shown as "Price band" or "Upper/lower band").</li>
+          <li>Note each stock's volume so far today and multiply by price to get rupee turnover.</li>
+          <li>Write one rule for your stock list: for example, "I only trade stocks with at least ₹50 crore turnover a day and a spread under 0.1%."</li>
+        </ul>
+        <textarea placeholder="Reliance: bid … ask … spread … band … turnover …
+Small cap: bid … ask … spread % … band … turnover …
+My liquidity rule: …"></textarea>
+      </div>
+    </section>
+
+<script>
+window.lessonInit = function () {
+  const BOOKS = {
+    liq: { bids: [[1164.85, 1820], [1164.80, 2410], [1164.75, 1650], [1164.70, 3900], [1164.65, 2200]], asks: [[1164.95, 1460], [1165.00, 2980], [1165.05, 2100], [1165.10, 4120], [1165.15, 1750]] },
+    thin: { bids: [[198.00, 120], [197.50, 60], [197.00, 250], [196.20, 80], [195.00, 400]], asks: [[200.00, 90], [200.80, 150], [201.50, 60], [202.40, 200], [204.00, 300]] }
+  };
+  let k = "liq"; const pick = $("#bookPick");
+  pick.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; k = b.dataset.k; $$("button", pick).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); run(); });
+  const run = () => {
+    const B = BOOKS[k]; let left = Math.max(1, +$("#b-qty").value || 1), cost = 0; const take = [];
+    B.asks.forEach(([p, q]) => { const t = Math.min(q, left); take.push(t); cost += t * p; left -= t; });
+    const filled = take.reduce((a, b) => a + b, 0), avg = filled ? cost / filled : 0, best = B.asks[0][0], spread = best - B.bids[0][0];
+    $("#b-book").innerHTML = B.bids.map((b, i) => `<tr><td class="n">${b[1].toLocaleString("en-IN")}</td><td class="n pos">${fmt(b[0])}</td><td class="n neg">${fmt(B.asks[i][0])}</td><td class="n">${B.asks[i][1].toLocaleString("en-IN")}</td><td class="n">${take[i] ? take[i].toLocaleString("en-IN") : "–"}</td></tr>`).join("");
+    $("#b-out").innerHTML = `<div><b>${fmt(spread)} (${(spread / best * 100).toFixed(2)}%)</b><span>Spread</span></div><div><b>${filled ? inr(avg, 2) : "–"}</b><span>Your average price for ${filled.toLocaleString("en-IN")} shares</span></div><div><b>${filled ? pct((avg / best - 1) * 100, 2) : "–"}</b><span>Above the best ask (slippage)</span></div>` + (left > 0 ? `<div><b class="neg">${left.toLocaleString("en-IN")}</b><span>Shares left unfilled: the top 5 levels ran out</span></div>` : "");
+  };
+  $("#b-qty").addEventListener("input", run); run();
+};
+</script>
