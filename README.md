@@ -8,6 +8,7 @@ The course outline lives in the [curriculum doc](https://claude.ai/artifact/56ic
 
 | Path | What it is |
 | --- | --- |
+| `docs/curriculum.md` | The approved curriculum, exported from the curriculum doc. |
 | `site/index.html` | The course hub: level map, lesson navigation, progress tracker and glossary. One self-contained file, no build step. |
 
 ## Run it locally
