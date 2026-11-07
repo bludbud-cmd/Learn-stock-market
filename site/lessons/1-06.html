@@ -352,7 +352,7 @@ My pick and why: …"></textarea>
 
     <section class="finish" aria-label="Finish the lesson">
       <h2>Done with this lesson?</h2>
-      <p>Pass the quiz (8 or more correct) and finish the practice task, then tick lesson 1.06 in the course hub so your progress is saved to your account.</p>
+      <p>Pass the quiz (80% or more correct) and finish the practice task, then tick lesson 1.06 in the course hub so your progress is saved to your account.</p>
       <div class="row"><a href="https://claude.ai/artifact/NJnbjXy51bvhszCCBjsuuZ#level-1" target="_blank" rel="noopener">Open the course hub ↗</a><a class="" href="https://claude.ai/artifact/48jBXA1RX7KwgZTLhTdS66" target="_blank" rel="noopener">Next: Market Timings →</a></div>
     </section>
     <nav class="pager" aria-label="Lesson pager"><a class="" href="https://claude.ai/artifact/WRnP3hthbfkc2aMo6qew7t" target="_blank" rel="noopener">← 1.05 Indices: Nifty and Sensex</a><a class="" href="https://claude.ai/artifact/48jBXA1RX7KwgZTLhTdS66" target="_blank" rel="noopener">1.07 Market Timings →</a></nav>
@@ -490,12 +490,12 @@ function buildCharts(root = document) {
 /* Quiz: div.quiz[data-pass] holding a JSON script tag: [{q, o:[...], a:index, why}] */
 function buildQuiz(box) {
   const Q = JSON.parse(box.querySelector("script").textContent), pass = +(box.dataset.pass || Math.ceil(Q.length * 0.8));
-  const saved = store("quiz-" + LESSON_ID) || {}; const answers = saved.answers || {};
+  const QK = "quiz-" + LESSON_ID + (box.dataset.key || ""); const saved = store(QK) || {}; const answers = saved.answers || {};
   const score = document.createElement("div"); score.className = "score";
   const upd = () => { const done = Object.keys(answers).length, right = Q.filter((q, i) => answers[i] === q.a).length;
     score.className = "score" + (done === Q.length && right >= pass ? " pass" : "");
     score.innerHTML = `<b>${right} / ${Q.length}</b><span>${done < Q.length ? `Answered ${done} of ${Q.length}. You need ${pass} correct to pass.` : right >= pass ? "Passed. Well done." : `Not yet: you need ${pass}. Read the explanations, then retry.`}</span>`;
-    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store("quiz-" + LESSON_ID, { answers }); render(); }; score.appendChild(b); }
+    if (done === Q.length) { const b = document.createElement("button"); b.className = "btn ghost"; b.type = "button"; b.textContent = "Retry quiz"; b.onclick = () => { for (const k in answers) delete answers[k]; store(QK, { answers }); render(); }; score.appendChild(b); }
   };
   const render = () => {
     box.querySelectorAll(".qcard").forEach(c => c.remove());
@@ -504,7 +504,7 @@ function buildQuiz(box) {
       c.innerHTML = `<span class="qn">QUESTION ${i + 1} OF ${Q.length}</span><p class="qq"></p><div class="opts"></div>`;
       c.querySelector(".qq").textContent = q.q;
       q.o.forEach((o, j) => { const b = document.createElement("button"); b.type = "button"; b.innerHTML = `<span class="l">${"ABCD"[j]}</span><span></span>`; b.lastChild.textContent = o;
-        b.onclick = () => { answers[i] = j; store("quiz-" + LESSON_ID, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
+        b.onclick = () => { answers[i] = j; store(QK, { answers }); mark(); upd(); }; c.querySelector(".opts").appendChild(b); });
       const mark = () => { if (!(i in answers)) return; const bs = [...c.querySelectorAll(".opts button")];
         bs.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === answers[i]) b.classList.add("wrong"); });
         if (!c.querySelector(".why")) { const w = document.createElement("p"); w.className = "why"; w.innerHTML = `<b class="${answers[i] === q.a ? "ok" : "no"}">${answers[i] === q.a ? "Correct." : "Not quite."}</b> `; w.append(q.why); c.appendChild(w); } };
